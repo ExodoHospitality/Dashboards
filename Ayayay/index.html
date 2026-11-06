@@ -1,2 +1,929 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ayayay – dashboard</title></head>
-<body style="font-family:sans-serif;padding:2rem"><h1>Ayayay – invoice dashboard</h1><p>Not published yet – template pending.</p></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ayayay purchasing</title>
+<meta name="description" content="Weekly purchasing, cost ratios and accounts payable for Ayayay, 60 E Lake St, Chicago.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌮</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Ayayay dashboard — tokens */
+:root{
+  --paper:#F6F5F1; --surface:#FFFFFF; --sunk:#EFEDE7; --ink:#1B2433; --muted:#626873; --rule:#DEDAD0;
+  --indigo:#2E4A7A; --indigo-soft:#E3E9F3; --amber:#B07A2A; --stone:#8C9199; --mist:#C3C7CD;
+  --stamp:#B8322A; --stamp-soft:#F6E3E0; --moss:#4F7443; --moss-soft:#E4ECDF; --warn:#8F6210; --warn-soft:#F5ECD9;
+  --liquor:#7A4B1E; --beer:#C9962E; --wine:#7D2E3F; --sake:#6E8FB5; --na:#8FA57C;
+  --serif:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",Georgia,"Times New Roman",serif;
+  --sans:"Zen Kaku Gothic New","Hiragino Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --r-sm:4px; --r:8px; --r-lg:12px;
+  --shadow:0 12px 40px rgba(20,28,40,.18);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11151C; --surface:#181D26; --sunk:#141922; --ink:#E7E5E0; --muted:#9BA1AB; --rule:#2B323E;
+    --indigo:#86A3D9; --indigo-soft:#1F2A3D; --amber:#D6A04E; --stone:#8E949D; --mist:#4A515C;
+    --stamp:#E26A5F; --stamp-soft:#3A2120; --moss:#8DB47F; --moss-soft:#1F2C1D; --warn:#DDAE55; --warn-soft:#332A17;
+    --liquor:#C08A55; --beer:#DDB25A; --wine:#C0697D; --sake:#8FB0D6; --na:#A9C095;
+    --shadow:0 12px 40px rgba(0,0,0,.5); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11151C; --surface:#181D26; --sunk:#141922; --ink:#E7E5E0; --muted:#9BA1AB; --rule:#2B323E;
+  --indigo:#86A3D9; --indigo-soft:#1F2A3D; --amber:#D6A04E; --stone:#8E949D; --mist:#4A515C;
+  --stamp:#E26A5F; --stamp-soft:#3A2120; --moss:#8DB47F; --moss-soft:#1F2C1D; --warn:#DDAE55; --warn-soft:#332A17;
+  --liquor:#C08A55; --beer:#DDB25A; --wine:#C0697D; --sake:#8FB0D6; --na:#A9C095;
+  --shadow:0 12px 40px rgba(0,0,0,.5); color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:120px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:700;margin:0;letter-spacing:.01em;line-height:1.25}
+h1{font-size:clamp(26px,3.6vw,34px)}
+h2{font-size:20px}
+h3{font-size:16.5px;margin-bottom:10px}
+p{margin:0}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--paper);padding:8px 12px;border-radius:var(--r-sm);z-index:50}
+.skip:focus{left:8px}
+:focus-visible{outline:2px solid var(--indigo);outline-offset:2px;border-radius:var(--r-sm)}
+#main:focus,#main:focus-visible{outline:none}
+.mt{margin-top:22px}.mt-lg{margin-top:36px}
+
+/* header + tabs */
+.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:saturate(1.4) blur(8px);-webkit-backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--rule)}
+.bar-inner,.tabs-inner,main,.foot{max-width:1160px;margin:0 auto;padding-left:20px;padding-right:20px}
+.bar-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:8px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-mark{width:34px;height:34px;border-radius:50%;border:2px solid var(--stamp);color:var(--stamp);font-family:var(--serif);font-weight:700;display:grid;place-items:center;font-size:17px;transform:rotate(-8deg)}
+.brand strong{display:block;font-family:var(--serif);font-size:18px;line-height:1.1}
+.brand small{display:block;font-size:12.5px;color:var(--muted)}
+.bar-right{display:flex;align-items:center;gap:10px}
+.asof{font-size:12.5px;color:var(--muted);text-align:right;line-height:1.35}
+.asof b{color:var(--ink);font-weight:500}
+.icon-btn{appearance:none;border:1px solid var(--rule);background:var(--surface);width:36px;height:36px;border-radius:50%;cursor:pointer;display:inline-grid;place-items:center;font-size:18px;line-height:1;flex:none}
+.icon-btn:hover{border-color:var(--muted)}
+.icon-btn:disabled{opacity:.35;cursor:default}
+.tabs-inner{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs-inner::-webkit-scrollbar{display:none}
+.tabs a{white-space:nowrap;text-decoration:none;padding:10px 12px 11px;color:var(--muted);border-bottom:2px solid transparent;font-size:14.5px;display:flex;align-items:center;gap:6px}
+.tabs a:hover{color:var(--ink)}
+.tabs a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:500}
+.pill{font-size:11.5px;background:var(--stamp);color:#fff;border-radius:999px;padding:0 7px;line-height:18px;font-weight:700}
+.pill.soft{background:var(--sunk);color:var(--muted);font-weight:500}
+.pill:empty{display:none}
+
+main{padding-top:24px;padding-bottom:48px;outline:none}
+.view-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.scope-title{font-size:18px;margin-bottom:12px}
+.hint{font-size:13px;color:var(--muted);margin:10px 0 18px;max-width:72ch}
+.result{font-size:14px;color:var(--muted);margin:4px 0 10px}
+
+/* cards + grids */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);padding:18px 18px 16px;margin-top:18px}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.card-head p{font-size:13.5px;color:var(--muted)}
+.link{font-size:14px;color:var(--indigo);text-decoration:none;font-weight:500}
+.link:hover{text-decoration:underline}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-2 .card{margin-top:18px}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);padding:14px 16px;text-decoration:none;display:block;position:relative}
+a.kpi:hover{border-color:var(--muted)}
+.kpi .l{font-size:13.5px;color:var(--muted)}
+.kpi .v{font-family:var(--serif);font-size:28px;line-height:1.15;margin-top:4px}
+.kpi .n{font-size:13px;color:var(--muted);margin-top:4px}
+.kpi.alert{border-color:color-mix(in srgb,var(--stamp) 45%,var(--rule))}
+.kpi.alert .v{color:var(--stamp)}
+.kpis.compact .kpi{background:var(--sunk);border-color:transparent}
+.delta{font-size:12.5px;font-weight:700;padding:1px 7px;border-radius:999px;margin-left:4px;white-space:nowrap}
+.delta.up{background:var(--warn-soft);color:var(--warn)}
+.delta.down{background:var(--moss-soft);color:var(--moss)}
+.delta.flat{background:var(--sunk);color:var(--muted)}
+.flag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;margin-left:6px;vertical-align:5px;font-family:var(--sans);font-weight:500}
+.flag.hi{background:var(--warn-soft);color:var(--warn)}
+.flag.lo{background:var(--stamp-soft);color:var(--stamp)}
+
+/* ledger */
+.ledger-scroll{overflow-x:auto;margin:0 -6px}
+.ledger{display:grid;grid-template-columns:repeat(14,minmax(62px,1fr));gap:6px;min-width:924px;padding:0 6px 2px}
+.wk{appearance:none;border:1px solid transparent;background:none;padding:8px 4px 10px;border-radius:var(--r);cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:center}
+.wk:hover:not(:disabled),.wk:focus-visible{background:var(--sunk)}
+.wk[aria-pressed="true"]{background:var(--sunk);border-color:var(--rule)}
+.wk:disabled{cursor:default}
+.wk .col{height:160px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+.wk .seg-bar{border-radius:2px;width:100%}
+.wk .empty{height:100%;border:1px dashed var(--mist);border-radius:var(--r-sm);display:grid;place-items:center;font-size:12px;color:var(--muted);padding:4px}
+.wk .amt{font-size:12.5px;color:var(--muted)}
+.wk .prog{display:block;font-style:normal;font-size:11px;color:var(--warn);font-weight:500}
+.wk.partial .col{background:repeating-linear-gradient(135deg,transparent 0 6px,var(--sunk) 6px 12px);border-radius:var(--r-sm)}
+.wk.partial .seg-bar{opacity:.6}
+.wk .id{font-family:var(--serif);font-size:18px;line-height:1}
+.wk .dates{font-size:11.5px;color:var(--muted)}
+.ledger .month{grid-row:2;font-size:12.5px;color:var(--muted);border-top:2px solid var(--rule);padding-top:4px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.legend i.line{height:3px;width:16px;vertical-align:3px}
+
+/* attention list */
+.attn{list-style:none;margin:0;padding:0}
+.attn li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.attn li:last-child{border-bottom:none}
+.attn .who{font-weight:500}
+.attn .what{font-size:13px;color:var(--muted)}
+.attn .amt{text-align:right;font-weight:500}
+.attn .empty-state{grid-template-columns:1fr;color:var(--muted)}
+
+/* chart */
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--sans);font-size:11px;fill:var(--muted)}
+.chart .grid{stroke:var(--rule);stroke-width:1}
+.chart .lab{font-size:11.5px;font-weight:700}
+
+/* segmented control */
+.stepper{display:flex;align-items:center;gap:8px;max-width:100%}
+.seg{display:flex;gap:2px;background:var(--sunk);padding:3px;border-radius:999px;overflow-x:auto;scrollbar-width:none;max-width:calc(100vw - 130px)}
+.seg::-webkit-scrollbar{display:none}
+.seg button{appearance:none;border:none;background:none;padding:6px 11px;border-radius:999px;cursor:pointer;font-size:14px;white-space:nowrap;color:var(--muted)}
+.seg button:hover:not(:disabled){color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.seg button:disabled{opacity:.4;cursor:default}
+.seg .sep{width:1px;background:var(--rule);margin:4px 3px;flex:none}
+
+/* horizontal bars */
+.hbar{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(40px,2fr) auto;gap:10px;align-items:center;font-size:14px;padding:5px 0}
+.hbar .track{height:8px;background:var(--sunk);border-radius:4px;overflow:hidden}
+.hbar .fill{display:block;height:100%;border-radius:4px}
+.hbar .val{text-align:right;min-width:92px}
+.hbar .val small{color:var(--muted);font-size:12px;margin-left:4px}
+button.hbar{appearance:none;border:none;background:none;width:100%;text-align:left;cursor:pointer;border-radius:var(--r-sm);padding:5px 4px;margin:0 -4px;width:calc(100% + 8px)}
+button.hbar:hover{background:var(--sunk)}
+.stack{display:flex;height:14px;border-radius:3px;overflow:hidden;margin:4px 0 10px;background:var(--sunk);gap:1px}
+.stack span{height:100%}
+
+/* filters */
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:6px 0 14px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:150px}
+.field.grow{flex:1 1 260px}
+.field input,.field select{appearance:none;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:8px 11px;color:var(--ink);font-size:14.5px;min-height:40px}
+.field select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{appearance:none;border:1px solid var(--rule);background:var(--surface);padding:7px 13px;border-radius:999px;cursor:pointer;font-size:14px;min-height:40px}
+.chips button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chips button .c{font-size:12px;opacity:.75;margin-left:4px}
+.btn{appearance:none;border:1px solid var(--rule);background:var(--surface);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+
+/* tables */
+.table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:var(--r-lg);background:var(--surface)}
+.card .table-wrap{border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--rule);white-space:nowrap;vertical-align:middle}
+thead th{font-weight:500;color:var(--muted);font-size:13px;background:var(--surface)}
+th.r,td.r{text-align:right}
+tbody tr:last-child td{border-bottom:none}
+th button.sort{appearance:none;border:none;background:none;padding:0;cursor:pointer;color:inherit;font:inherit;display:inline-flex;gap:4px;align-items:center}
+th button.sort::after{content:"↕";opacity:.35;font-size:11px}
+th[aria-sort="ascending"] button.sort::after{content:"↑";opacity:1}
+th[aria-sort="descending"] button.sort::after{content:"↓";opacity:1}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--sunk)}
+tr.grp td{background:var(--sunk);font-weight:700;font-size:13.5px}
+tr.note td{white-space:normal;background:var(--sunk);font-size:13px;color:var(--muted);padding-top:6px}
+tfoot td{font-weight:700;border-top:1px solid var(--rule);border-bottom:none}
+.empty-row td{text-align:center;color:var(--muted);padding:28px 12px;white-space:normal}
+.tag{font-size:12.5px;padding:2px 8px;border-radius:999px;display:inline-block;white-space:nowrap}
+.tag.past{background:var(--stamp-soft);color:var(--stamp);font-weight:700}
+.tag.soon{background:var(--warn-soft);color:var(--warn);font-weight:500}
+.tag.later{background:var(--sunk);color:var(--muted)}
+.tag.paid{background:var(--moss-soft);color:var(--moss)}
+.spark{display:flex;gap:2px;align-items:flex-end;height:26px}
+.spark i{display:block;width:9px;background:var(--indigo);border-radius:1px}
+.spark i.z{background:var(--mist);height:2px!important}
+.spark i.na{background:none;border-bottom:1px dashed var(--mist);height:1px!important}
+details.more{border-top:1px solid var(--rule);margin-top:12px}
+details.more summary{cursor:pointer;padding:12px 0 10px;font-weight:500;list-style-position:inside}
+details.more .table-wrap{margin-bottom:6px}
+
+/* watch */
+.watch-group{margin-bottom:26px}
+.watch-group h2{font-size:18px;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.watch-group h2 .dot{width:10px;height:10px;border-radius:50%}
+.watch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.w{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--rule);border-radius:var(--r);padding:12px 14px}
+.w[data-tag="Price"]{border-left-color:var(--amber)}
+.w[data-tag="Billing"]{border-left-color:var(--stamp)}
+.w[data-tag="Open"]{border-left-color:var(--indigo)} .w[data-tag="To decide"]{border-left-color:var(--stamp)} .w[data-tag="Migration"]{border-left-color:var(--stone)} .w[data-tag="Held"]{border-left-color:var(--warn)}
+.w .t{font-weight:700}
+.w p{font-size:14px;color:var(--muted);margin-top:3px}
+
+/* drawer */
+.drawer{border:none;padding:0;margin:0 0 0 auto;height:100dvh;max-height:100dvh;width:min(560px,100vw);max-width:100vw;background:var(--paper);color:var(--ink);box-shadow:var(--shadow)}
+.drawer::backdrop{background:rgba(10,14,20,.45)}
+.drawer[open]{display:flex;flex-direction:column}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--rule);background:var(--surface)}
+#dr-body{padding:18px 20px 32px;overflow-y:auto}
+#dr-body .kpis{grid-template-columns:repeat(2,1fr)}
+@media (prefers-reduced-motion:no-preference){
+  .drawer[open]{animation:slide .22s ease-out}
+  @keyframes slide{from{transform:translateX(24px);opacity:.6}to{transform:none;opacity:1}}
+}
+
+/* tooltip */
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--ink);color:var(--paper);border-radius:var(--r);padding:8px 10px;font-size:12.5px;line-height:1.45;box-shadow:var(--shadow);min-width:170px}
+.tip .row{display:flex;justify-content:space-between;gap:14px}
+.tip b{font-family:var(--serif);font-size:14px;display:block;margin-bottom:2px}
+
+.foot{padding-top:18px;padding-bottom:40px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+
+@media (max-width:860px){
+  .grid-2{grid-template-columns:1fr;gap:14px;margin-top:14px}
+  .grid-2 .card{margin-top:0}
+  .asof{display:none}
+}
+@media (max-width:560px){
+  .bar-inner,.tabs-inner,main,.foot{padding-left:14px;padding-right:14px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi .v{font-size:22px}
+  .kpi{padding:12px}
+  .card{padding:14px}
+  th,td{padding:9px 8px;font-size:13.5px}
+  .hide-sm{display:none}
+  .wk .col{height:120px}
+  .field{min-width:0;flex:1 1 140px}
+  .stepper{width:100%}
+  .seg{flex:1;max-width:none}
+}
+@media print{
+  .bar,.filters,.btn,.stepper,.skip{display:none!important}
+  .view{display:block!important}
+  body{background:#fff}
+  .card,.kpi,.table-wrap{break-inside:avoid}
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <div class="bar-inner">
+    <a class="brand" href="#overview">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span><strong>Ayayay</strong><small>Purchasing</small></span>
+    </a>
+    <div class="bar-right">
+      <p class="asof" id="asof"></p>
+      <button class="icon-btn" id="theme" type="button" aria-label="Switch colour theme"></button>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Sections">
+    <div class="tabs-inner" id="tabs">
+      <a href="#overview" data-view="overview">Overview</a>
+      <a href="#weeks" data-view="weeks">Weeks</a>
+      <a href="#owed" data-view="owed">Owed <span class="pill" id="tab-owed"></span></a>
+      <a href="#invoices" data-view="invoices">Invoices</a>
+      <a href="#vendors" data-view="vendors">Vendors</a>
+      <a href="#watch" data-view="watch">Watch list <span class="pill soft" id="tab-watch"></span></a>
+    </div>
+  </nav>
+</header>
+
+<main id="main" tabindex="-1">
+  <!-- OVERVIEW -->
+  <section class="view" id="view-overview" aria-labelledby="h-overview">
+    <h1 id="h-overview" class="sr-only">Overview</h1>
+    <div class="kpis" id="kpis"></div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Product spend by week</h2>
+        <p>Tap a week to open it.</p>
+      </div>
+      <div class="ledger-scroll"><div class="ledger" id="ledger"></div></div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <h2>Needs attention</h2>
+          <a class="link" href="#owed">All owed invoices</a>
+        </div>
+        <ul class="attn" id="attention"></ul>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>Cost ratios</h2>
+          <p>Purchases ÷ net sales</p>
+        </div>
+        <div id="ratio-chart" class="chart"></div>
+        <div class="legend" id="ratio-legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WEEKS -->
+  <section class="view" id="view-weeks" aria-labelledby="h-weeks" hidden>
+    <div class="view-head">
+      <h1 id="h-weeks">Weeks</h1>
+      <div class="stepper">
+        <button class="icon-btn" id="wk-prev" type="button" aria-label="Previous week">‹</button>
+        <div class="seg" id="wk-seg" role="group" aria-label="Choose a week or month"></div>
+        <button class="icon-btn" id="wk-next" type="button" aria-label="Next week">›</button>
+      </div>
+    </div>
+    <h2 class="scope-title" id="wk-title"></h2>
+    <div class="kpis" id="wk-figs"></div>
+    <p class="hint">Ratios are purchases divided by net sales for the same days. They are purchase ratios, not food cost: stock on hand is not counted.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Where the money went</h3>
+        <div id="wk-cats"></div>
+        <h3 class="mt">Bar mix</h3>
+        <div class="stack" id="wk-barstack"></div>
+        <div id="wk-bar"></div>
+      </div>
+      <div class="card">
+        <h3>Vendors</h3>
+        <div id="wk-vend"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Invoices in this period</h3><p id="wk-inv-sum"></p></div>
+      <div class="table-wrap" id="wk-inv"></div>
+    </div>
+  </section>
+
+  <!-- OWED -->
+  <section class="view" id="view-owed" aria-labelledby="h-owed" hidden>
+    <div class="view-head">
+      <h1 id="h-owed">What we still owe</h1>
+      <button class="btn" type="button" id="owed-csv">Download CSV</button>
+    </div>
+    <div class="kpis" id="owed-kpis"></div>
+    <div class="filters">
+      <div class="chips" id="owed-chips" role="group" aria-label="Filter by due status"></div>
+      <label class="field"><span>Vendor</span><select id="owed-vendor"></select></label>
+    </div>
+    <div class="table-wrap" id="owed-table"></div>
+
+    <div class="card mt-lg">
+      <div class="card-head">
+        <h2>October carried into November</h2>
+        <p>Invoices dated 09/28 to 11/01 that were paid in November (or count in a later month) or are still open.</p>
+      </div>
+      <div class="kpis compact" id="carry"></div>
+      <details class="more"><summary>Paid in November</summary><div class="table-wrap" id="carry-paid"></div></details>
+      <details class="more"><summary>Still open</summary><div class="table-wrap" id="carry-open"></div></details>
+    </div>
+  </section>
+
+  <!-- INVOICES -->
+  <section class="view" id="view-invoices" aria-labelledby="h-invoices" hidden>
+    <div class="view-head">
+      <h1 id="h-invoices">Invoices</h1>
+      <button class="btn" type="button" id="inv-csv">Download CSV</button>
+    </div>
+    <div class="filters">
+      <label class="field grow"><span>Search</span><input type="search" id="inv-q" placeholder="Invoice number, vendor or note" autocomplete="off"></label>
+      <label class="field"><span>Month</span><select id="inv-month"><option value="">All</option><option>August</option><option>September</option><option>October</option></select></label>
+      <label class="field"><span>Status</span><select id="inv-status"><option value="">All</option><option value="open">Not paid</option><option value="paid">Paid</option></select></label>
+      <label class="field"><span>Vendor</span><select id="inv-vendor"></select></label>
+    </div>
+    <p class="result" id="inv-count" aria-live="polite"></p>
+    <div class="table-wrap" id="inv-table"></div>
+  </section>
+
+  <!-- VENDORS -->
+  <section class="view" id="view-vendors" aria-labelledby="h-vendors" hidden>
+    <div class="view-head"><h1 id="h-vendors">Vendors</h1></div>
+    <p class="hint">Small bars show each vendor against its own busiest week. Select a vendor for its invoices.</p>
+    <div class="table-wrap" id="vend-table"></div>
+  </section>
+
+  <!-- WATCH -->
+  <section class="view" id="view-watch" aria-labelledby="h-watch" hidden>
+    <div class="view-head"><h1 id="h-watch">Watch list</h1></div>
+    <div id="watch"></div>
+  </section>
+</main>
+
+<dialog id="drawer" class="drawer" aria-labelledby="dr-title">
+  <div class="drawer-head">
+    <h2 id="dr-title"></h2>
+    <button class="icon-btn" type="button" id="dr-close" aria-label="Close">×</button>
+  </div>
+  <div id="dr-body"></div>
+</dialog>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<footer class="foot">
+  <p id="foot"></p>
+</footer>
+
+<script>
+/* Data built by TEST_build_dashboard.py from TEST_Ayayay_v2.xlsx on 2026-11-06 (position as of 2026-10-14) */
+window.AYAYAY_DATA = {"asOf":"2026-10-14","paymentsMonth":"2026-10","weeks":[{"id":"A1","start":"07/27","end":"08/02","month":"August","entered":true,"invoices":3},{"id":"A2","start":"08/03","end":"08/09","month":"August","entered":true,"invoices":18},{"id":"A3","start":"08/10","end":"08/16","month":"August","entered":true,"invoices":15},{"id":"A4","start":"08/17","end":"08/23","month":"August","entered":true,"invoices":15},{"id":"A5","start":"08/24","end":"08/30","month":"August","entered":true,"invoices":17},{"id":"S1","start":"08/31","end":"09/06","month":"September","entered":true,"invoices":15},{"id":"S2","start":"09/07","end":"09/13","month":"September","entered":true,"invoices":16},{"id":"S3","start":"09/14","end":"09/20","month":"September","entered":true,"invoices":17},{"id":"S4","start":"09/21","end":"09/27","month":"September","entered":true,"invoices":16},{"id":"O1","start":"09/28","end":"10/04","month":"October","entered":true,"invoices":11},{"id":"O2","start":"10/05","end":"10/11","month":"October","entered":true,"invoices":20},{"id":"O3","start":"10/12","end":"10/18","month":"October","entered":true,"invoices":18},{"id":"O4","start":"10/19","end":"10/25","month":"October","entered":true,"invoices":15},{"id":"O5","start":"10/26","end":"11/01","month":"October","entered":true,"invoices":16}],"categories":{"Food":[701.95,6326.05,4216.17,4375.81,4653.61,4454.87,5058.19,4898.74,3906.78,3732.35,6732.86,6977.1,6349.51,4680.45],"Bar":[210.86,425.63,345.24,1115.8,2985.42,707.43,1070.33,859.86,527.5,78.75,1322.32,692.29,4029.84,720.98],"Supply":[0.0,380.34,456.76,1042.82,83.41,0.0,725.06,468.17,532.16,59.95,1313.36,394.27,412.73,347.45],"Cleaning":[215.86,570.08,172.69,168.69,57.49,166.05,0.0,61.29,425.46,168.37,55.97,94.69,31.08,547.17]},"barSub":{"Cocktails & liquor":[0.0,45.88,0.0,0.0,2500.17,0.0,0.0,166.86,95.04,0.0,0.0,45.88,3595.34,0.0],"Beer":[0.0,0.0,0.0,340.0,0.0,0.0,656.0,0.0,0.0,0.0,516.0,0.0,0.0,172.0],"Wine":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"Non-alcoholic":[0.0,379.75,345.24,775.8,485.25,338.22,414.33,693.0,432.46,78.75,806.32,646.41,434.5,349.55],"Unallocated":[210.86,0.0,0.0,0.0,0.0,369.21,0.0,0.0,0.0,0.0,0.0,0.0,0.0,199.43]},"fees":[32.13,318.46,178.63,274.58,365.36,165.94,222.23,202.18,329.63,118.94,426.08,280.54,485.9,309.45],"vendors":[{"name":"US Foods","weeks":[0.0,3386.74,2431.56,3286.55,1981.67,2034.03,2677.47,2329.59,2394.89,760.43,2798.94,2117.48,2170.32,2522.35]},{"name":"Sysco","weeks":[917.81,2810.0,1589.84,1935.9,1926.2,1709.88,2332.37,1933.4,2141.35,1989.39,3297.19,3361.39,2939.13,2148.48]},{"name":"Allen Brothers","weeks":[0.0,1165.11,858.66,967.62,929.53,1013.2,821.29,1612.21,635.96,1137.68,1743.18,1554.85,1784.97,1093.44]},{"name":"Lakeshore Beverage","weeks":[0.0,0.0,0.0,340.0,0.0,0.0,656.0,0.0,0.0,0.0,516.0,0.0,0.0,172.0]},{"name":"El Popocatepetl","weeks":[0.0,340.25,209.3,173.05,116.75,298.8,195.5,243.9,219.7,141.15,291.05,263.1,333.4,160.35]},{"name":"Gordon Food Service","weeks":[0.0,0.0,0.0,0.0,0.0,0.0,145.95,0.0,0.0,0.0,0.0,0.0,0.0,0.0]},{"name":"Restaurant Depot","weeks":[0.0,0.0,101.5,0.0,325.61,61.25,0.0,123.77,0.0,0.0,778.15,828.17,0.0,0.0]},{"name":"CCS Cutlery","weeks":[0.0,0.0,0.0,0.0,0.0,0.0,25.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]},{"name":"Farmers Best Market","weeks":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,45.19,0.0,0.0,0.0,0.0,0.0,0.0]},{"name":"Southern Glazer's Wine & Spirits","weeks":[0.0,0.0,0.0,0.0,2500.17,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3595.34,0.0]},{"name":"Mariano's","weeks":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,10.77,0.0,0.0,0.0,0.0]},{"name":"NuCO2","weeks":[210.86,0.0,0.0,0.0,0.0,211.19,0.0,0.0,0.0,0.0,0.0,0.0,0.0,199.43]},{"name":"Staples","weeks":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,33.36,0.0,0.0]}],"partial":["A1"],"partialNote":{"A1":"only 08/01-08/02 loaded (July is not tracked). Two days of invoices against a full week of sales."},"sales":{"Food":[24374.76,23275.63,19253.78,19760.54,19844.17,20861.91,16532.46,19505.71,18789.57,20439.8,29083.84,28789.99,27284.21,18452.21],"Cocktails & liquor":[5289.0,4792.5,4375.1,3975.5,4157.2,5018.0,3846.6,4755.6,5038.7,5363.7,6074.1,5945.5,6528.0,3915.9],"Beer":[826.5,961.6,774.1,599.2,493.6,689.6,524.0,916.9,473.6,850.2,811.3,994.8,1060.0,600.0],"Wine":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"Non-alcoholic":[1264.77,1147.61,798.78,996.73,1127.7,1151.72,820.19,813.35,978.1,834.01,1186.25,1239.47,937.27,617.6],"Open drink":[0.0,0.0,17.0,0.0,60.0,15.0,99.0,9.0,0.0,12.01,216.0,310.0,17.0,0.0],"TOTAL NET SALES":[31755.03,30177.34,25218.76,25331.97,25682.67,27736.23,21822.25,26000.56,25279.97,27499.72,37371.49,37279.76,35826.48,23585.71]},"invoices":[{"vendor":"NuCO2","number":"84231023","date":"2026-08-01","week":"A1","product":210.86,"fees":0.0,"total":210.86,"status":"paid","paidOn":"2026-10-31","paidMonth":"2026-10","due":"2026-08-01","note":"Due upon receipt (NuCO2 BillerIQ notice, account 807580, Exodo Hospitality LLC). Total only - rent, the $14.95 processing fee and tax are inside the product figure. PAID 10/31/2026 per owner (confirmed 11/05; NuCO2 is on recurring card payment, exact debit not seen).","openAmount":0.0,"card":"Mastercard 1133 (NuCO2 autopay)"},{"vendor":"Sysco","number":"924414894","date":"2026-08-01","week":"A1","product":763.91,"fees":22.13,"total":786.04,"status":"paid","paidOn":"2026-08-14","paidMonth":"2026-08","due":"2026-08-15","note":"NET 14 - was payable on or before 08/15/2026 - PAID BY SYSCOPAY ACH 08/14/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Same truck as 924414895, no fuel.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924414895","date":"2026-08-01","week":"A1","product":153.9,"fees":10.0,"total":163.9,"status":"paid","paidOn":"2026-08-14","paidMonth":"2026-08","due":"2026-08-15","note":"NET 14 - was payable on or before 08/15/2026 - PAID BY SYSCOPAY ACH 08/14/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD135563","date":"2026-08-03","week":"A2","product":146.7,"fees":0.0,"total":146.7,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $146.70, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924417025","date":"2026-08-03","week":"A2","product":799.39,"fees":10.0,"total":809.39,"status":"paid","paidOn":"2026-08-17","paidMonth":"2026-08","due":"2026-08-17","note":"NET 14 - was payable on or before 08/17/2026 - PAID BY SYSCOPAY ACH 08/17/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2931927","date":"2026-08-03","week":"A2","product":353.54,"fees":36.07,"total":389.61,"status":"paid","paidOn":"2026-09-02","paidMonth":"2026-09","due":"2026-09-02","note":"NET 30 DAYS - remit by 09/02/2026 - PAID BY EFT 09/02/2026 (EFT0902, US Foods payment history). Same truck as 2931928; carries the fuel.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2931928","date":"2026-08-03","week":"A2","product":1148.61,"fees":22.98,"total":1171.59,"status":"paid","paidOn":"2026-09-02","paidMonth":"2026-09","due":"2026-09-02","note":"NET 30 DAYS - remit by 09/02/2026 - PAID BY EFT 09/02/2026 (EFT0902, US Foods payment history). Electronic invoice, delivered amount final.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2933474","date":"2026-08-03","week":"A2","product":82.33,"fees":3.79,"total":86.12,"status":"paid","paidOn":"2026-08-06","paidMonth":"2026-08","due":"2026-09-02","note":"NET 30 DAYS - remit by 09/02/2026 (WILL CALL) - CANCELLED in full by credit memo 2965273 (08/05, arrived late); the pair nets to $0.00  |  PAID 08/06/2026 - closed against each other, US Foods payment history ref arc460 (payment method OTHER, net $0.00)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"296249","date":"2026-08-04","week":"A2","product":771.03,"fees":7.95,"total":778.98,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":"2026-08-12","note":"NET CASH 7 DAYS ACH - shipped 08/05, was due 08/12/2026 - PAID IN AUGUST 2026 per owner (confirmed 10/05 as fully paid; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"124B2794M","date":"2026-08-04","week":"A2","product":90.06,"fees":0.0,"total":90.06,"status":"paid","paidOn":"2026-08-17","paidMonth":"2026-08","due":"2026-08-18","note":"CN14 NET 14 - was payable on or before 08/18/2026 - PAID BY SYSCOPAY ACH 08/17/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Sysco Food Srvcs-Chicago format.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"33084","date":"2026-08-04","week":"A2","product":399.58,"fees":77.96,"total":477.54,"status":"paid","paidOn":"2026-09-03","paidMonth":"2026-09","due":"2026-09-03","note":"NET 30 DAYS - remit by 09/03/2026 - PAID BY EFT 09/03/2026 (EFT0903, US Foods payment history). Fees = $9.00 fuel + $35.00 PRONTO UNDER MIN","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924421088","date":"2026-08-05","week":"A2","product":1048.97,"fees":74.46,"total":1123.43,"status":"paid","paidOn":"2026-08-18","paidMonth":"2026-08","due":"2026-08-19","note":"NET 14 - was payable on or before 08/19/2026 - PAID BY SYSCOPAY ACH 08/18/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"80794","date":"2026-08-05","week":"A2","product":558.35,"fees":20.18,"total":578.53,"status":"paid","paidOn":"2026-09-04","paidMonth":"2026-09","due":"2026-09-04","note":"NET 30 DAYS - remit by 09/04/2026 - PAID BY EFT 09/04/2026 (EFT0904, US Foods payment history)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"CM 2965273","date":"2026-08-05","week":"A2","product":-82.33,"fees":-3.79,"total":-86.12,"status":"paid","paidOn":"2026-08-06","paidMonth":"2026-08","due":"2026-09-02","note":"CREDIT MEMO - cancels will-call 2933474 (08/03) in full, arrived late; the pair nets to $0.00  |  PAID 08/06/2026 - closed against each other, US Foods payment history ref arc460 (payment method OTHER, net $0.00)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"297376","date":"2026-08-07","week":"A2","product":394.08,"fees":0.0,"total":394.08,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":"2026-08-15","note":"NET CASH 7 DAYS ACH - shipped 08/08, was due 08/15/2026 - PAID IN AUGUST 2026 per owner (confirmed 10/05 as fully paid; exact payment date not supplied, Paid On set to month-end 08/31/2026). No fuel surcharge.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD137932","date":"2026-08-07","week":"A2","product":135.95,"fees":0.0,"total":135.95,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $135.95, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"195468","date":"2026-08-07","week":"A2","product":364.93,"fees":3.66,"total":368.59,"status":"paid","paidOn":"2026-09-07","paidMonth":"2026-09","due":"2026-09-06","note":"NET 30 DAYS - remit by 09/06/2026 - PAID BY EFT 09/07/2026 (EFT0907, US Foods payment history). Direct ship, FedEx; shipped 08/05; product $366.28 less $1.35 credit","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924430129","date":"2026-08-08","week":"A2","product":750.58,"fees":0.0,"total":750.58,"status":"paid","paidOn":"2026-08-21","paidMonth":"2026-08","due":"2026-08-22","note":"NET 14 - was payable on or before 08/22/2026 - PAID BY SYSCOPAY ACH 08/21/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Same truck as 924430130, no fuel.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924430130","date":"2026-08-08","week":"A2","product":121.0,"fees":10.0,"total":131.0,"status":"paid","paidOn":"2026-08-21","paidMonth":"2026-08","due":"2026-08-22","note":"NET 14 - was payable on or before 08/22/2026 - PAID BY SYSCOPAY ACH 08/21/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"204307","date":"2026-08-08","week":"A2","product":561.73,"fees":55.2,"total":616.93,"status":"paid","paidOn":"2026-09-07","paidMonth":"2026-09","due":"2026-09-07","note":"NET 30 DAYS - remit by 09/07/2026 - PAID BY EFT 09/07/2026 (EFT0907, US Foods payment history). Fees = $9.00 fuel + $35.00 PRONTO UNDER MIN","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD138924","date":"2026-08-09","week":"A2","product":57.6,"fees":0.0,"total":57.6,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $57.60, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Restaurant Depot","number":"C13 I7273","date":"2026-08-10","week":"A3","product":101.5,"fees":1.27,"total":102.77,"status":"paid","paidOn":"2026-08-10","paidMonth":"2026-08","due":"2026-08-10","note":"PAID AT REGISTER - Mastercard contactless, approval 01411J, 08/10/2026","openAmount":0.0,"card":"Mastercard (last 4 not printed)"},{"vendor":"Sysco","number":"924432052","date":"2026-08-10","week":"A3","product":474.89,"fees":15.69,"total":490.58,"status":"paid","paidOn":"2026-08-24","paidMonth":"2026-08","due":"2026-08-24","note":"NET 14 - was payable on or before 08/24/2026 - PAID BY SYSCOPAY ACH 08/24/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"247775","date":"2026-08-10","week":"A3","product":747.65,"fees":72.55,"total":820.2,"status":"paid","paidOn":"2026-09-09","paidMonth":"2026-09","due":"2026-09-09","note":"NET 30 DAYS - remit by 09/09/2026 - PAID BY EFT 09/09/2026 (EFT0909, US Foods payment history)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"247776","date":"2026-08-10","week":"A3","product":638.9,"fees":12.8,"total":651.7,"status":"paid","paidOn":"2026-09-09","paidMonth":"2026-09","due":"2026-09-09","note":"NET 30 DAYS - remit by 09/09/2026 - PAID BY EFT 09/09/2026 (EFT0909, US Foods payment history). Same truck as 247775, no fuel.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"249235","date":"2026-08-10","week":"A3","product":223.47,"fees":4.46,"total":227.93,"status":"paid","paidOn":"2026-09-09","paidMonth":"2026-09","due":"2026-09-09","note":"NET 30 DAYS - remit by 09/09/2026 - PAID BY EFT 09/09/2026 (EFT0909, US Foods payment history). Will call.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD140012","date":"2026-08-12","week":"A3","product":146.7,"fees":0.0,"total":146.7,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $146.70, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924436349","date":"2026-08-12","week":"A3","product":655.32,"fees":10.0,"total":665.32,"status":"paid","paidOn":"2026-08-25","paidMonth":"2026-08","due":"2026-08-26","note":"NET 14 - was payable on or before 08/26/2026 - PAID BY SYSCOPAY ACH 08/25/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"358970","date":"2026-08-12","week":"A3","product":74.44,"fees":1.12,"total":75.56,"status":"paid","paidOn":"2026-09-11","paidMonth":"2026-09","due":"2026-09-11","note":"NET 30 DAYS - remit by 09/11/2026 (direct ship, shipped 08/04) - PAID BY EFT 09/11/2026 (EFT0911, US Foods payment history) - later credited in full by credit memo 2976181 (09/22, CUST SAT), which US Foods netted off EFT0923 on 09/23","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"358975","date":"2026-08-12","week":"A3","product":172.69,"fees":14.34,"total":187.03,"status":"paid","paidOn":"2026-09-11","paidMonth":"2026-09","due":"2026-09-11","note":"NET 30 DAYS - remit by 09/11/2026 - PAID BY EFT 09/11/2026 (EFT0911, US Foods payment history). Direct ship, FedEx; product $173.70 less $1.01 credit","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"300286","date":"2026-08-13","week":"A3","product":394.2,"fees":7.95,"total":402.15,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":"2026-08-21","note":"NET CASH 7 DAYS ACH - shipped 08/14, was due 08/21/2026 - PAID IN AUGUST 2026 per owner (confirmed 10/05 as fully paid; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"301089","date":"2026-08-14","week":"A3","product":334.72,"fees":7.95,"total":342.67,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":"2026-08-22","note":"NET CASH 7 DAYS ACH - shipped 08/15, was due 08/22/2026 - PAID IN AUGUST 2026 per owner (confirmed 10/05 as fully paid; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"301090","date":"2026-08-14","week":"A3","product":129.74,"fees":0.0,"total":129.74,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":"2026-08-22","note":"NET CASH 7 DAYS ACH - shipped 08/15, was due 08/22/2026 - PAID IN AUGUST 2026 per owner (confirmed 10/05 as fully paid; exact payment date not supplied, Paid On set to month-end 08/31/2026). No fuel surcharge (split with 301089).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924440899","date":"2026-08-14","week":"A3","product":459.63,"fees":10.0,"total":469.63,"status":"paid","paidOn":"2026-08-27","paidMonth":"2026-08","due":"2026-08-28","note":"NET 14 - was payable on or before 08/28/2026 - PAID BY SYSCOPAY ACH 08/27/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"453375","date":"2026-08-14","week":"A3","product":574.41,"fees":20.5,"total":594.91,"status":"paid","paidOn":"2026-09-14","paidMonth":"2026-09","due":"2026-09-13","note":"NET 30 DAYS - remit by 09/13/2026 - PAID BY EFT 09/14/2026 (EFT0914, US Foods payment history)","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD142096","date":"2026-08-16","week":"A3","product":62.6,"fees":0.0,"total":62.6,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $62.60, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924447751","date":"2026-08-17","week":"A4","product":850.62,"fees":0.0,"total":850.62,"status":"paid","paidOn":"2026-08-31","paidMonth":"2026-08","due":"2026-08-31","note":"NET 14 - was payable on or before 08/31/2026 - PAID BY SYSCOPAY ACH 08/31/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Same truck as 924447752, no fuel.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924447752","date":"2026-08-17","week":"A4","product":70.65,"fees":10.0,"total":80.65,"status":"paid","paidOn":"2026-08-31","paidMonth":"2026-08","due":"2026-08-31","note":"NET 14 - was payable on or before 08/31/2026 - PAID BY SYSCOPAY ACH 08/31/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"517341","date":"2026-08-17","week":"A4","product":799.36,"fees":24.98,"total":824.34,"status":"paid","paidOn":"2026-09-16","paidMonth":"2026-09","due":"2026-09-16","note":"NET 30 DAYS - remit by 09/16/2026 - PAID BY EFT 09/16/2026 (EFT0916, US Foods payment history). Product $802.36 less $3.00 flyer savings","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"517342","date":"2026-08-17","week":"A4","product":364.81,"fees":31.0,"total":395.81,"status":"paid","paidOn":"2026-09-16","paidMonth":"2026-09","due":"2026-09-16","note":"NET 30 DAYS - remit by 09/16/2026 - PAID BY EFT 09/16/2026 (EFT0916, US Foods payment history). Same truck as 517341, no fuel; toilet tissue adjusted off at delivery","openAmount":0.0,"card":null},{"vendor":"Lakeshore Beverage","number":"392085","date":"2026-08-18","week":"A4","product":340.0,"fees":18.56,"total":358.56,"status":"paid","paidOn":"2026-08-19","paidMonth":"2026-08","due":"2026-08-18","note":"FINTECH - charged on delivery 08/18/2026; Fintech payment date 08/19/2026, $358.56 (Fintech report)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"303208","date":"2026-08-19","week":"A4","product":520.65,"fees":7.95,"total":528.6,"status":"paid","paidOn":"2026-08-28","paidMonth":"2026-08","due":"2026-08-27","note":"NET CASH 7 DAYS ACH - shipped 08/20, was due 08/27/2026 - PAID BY ACH 08/28/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924452085","date":"2026-08-19","week":"A4","product":287.77,"fees":10.0,"total":297.77,"status":"paid","paidOn":"2026-09-01","paidMonth":"2026-09","due":"2026-09-02","note":"NET 14 - payable on or before 09/02/2026 - PAID BY SYSCOPAY ACH 09/01/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Fees = $10.00 fuel surcharge, not taxed. Driver Valdez, route 3062. Uploaded 10/05 from the Sysco portal after the payment report showed it paid.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"615676","date":"2026-08-19","week":"A4","product":625.73,"fees":21.54,"total":647.27,"status":"paid","paidOn":"2026-09-18","paidMonth":"2026-09","due":"2026-09-18","note":"NET 30 DAYS - remit by 09/18/2026 - PAID BY EFT 09/18/2026 (EFT0918, US Foods payment history)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"304715","date":"2026-08-21","week":"A4","product":320.7,"fees":7.95,"total":328.65,"status":"paid","paidOn":"2026-08-28","paidMonth":"2026-08","due":"2026-08-29","note":"NET CASH 7 DAYS ACH - shipped 08/22, was due 08/29/2026 - PAID BY ACH 08/28/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"304716","date":"2026-08-21","week":"A4","product":126.27,"fees":0.0,"total":126.27,"status":"paid","paidOn":"2026-08-28","paidMonth":"2026-08","due":"2026-08-29","note":"NET CASH 7 DAYS ACH - shipped 08/22, was due 08/29/2026 - PAID BY ACH 08/28/2026 (Allen Brothers account statement). No fuel surcharge (split with 304715).","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD144632","date":"2026-08-21","week":"A4","product":173.05,"fees":0.0,"total":173.05,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $173.05, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924456859","date":"2026-08-21","week":"A4","product":556.86,"fees":20.22,"total":577.08,"status":"paid","paidOn":"2026-09-03","paidMonth":"2026-09","due":"2026-09-04","note":"NET 14 - payable on or before 09/04/2026 - PAID BY SYSCOPAY ACH 09/03/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Fees = $10.00 fuel surcharge. Tax $10.22 = $10.04 on the Keystone degreaser + $0.18 on the fuel. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"720727","date":"2026-08-21","week":"A4","product":1213.16,"fees":112.13,"total":1325.29,"status":"paid","paidOn":"2026-09-21","paidMonth":"2026-09","due":"2026-09-20","note":"NET 30 DAYS - remit by 09/20/2026 - PAID BY EFT 09/21/2026 (EFT0921, US Foods payment history)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"720728","date":"2026-08-21","week":"A4","product":283.49,"fees":10.25,"total":293.74,"status":"paid","paidOn":"2026-09-21","paidMonth":"2026-09","due":"2026-09-20","note":"NET 30 DAYS - remit by 09/20/2026 - PAID BY EFT 09/21/2026 (EFT0921, US Foods payment history). Same truck as 720727, no fuel.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924458044","date":"2026-08-22","week":"A4","product":170.0,"fees":0.0,"total":170.0,"status":"paid","paidOn":"2026-09-04","paidMonth":"2026-09","due":"2026-09-05","note":"NET 14 - payable on or before 09/05/2026 - PAID BY SYSCOPAY ACH 09/04/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). NOT FOR SHIPMENT OF PRODUCT - Keystone Ecolab dish lease, JULY 2026 billing (request 2998775, lease 04UB250176, SR#73645552). Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"305673","date":"2026-08-24","week":"A5","product":548.03,"fees":7.95,"total":555.98,"status":"paid","paidOn":"2026-09-04","paidMonth":"2026-09","due":"2026-09-01","note":"NET CASH 7 DAYS ACH - shipped 08/25, was due 09/01/2026 - PAID BY ACH 09/04/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD146224","date":"2026-08-24","week":"A5","product":116.75,"fees":0.0,"total":116.75,"status":"paid","paidOn":null,"paidMonth":"2026-08","due":null,"note":"NO TERMS PRINTED - balance due $116.75, PAID IN AUGUST 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 08/31/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924464682","date":"2026-08-24","week":"A5","product":941.23,"fees":15.8,"total":957.03,"status":"paid","paidOn":"2026-09-07","paidMonth":"2026-09","due":"2026-09-07","note":"NET 14 - payable on or before 09/07/2026 - PAID BY SYSCOPAY ACH 09/07/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). 2 pages. Fees = $10.00 fuel surcharge. Tax $5.80 = $5.74 on gloves + $0.06 on fuel. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"783167","date":"2026-08-24","week":"A5","product":688.9,"fees":22.76,"total":711.66,"status":"paid","paidOn":"2026-09-23","paidMonth":"2026-09","due":"2026-09-23","note":"NET 30 DAYS - remit by 09/23/2026 - PAID BY EFT 09/23/2026 (EFT0923, US Foods payment history) - EFT0923 ($636.10) = this invoice $711.66 less credit memo 2976181 $75.56","openAmount":0.0,"card":null},{"vendor":"Restaurant Depot","number":"C14 I3213","date":"2026-08-26","week":"A5","product":263.48,"fees":3.29,"total":266.77,"status":"paid","paidOn":"2026-08-26","paidMonth":"2026-08","due":"2026-08-26","note":"PAID AT REGISTER - Mastercard chip, approval 0526BJ, 08/26/2026","openAmount":0.0,"card":"Mastercard (last 4 not printed)"},{"vendor":"Sysco","number":"924469399","date":"2026-08-26","week":"A5","product":507.42,"fees":16.01,"total":523.43,"status":"paid","paidOn":"2026-09-08","paidMonth":"2026-09","due":"2026-09-09","note":"NET 14 - payable on or before 09/09/2026 - PAID BY SYSCOPAY ACH 09/08/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Fees = $10.00 fuel surcharge. Tax $6.01 = $5.90 on pot & pan detergent + $0.11 on fuel. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"884661","date":"2026-08-26","week":"A5","product":380.25,"fees":41.31,"total":421.56,"status":"paid","paidOn":"2026-09-25","paidMonth":"2026-09","due":"2026-09-25","note":"NET 30 DAYS - remit by 09/25/2026 - PAID BY EFT 09/25/2026 (EFT0925, US Foods payment history)","openAmount":0.0,"card":null},{"vendor":"Southern Glazer's Wine & Spirits","number":"02448750","date":"2026-08-27","week":"A5","product":2530.17,"fees":198.82,"total":2728.99,"status":"paid","paidOn":"2026-09-02","paidMonth":"2026-09","due":"2026-09-03","note":"Due 09/03/2026 - PAID VIA FINTECH 09/02/2026, $2,728.99 (Fintech report). Tax column = printed 'Summary Level Adjustments' $198.82 (appears to be per-litre spirits excise - confirm)","openAmount":0.0,"card":null},{"vendor":"Southern Glazer's Wine & Spirits","number":"09042059","date":"2026-08-27","week":"A5","product":-30.0,"fees":-2.74,"total":-32.74,"status":"paid","paidOn":"2026-09-02","paidMonth":"2026-09","due":"2026-09-03","note":"Due 09/03/2026 - PAID VIA FINTECH 09/02/2026 - credit against 02448750, netted in the same Fintech run (-$30.00 product, -$2.74 adjustment = -$32.74)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"124B3459M","date":"2026-08-27","week":"A5","product":89.42,"fees":0.0,"total":89.42,"status":"paid","paidOn":"2026-09-09","paidMonth":"2026-09","due":"2026-09-10","note":"NET 14 - payable on or before 09/10/2026 - PAID BY SYSCOPAY ACH 09/09/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). CN14 Net 14, Sysco Food Srvcs-Chicago format (same as 124B2794M). One case of furikake, no fuel. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"308299","date":"2026-08-28","week":"A5","product":381.5,"fees":7.95,"total":389.45,"status":"paid","paidOn":"2026-09-04","paidMonth":"2026-09","due":"2026-09-07","note":"NET CASH 7 DAYS ACH - shipped 08/31, was due 09/07/2026 - PAID BY ACH 09/04/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Restaurant Depot","number":"C16 I11309","date":"2026-08-28","week":"A5","product":62.13,"fees":0.78,"total":62.91,"status":"paid","paidOn":"2026-08-28","paidMonth":"2026-08","due":"2026-08-28","note":"PAID AT REGISTER - Mastercard contactless, approval 08866J, 08/28/2026","openAmount":0.0,"card":"Mastercard (last 4 not printed)"},{"vendor":"Sysco","number":"924474265","date":"2026-08-28","week":"A5","product":228.36,"fees":10.0,"total":238.36,"status":"paid","paidOn":"2026-09-10","paidMonth":"2026-09","due":"2026-09-11","note":"NET 14 - payable on or before 09/11/2026 - PAID BY SYSCOPAY ACH 09/10/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Fees = $10.00 fuel surcharge, not taxed. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1000136","date":"2026-08-28","week":"A5","product":63.43,"fees":0.63,"total":64.06,"status":"paid","paidOn":"2026-09-28","paidMonth":"2026-09","due":"2026-09-27","note":"NET 30 DAYS - remit by 09/27/2026 - PAID BY EFT 09/28/2026 (EFT0928, US Foods payment history). Direct ship, FedEx; shipped 08/27","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"990651","date":"2026-08-28","week":"A5","product":744.09,"fees":23.88,"total":767.97,"status":"paid","paidOn":"2026-09-28","paidMonth":"2026-09","due":"2026-09-27","note":"NET 30 DAYS - remit by 09/27/2026 - PAID BY EFT 09/28/2026 (EFT0928, US Foods payment history). Product $749.09 less $5.00 flyer savings","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"990652","date":"2026-08-28","week":"A5","product":105.0,"fees":8.92,"total":113.92,"status":"paid","paidOn":"2026-09-28","paidMonth":"2026-09","due":"2026-09-27","note":"NET 30 DAYS - remit by 09/27/2026 - PAID BY EFT 09/28/2026 (EFT0928, US Foods payment history). Same truck as 990651, no fuel.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924479285","date":"2026-08-29","week":"A5","product":159.77,"fees":10.0,"total":169.77,"status":"paid","paidOn":"2026-09-11","paidMonth":"2026-09","due":"2026-09-12","note":"NET 14 - payable on or before 09/12/2026 - PAID BY SYSCOPAY ACH 09/11/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). Fees = $10.00 fuel surcharge (flagged taxable, no tax charged). Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD149336","date":"2026-08-31","week":"S1","product":146.7,"fees":0.0,"total":146.7,"status":"paid","paidOn":null,"paidMonth":"2026-09","due":null,"note":"NO TERMS PRINTED - balance due $146.70, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924481745","date":"2026-08-31","week":"S1","product":978.11,"fees":27.19,"total":1005.3,"status":"paid","paidOn":"2026-09-14","paidMonth":"2026-09","due":"2026-09-14","note":"NET 14 - was payable on or before 09/14/2026 - PAID BY SYSCOPAY ACH 09/14/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1048731","date":"2026-08-31","week":"S1","product":674.62,"fees":22.5,"total":697.12,"status":"paid","paidOn":"2026-09-30","paidMonth":"2026-09","due":"2026-09-30","note":"NET 30 DAYS - due 09/30/2026 - PAID BY EFT 09/30/2026 (EFT0930, US Foods payment history). Clean PDF received: delivered amount $697.12 final, no adjustments.","openAmount":0.0,"card":null},{"vendor":"NuCO2","number":"84535362","date":"2026-09-01","week":"S1","product":211.19,"fees":0.0,"total":211.19,"status":"paid","paidOn":"2026-10-01","paidMonth":"2026-10","due":"2026-09-01","note":"Due upon receipt (NuCO2 BillerIQ notice, account 807580, Exodo Hospitality LLC). Total only - rent, the $14.95 processing fee and tax are inside the product figure. PAID 10/01/2026 by NuCO2 recurring payment, confirmation 3142628957, MasterCard ****1133, $211.19 - matched to the cent.","openAmount":0.0,"card":"Mastercard 1133 (NuCO2 autopay)"},{"vendor":"Allen Brothers","number":"310636","date":"2026-09-02","week":"S1","product":382.82,"fees":7.95,"total":390.77,"status":"paid","paidOn":"2026-09-11","paidMonth":"2026-09","due":"2026-09-10","note":"NET CASH 7 DAYS ACH - shipped 09/03, was due 09/10/2026 - PAID BY ACH 09/11/2026 (Allen Brothers account statement)  |  INVOICE NUMBER CORRECTED 10/05: read as 310838 on the scan; the Allen Brothers account statement lists it as 310636 (same date 09/02, same $390.77).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924489535","date":"2026-09-02","week":"S1","product":252.26,"fees":10.0,"total":262.26,"status":"paid","paidOn":"2026-09-15","paidMonth":"2026-09","due":"2026-09-16","note":"NET 14 - was payable on or before 09/16/2026 - PAID BY SYSCOPAY ACH 09/15/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"311399","date":"2026-09-03","week":"S1","product":380.54,"fees":7.95,"total":388.49,"status":"paid","paidOn":"2026-09-11","paidMonth":"2026-09","due":"2026-09-11","note":"NET CASH 7 DAYS ACH - shipped 09/04, was due 09/11/2026 - PAID BY ACH 09/11/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"311408","date":"2026-09-03","week":"S1","product":249.84,"fees":0.0,"total":249.84,"status":"paid","paidOn":"2026-09-11","paidMonth":"2026-09","due":"2026-09-11","note":"NET CASH 7 DAYS ACH - shipped 09/04, was due 09/11/2026 - PAID BY ACH 09/11/2026 (Allen Brothers account statement). No fuel surcharge.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD151179","date":"2026-09-04","week":"S1","product":113.7,"fees":0.0,"total":113.7,"status":"paid","paidOn":null,"paidMonth":"2026-09","due":null,"note":"NO TERMS PRINTED - balance due $113.70, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026)","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924494567","date":"2026-09-04","week":"S1","product":442.24,"fees":0.0,"total":442.24,"status":"paid","paidOn":"2026-09-17","paidMonth":"2026-09","due":"2026-09-18","note":"NET 14 - payable on or before 09/18/2026 - PAID BY SYSCOPAY ACH 09/17/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903). SAME TRUCK as 924494568 (manifest 1431813 / 1431813 route 7855) - this invoice carries no fuel; the $10.00 fuel sits on 924494568, which explains its one-case-plus-fuel oddity. Cilantro out of stock. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924494568","date":"2026-09-04","week":"S1","product":37.27,"fees":10.0,"total":47.27,"status":"paid","paidOn":"2026-09-17","paidMonth":"2026-09","due":"2026-09-18","note":"NET 14 - was payable on or before 09/18/2026 - PAID BY SYSCOPAY ACH 09/17/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1259553","date":"2026-09-04","week":"S1","product":863.17,"fees":27.24,"total":890.41,"status":"paid","paidOn":"2026-10-05","paidMonth":"2026-10","due":"2026-10-04","note":"NET 30 DAYS - due 10/04/2026 (a Sunday; on US Foods' pattern the EFT runs Monday 10/05 - not yet confirmed, send the October payment-history page) (page 01 of 02; total is an estimate) PAID BY EFT 10/05/2026 (EFT1005, US Foods payment history, account AYAYAY PNTO #91704049, $890.41 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1279871","date":"2026-09-05","week":"S1","product":496.24,"fees":52.19,"total":548.43,"status":"paid","paidOn":"2026-10-05","paidMonth":"2026-10","due":"2026-10-05","note":"NET 30 DAYS - due 10/05/2026 - PAID BY EFT 10/05/2026 (EFT1005, US Foods payment history, $548.43). Entered from a degraded scan as 1237687 dated 09/06 for $548.41 (an estimate); US Foods' payment history shows the real number 1279871, dated 09/05, final total $548.43 - corrected 11/05 on the owner's confirmation. The $0.02 between the printed estimate and the final amount is added to the Sales Tax column ($42.17 to $42.19).","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD152067","date":"2026-09-06","week":"S1","product":38.4,"fees":0.0,"total":38.4,"status":"paid","paidOn":null,"paidMonth":"2026-09","due":null,"note":"NO TERMS PRINTED - balance due $38.40, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026)","openAmount":0.0,"card":null},{"vendor":"Restaurant Depot","number":"C14 I5975","date":"2026-09-06","week":"S1","product":61.25,"fees":0.92,"total":62.17,"status":"paid","paidOn":"2026-09-06","paidMonth":"2026-09","due":"2026-09-06","note":"PAID AT REGISTER - Mastercard contactless, approval 0099J, 09/06/2026","openAmount":0.0,"card":"Mastercard (last 4 not printed)"},{"vendor":"Gordon Food Service","number":"Store 1941 / Txn 63","date":"2026-09-07","week":"S2","product":145.95,"fees":3.28,"total":149.23,"status":"paid","paidOn":"2026-09-07","paidMonth":"2026-09","due":"2026-09-07","note":"PAID AT REGISTER - Visa debit ****7347, approval 174061, 09/07/2026","openAmount":0.0,"card":"Visa debit 7347"},{"vendor":"Sysco","number":"924501494","date":"2026-09-07","week":"S2","product":1761.04,"fees":40.64,"total":1801.68,"status":"paid","paidOn":"2026-09-21","paidMonth":"2026-09","due":"2026-09-21","note":"NET 14 - was payable on or before 09/21/2026 - PAID BY SYSCOPAY ACH 09/21/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"313208","date":"2026-09-08","week":"S2","product":427.21,"fees":7.95,"total":435.16,"status":"paid","paidOn":"2026-09-18","paidMonth":"2026-09","due":"2026-09-16","note":"NET CASH 7 DAYS ACH - shipped 09/09, was due 09/16/2026 - PAID BY ACH 09/18/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"CCS Cutlery","number":"335401","date":"2026-09-08","week":"S2","product":25.0,"fees":0.0,"total":25.0,"status":"paid","paidOn":"2026-09-08","paidMonth":"2026-09","due":"2026-09-08","note":"CREDIT CARD - paid on delivery 09/08/2026","openAmount":0.0,"card":"Card (not printed)"},{"vendor":"El Popocatepetl","number":"FD152641","date":"2026-09-08","week":"S2","product":97.75,"fees":0.0,"total":97.75,"status":"paid","paidOn":null,"paidMonth":"2026-09","due":null,"note":"NO TERMS PRINTED - balance due $97.75, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026)","openAmount":0.0,"card":null},{"vendor":"Lakeshore Beverage","number":"432248","date":"2026-09-08","week":"S2","product":656.0,"fees":26.25,"total":682.25,"status":"paid","paidOn":"2026-09-09","paidMonth":"2026-09","due":"2026-09-08","note":"FINTECH - charged on delivery 09/08/2026; Fintech payment date 09/09/2026, $682.25 (Fintech report)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1363784","date":"2026-09-08","week":"S2","product":426.4,"fees":21.14,"total":447.54,"status":"paid","paidOn":"2026-10-08","paidMonth":"2026-10","due":"2026-10-08","note":"NET 30 DAYS - due 10/08/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/08/2026 (EFT1008, US Foods payment history, $447.54). The file carried the printed estimate of $578.44; US Foods billed the final delivered amount of $447.54 - $130.90 less, consistent with the 'no ingreso lechuga / no ingreso pera' note. On the owner's instruction (11/05) the difference is entered as a -$130.90 delivery-adjustment line, so product is $426.40 and the invoice total $447.54.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1363786","date":"2026-09-08","week":"S2","product":1040.61,"fees":73.91,"total":1114.52,"status":"paid","paidOn":"2026-10-08","paidMonth":"2026-10","due":"2026-10-08","note":"NET 30 DAYS - due 10/08/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/08/2026 (EFT1008, US Foods payment history, account AYAYAY PNTO #91704049, $1,114.52 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1363787","date":"2026-09-08","week":"S2","product":862.3,"fees":17.24,"total":879.54,"status":"paid","paidOn":"2026-10-08","paidMonth":"2026-10","due":"2026-10-08","note":"NET 30 DAYS - due 10/08/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/08/2026 (EFT1008, US Foods payment history, account AYAYAY PNTO #91704049, $879.54 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD153402","date":"2026-09-09","week":"S2","product":97.75,"fees":0.0,"total":97.75,"status":"paid","paidOn":null,"paidMonth":"2026-09","due":null,"note":"NO TERMS PRINTED - balance due $97.75, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1420213","date":"2026-09-09","week":"S2","product":74.46,"fees":1.12,"total":75.58,"status":"paid","paidOn":"2026-10-09","paidMonth":"2026-10","due":"2026-10-09","note":"NET 30 DAYS - remit by 10/09/2026 (direct ship, FedEx; shipped 08/24/2026) PAID BY EFT 10/09/2026 (EFT1009, US Foods payment history, account AYAYAY PNTO #91704049, $75.58 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924508822","date":"2026-09-10","week":"S2","product":287.07,"fees":10.0,"total":297.07,"status":"paid","paidOn":"2026-09-23","paidMonth":"2026-09","due":"2026-09-24","note":"NET 14 - was payable on or before 09/24/2026 - PAID BY SYSCOPAY ACH 09/23/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1476830","date":"2026-09-10","week":"S2","product":273.7,"fees":2.75,"total":276.45,"status":"paid","paidOn":"2026-10-12","paidMonth":"2026-10","due":"2026-10-10","note":"NET 30 DAYS - remit by 10/10/2026 (direct ship, FedEx; product $274.71 less $1.01 credit) PAID BY EFT 10/12/2026 (EFT1012, US Foods payment history, account AYAYAY PNTO #91704049, $276.45 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"315058","date":"2026-09-11","week":"S2","product":133.34,"fees":7.95,"total":141.29,"status":"paid","paidOn":"2026-09-18","paidMonth":"2026-09","due":"2026-09-19","note":"NET CASH 7 DAYS ACH - shipped 09/12, was due 09/19/2026 - PAID BY ACH 09/18/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"315066","date":"2026-09-11","week":"S2","product":260.74,"fees":0.0,"total":260.74,"status":"paid","paidOn":"2026-09-18","paidMonth":"2026-09","due":"2026-09-19","note":"NET CASH 7 DAYS ACH - shipped 09/12, was due 09/19/2026 - PAID BY ACH 09/18/2026 (Allen Brothers account statement). No fuel surcharge.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924516759","date":"2026-09-12","week":"S2","product":284.26,"fees":10.0,"total":294.26,"status":"paid","paidOn":"2026-09-25","paidMonth":"2026-09","due":"2026-09-26","note":"NET 14 - was payable on or before 09/26/2026 - PAID BY SYSCOPAY ACH 09/25/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD155536","date":"2026-09-14","week":"S3","product":67.6,"fees":1.96,"total":69.56,"status":"paid","paidOn":"2026-09-30","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $67.60, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026) Fees = $1.96 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $69.56. Paid 09/30 by PYMT25829 - part of the $250.97 balance forward on the 11/04 statement (FD155536 $69.56 + FD157362 $181.41). Paid On moved to 10/01/2026 on the owner's instruction (11/05): the statement dates PYMT25829 ($477.04) 09/30, but it is counted as an October payment so El Popocatepetl's October payments match Daniel's $1,535.57.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924519252","date":"2026-09-14","week":"S3","product":807.5,"fees":13.39,"total":820.89,"status":"paid","paidOn":"2026-09-28","paidMonth":"2026-09","due":"2026-09-28","note":"NET 14 - was payable on or before 09/28/2026 - PAID BY SYSCOPAY ACH 09/28/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1584223","date":"2026-09-14","week":"S3","product":724.23,"fees":71.54,"total":795.77,"status":"paid","paidOn":"2026-10-14","paidMonth":"2026-10","due":"2026-10-14","note":"NET 30 DAYS - due 10/14/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/14/2026 (EFT1014, US Foods payment history, account AYAYAY PNTO #91704049, $795.77 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1584224","date":"2026-09-14","week":"S3","product":637.85,"fees":13.82,"total":651.67,"status":"paid","paidOn":"2026-10-14","paidMonth":"2026-10","due":"2026-10-14","note":"NET 30 DAYS - due 10/14/2026 (page 01 of 02; total is an estimate). Same truck as 1584223, no fuel. PAID BY EFT 10/14/2026 (EFT1014, US Foods payment history, account AYAYAY PNTO #91704049, $651.67 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"316729","date":"2026-09-15","week":"S3","product":647.4,"fees":7.95,"total":655.35,"status":"paid","paidOn":"2026-09-26","paidMonth":"2026-09","due":"2026-09-23","note":"NET CASH 7 DAYS ACH - shipped 09/16, was due 09/23/2026 - PAID BY ACH 09/26/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1646669","date":"2026-09-15","week":"S3","product":74.51,"fees":1.12,"total":75.63,"status":"paid","paidOn":"2026-10-15","paidMonth":"2026-10","due":"2026-10-15","note":"NET 30 DAYS - remit by 10/15/2026 (direct ship, FedEx; shipped 09/01/2026) PAID BY EFT 10/15/2026 (EFT1015, US Foods payment history, account AYAYAY PNTO #91704049, $75.63 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Farmers Best Market","number":"00389413","date":"2026-09-16","week":"S3","product":45.19,"fees":0.98,"total":46.17,"status":"paid","paidOn":"2026-09-16","paidMonth":"2026-09","due":"2026-09-16","note":"PAID AT REGISTER - Visa debit ****7347, approval 114475, 09/16/2026","openAmount":0.0,"card":"Visa debit 7347"},{"vendor":"Sysco","number":"924523660","date":"2026-09-16","week":"S3","product":337.27,"fees":10.0,"total":347.27,"status":"paid","paidOn":"2026-09-29","paidMonth":"2026-09","due":"2026-09-30","note":"NET 14 - was payable on or before 09/30/2026 - PAID BY SYSCOPAY ACH 09/29/2026 (Sysco payment report, EXODO ACCOUNT ACH-8903)","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1741945","date":"2026-09-17","week":"S3","product":433.8,"fees":38.02,"total":471.82,"status":"paid","paidOn":"2026-10-19","paidMonth":"2026-10","due":"2026-10-17","note":"NET 30 DAYS - due 10/17/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/19/2026 (EFT1019, US Foods payment history, account AYAYAY PNTO #91704049, $471.82 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1741947","date":"2026-09-17","week":"S3","product":359.18,"fees":7.18,"total":366.36,"status":"paid","paidOn":"2026-10-19","paidMonth":"2026-10","due":"2026-10-17","note":"NET 30 DAYS - due 10/17/2026 (page 01 of 02; total is an estimate). Same truck as 1741945, no fuel. PAID BY EFT 10/19/2026 (EFT1019, US Foods payment history, account AYAYAY PNTO #91704049, $366.36 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1743784","date":"2026-09-17","week":"S3","product":100.02,"fees":2.0,"total":102.02,"status":"paid","paidOn":"2026-10-19","paidMonth":"2026-10","due":"2026-10-17","note":"NET 30 DAYS - remit by 10/17/2026 (will call - picked up 09/17) PAID BY EFT 10/19/2026 (EFT1019, US Foods payment history, account AYAYAY PNTO #91704049, $102.02 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"318839","date":"2026-09-18","week":"S3","product":322.38,"fees":7.95,"total":330.33,"status":"paid","paidOn":"2026-09-26","paidMonth":"2026-09","due":"2026-09-26","note":"NET CASH 7 DAYS ACH - shipped 09/19, was due 09/26/2026 - PAID BY ACH 09/26/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"318845","date":"2026-09-18","week":"S3","product":642.43,"fees":7.95,"total":650.38,"status":"paid","paidOn":"2026-09-26","paidMonth":"2026-09","due":"2026-09-28","note":"NET CASH 7 DAYS ACH - shipped 09/21 (Monday), was due 09/28/2026 - PAID BY ACH 09/26/2026 (Allen Brothers account statement). Fees = $7.95 fuel surcharge, no tax. Cust P.O. MONDAY, cust service VVillalpando. Cash-discounted; $669.89 if not paid by check/ACH/wire. The statement dates the due as 09/25 (7 days from invoice). Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD157362","date":"2026-09-18","week":"S3","product":176.3,"fees":5.11,"total":181.41,"status":"paid","paidOn":"2026-09-30","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $176.30, PAID IN SEPTEMBER 2026 per owner (confirmed 10/05; exact payment date not supplied, Paid On set to month-end 09/30/2026) Fees = $5.11 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $181.41. Paid 09/30 by PYMT25829 - part of the $250.97 balance forward on the 11/04 statement (FD155536 $69.56 + FD157362 $181.41). Paid On moved to 10/01/2026 on the owner's instruction (11/05): the statement dates PYMT25829 ($477.04) 09/30, but it is counted as an October payment so El Popocatepetl's October payments match Daniel's $1,535.57.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924529358","date":"2026-09-18","week":"S3","product":170.0,"fees":0.0,"total":170.0,"status":"paid","paidOn":"2026-10-01","paidMonth":"2026-10","due":"2026-10-02","note":"NET 14 - was payable on or before 10/02/2026 - PAST DUE (dish machine lease, August billing) PAID BY SYSCOPAY ACH 10/01/2026 (Sysco payment report, ref 261001-vyRSeuXc, EXODO ACCOUNT ACH-8903, $170.00 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Restaurant Depot","number":"OP291886","date":"2026-09-19","week":"S3","product":123.77,"fees":1.86,"total":125.63,"status":"paid","paidOn":"2026-09-19","paidMonth":"2026-09","due":"2026-09-19","note":"PAID AT REGISTER - Mastercard contactless, approval 05234J, 09/19/2026","openAmount":0.0,"card":"Mastercard (last 4 not printed)"},{"vendor":"Sysco","number":"924535220","date":"2026-09-19","week":"S3","product":618.63,"fees":11.35,"total":629.98,"status":"paid","paidOn":"2026-10-02","paidMonth":"2026-10","due":"2026-10-03","note":"NET 14 - was payable on or before 10/03/2026 - PAST DUE PAID BY SYSCOPAY ACH 10/02/2026 (Sysco payment report, ref 261002-53Rcp407, EXODO ACCOUNT ACH-8903, $629.98 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924536869","date":"2026-09-21","week":"S4","product":780.88,"fees":10.0,"total":790.88,"status":"paid","paidOn":"2026-10-05","paidMonth":"2026-10","due":"2026-10-05","note":"NET 14 - payable on or before 10/05/2026 (2 pages) PAID BY SYSCOPAY ACH 10/05/2026 (Sysco payment report, ref 261005-epidMAM9, EXODO ACCOUNT ACH-8903, $790.88 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1857055","date":"2026-09-21","week":"S4","product":710.52,"fees":61.24,"total":771.76,"status":"paid","paidOn":"2026-10-21","paidMonth":"2026-10","due":"2026-10-21","note":"NET 30 DAYS - due 10/21/2026 (page 01 of 02; total is an estimate). Fees = $12.00 fuel + $35.00 PRONTO UNDER MIN PAID BY EFT 10/21/2026 (EFT1021, US Foods payment history, account AYAYAY PNTO #91704049, $771.76 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1867447","date":"2026-09-21","week":"S4","product":95.04,"fees":1.46,"total":96.5,"status":"paid","paidOn":"2026-10-21","paidMonth":"2026-10","due":"2026-10-21","note":"NET 30 DAYS - remit by 10/21/2026 (direct ship, FedEx; shipped 09/17; product $97.30 less $2.26 credit) PAID BY EFT 10/21/2026 (EFT1021, US Foods payment history, account AYAYAY PNTO #91704049, $96.50 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1911525","date":"2026-09-22","week":"S4","product":140.67,"fees":58.96,"total":199.63,"status":"paid","paidOn":"2026-10-22","paidMonth":"2026-10","due":"2026-10-22","note":"NET 30 DAYS - remit by 10/22/2026. Fees = $12.00 fuel + $35.00 PRONTO UNDER MIN; 3 of 15 pieces shipped PAID BY EFT 10/22/2026 (EFT1022, US Foods payment history, account AYAYAY PNTO #91704049, $199.63 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"CM 2976181","date":"2026-09-22","week":"S4","product":-74.44,"fees":-1.12,"total":-75.56,"status":"paid","paidOn":"2026-09-23","paidMonth":"2026-09","due":"2026-09-23","note":"Due 09/23/2026 - PAID BY EFT 09/23/2026 (EFT0923, US Foods payment history) - credit memo 2976181 credits 358970 (paid 09/11) in full, CUST SAT; US Foods netted it against 783167 in EFT0923 ($711.66 - $75.56 = $636.10)","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD159673","date":"2026-09-23","week":"S4","product":219.7,"fees":6.37,"total":226.07,"status":"paid","paidOn":"2026-09-30","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $219.70, unpaid PAID 09/30/2026 by PYMT25829 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $226.07 against the $219.70 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $6.37 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $226.07. Paid On moved to 10/01/2026 on the owner's instruction (11/05): the statement dates PYMT25829 ($477.04) 09/30, but it is counted as an October payment so El Popocatepetl's October payments match Daniel's $1,535.57.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924542371","date":"2026-09-23","week":"S4","product":454.24,"fees":0.0,"total":454.24,"status":"paid","paidOn":"2026-10-06","paidMonth":"2026-10","due":"2026-10-07","note":"NET 14 - payable on or before 10/07/2026. Same truck as 924542372, no fuel. PAID BY SYSCOPAY ACH 10/06/2026 (Sysco payment report, ref 261006-t7ehZBsS, EXODO ACCOUNT ACH-8903, $454.24 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924542372","date":"2026-09-23","week":"S4","product":481.43,"fees":60.37,"total":541.8,"status":"paid","paidOn":"2026-10-06","paidMonth":"2026-10","due":"2026-10-07","note":"NET 14 - payable on or before 10/07/2026 PAID BY SYSCOPAY ACH 10/06/2026 (Sysco payment report, ref 261006-t7ehZBsS, EXODO ACCOUNT ACH-8903, $541.80 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"1961808","date":"2026-09-23","week":"S4","product":50.7,"fees":1.02,"total":51.72,"status":"paid","paidOn":"2026-10-23","paidMonth":"2026-10","due":"2026-10-23","note":"NET 30 DAYS - remit by 10/23/2026 (will call - picked up 09/23) PAID BY EFT 10/23/2026 (EFT1023, US Foods payment history, account AYAYAY PNTO #91704049, $51.72 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"322711","date":"2026-09-25","week":"S4","product":316.39,"fees":7.95,"total":324.34,"status":"paid","paidOn":"2026-10-02","paidMonth":"2026-10","due":"2026-10-03","note":"NET CASH 7 DAYS ACH - shipped 09/26, was due 10/03/2026 - PAID BY ACH 10/02/2026 (Allen Brothers account statement)","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"322714","date":"2026-09-25","week":"S4","product":319.57,"fees":0.0,"total":319.57,"status":"paid","paidOn":"2026-10-02","paidMonth":"2026-10","due":"2026-10-05","note":"NET CASH 7 DAYS ACH - shipped 09/28 (Monday), was due 10/05/2026 - PAID BY ACH 10/02/2026 (Allen Brothers account statement). No fuel surcharge (the 09/26 Saturday invoice 322711 carried it). Cust P.O. MONDAY, cust service mmartinez. Cash-discounted; $329.16 if not paid by check/ACH/wire. The statement dates the due as 10/02. Uploaded 10/05.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924546774","date":"2026-09-25","week":"S4","product":342.56,"fees":10.0,"total":352.56,"status":"paid","paidOn":"2026-10-08","paidMonth":"2026-10","due":"2026-10-09","note":"NET 14 - payable on or before 10/09/2026 PAID BY SYSCOPAY ACH 10/08/2026 (Sysco payment report, ref 261008-WBmfANuv, EXODO ACCOUNT ACH-8903, $352.56 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2064670","date":"2026-09-25","week":"S4","product":652.3,"fees":25.08,"total":677.38,"status":"paid","paidOn":"2026-10-26","paidMonth":"2026-10","due":"2026-10-25","note":"NET 30 DAYS - due 10/25/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/26/2026 (EFT1026, US Foods payment history, account AYAYAY PNTO #91704049, $677.38 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924552701","date":"2026-09-26","week":"S4","product":82.24,"fees":10.0,"total":92.24,"status":"paid","paidOn":"2026-10-09","paidMonth":"2026-10","due":"2026-10-10","note":"NET 14 - payable on or before 10/10/2026 PAID BY SYSCOPAY ACH 10/09/2026 (Sysco payment report, ref 261009-y4IgCPkl, EXODO ACCOUNT ACH-8903, $92.24 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2089405","date":"2026-09-26","week":"S4","product":767.98,"fees":77.26,"total":845.24,"status":"paid","paidOn":"2026-10-26","paidMonth":"2026-10","due":"2026-10-26","note":"NET 30 DAYS - due 10/26/2026 (page 01 of 02; total is an estimate) PAID BY EFT 10/26/2026 (EFT1026, US Foods payment history, account AYAYAY PNTO #91704049, $845.24 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2089406","date":"2026-09-26","week":"S4","product":52.12,"fees":1.04,"total":53.16,"status":"paid","paidOn":"2026-10-26","paidMonth":"2026-10","due":"2026-10-26","note":"NET 30 DAYS - due 10/26/2026 (page 01 of 01; total is an estimate). Same truck as 2089405, no fuel. PAID BY EFT 10/26/2026 (EFT1026, US Foods payment history, account AYAYAY PNTO #91704049, $53.16 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Mariano's","number":"REF 00790J","date":"2026-09-28","week":"O1","product":10.77,"fees":0.28,"total":11.05,"status":"paid","paidOn":"2026-09-28","paidMonth":"2026-09","due":"2026-09-28","note":"PAID AT REGISTER - Mastercard ****2501 (PIN), ref 00790J, 09/28/2026 3:30 PM, 333 E Benton Place. Tax $0.13 plus $0.15 Chicago checkout bag tax, both in the Sales Tax column.","openAmount":0.0,"card":"Mastercard 2501"},{"vendor":"Sysco","number":"924554801","date":"2026-09-28","week":"O1","product":737.71,"fees":10.0,"total":747.71,"status":"paid","paidOn":"2026-10-12","paidMonth":"2026-10","due":"2026-10-12","note":"NET 14 - payable on or before 10/12/2026 (2 pages). Fees = $10.00 fuel surcharge, no tax. Manifest 1435627. PAID BY SYSCOPAY ACH 10/12/2026 (Sysco payment report, ref 261012-s5YNbxA3, EXODO ACCOUNT ACH-8903, $747.71 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924557228","date":"2026-09-29","week":"O1","product":243.33,"fees":10.0,"total":253.33,"status":"paid","paidOn":"2026-10-12","paidMonth":"2026-10","due":"2026-10-13","note":"NET 14 - payable on or before 10/13/2026. Fees = $10.00 fuel surcharge, no tax. Manifest 1435823. PAID BY SYSCOPAY ACH 10/12/2026 (Sysco payment report, ref 261012-s5YNbxA3, EXODO ACCOUNT ACH-8903, $253.33 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"324907","date":"2026-09-30","week":"O1","product":505.5,"fees":7.95,"total":513.45,"status":"paid","paidOn":"2026-10-09","paidMonth":"2026-10","due":"2026-10-07","note":"NET CASH 7 DAYS ACH - shipped 10/01, due 10/07/2026 (cash-discounted; full price $528.85). Fees = $7.95 fuel surcharge. No cust PO printed; cust service VVillalpando. The 10/05 Allen Brothers statement shows it Not Yet Due. PAID 10/09/2026 per Allen Brothers account statement (11/05), $513.45 - matched to the cent. Paid 2 days after the due date - cash-discount price at risk.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD163512","date":"2026-10-01","week":"O1","product":141.15,"fees":4.09,"total":145.24,"status":"paid","paidOn":"2026-10-08","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $141.15. Delivered by Marcelo Ruiz, printed 10/01/2026 1:38 PM. PAID 10/08/2026 by PYMT26493 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $145.24 against the $141.15 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $4.09 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $145.24.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924565259","date":"2026-10-01","week":"O1","product":816.9,"fees":10.0,"total":826.9,"status":"paid","paidOn":"2026-10-14","paidMonth":"2026-10","due":"2026-10-15","note":"NET 14 - payable on or before 10/15/2026 (2 pages). Fees = $10.00 fuel surcharge, no tax. Manifest 1436289. PAID BY SYSCOPAY ACH 10/14/2026 (Sysco payment report, ref 261014-WNl524A4, EXODO ACCOUNT ACH-8903, $826.90 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"326352","date":"2026-10-02","week":"O1","product":315.67,"fees":7.95,"total":323.62,"status":"paid","paidOn":"2026-10-09","paidMonth":"2026-10","due":"2026-10-09","note":"NET CASH 7 DAYS ACH - shipped 10/03 (Saturday, PO 'SATURDAY'), due 10/09/2026 (cash-discounted; full price $333.33). Fees = $7.95 fuel surcharge. The 10/05 statement shows it Not Yet Due; its MONDAY partner 326353 ($324.46) has not been sent. PAID 10/09/2026 per Allen Brothers account statement (11/05), $323.62 - matched to the cent.","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"326353","date":"2026-10-02","week":"O1","product":316.51,"fees":7.95,"total":324.46,"status":"paid","paidOn":"2026-10-09","paidMonth":"2026-10","due":"2026-10-09","note":"NET CASH 7 DAYS ACH - shipped Monday 10/05 (PO 'MONDAY'), due 10/09/2026 (cash-discounted; full price $334.19). Fees = $7.95 fuel surcharge. Cust service khilbert. The partner of 326352 - not on the 10/05 statement; paper received 10/11. PAID 10/09/2026 per Allen Brothers account statement (11/05), $324.46 - matched to the cent.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924574106","date":"2026-10-03","week":"O1","product":191.45,"fees":16.47,"total":207.92,"status":"paid","paidOn":"2026-10-16","paidMonth":"2026-10","due":"2026-10-17","note":"NET 14 - payable on or before 10/17/2026. Fees = $10.00 fuel surcharge. Tax $6.47 = $6.15 on the towel roll + $0.32 on the fuel. Manifest 1436624. PAID BY SYSCOPAY ACH 10/16/2026 (Sysco payment report, ref 261016-EcjKta8M, EXODO ACCOUNT ACH-8903, $207.92 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2362474","date":"2026-10-03","week":"O1","product":227.73,"fees":22.67,"total":250.4,"status":"paid","paidOn":"2026-11-02","paidMonth":"2026-10","due":"2026-11-02","note":"NET 30 DAYS - due 11/02/2026 (AUTO DEDUCT; total is an estimate). Fees = $13.00 fuel surcharge - up from $12.00. Tax VAR% $9.67 on $227.73. Same truck as 2362475. Order 309645. PAID BY EFT 11/02/2026 (EFT1102, US Foods payment history, account AYAYAY PNTO #91704049, $250.40 - matched to the cent). Paid On moved to 10/31/2026 on the owner's instruction (11/05): US Foods dates EFT1102 ($804.68) 11/02, but it is counted as an October payment so US Foods' October payments match Daniel's $10,195.81.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2362475","date":"2026-10-03","week":"O1","product":532.7,"fees":21.58,"total":554.28,"status":"paid","paidOn":"2026-11-02","paidMonth":"2026-10","due":"2026-11-02","note":"NET 30 DAYS - due 11/02/2026 (AUTO DEDUCT; page 01 of 02; total is an estimate). Same truck as 2362474, no fuel. Tax VAR% $21.58 on $532.70. Order 309761. PAID BY EFT 11/02/2026 (EFT1102, US Foods payment history, account AYAYAY PNTO #91704049, $554.28 - matched to the cent). Paid On moved to 10/31/2026 on the owner's instruction (11/05): US Foods dates EFT1102 ($804.68) 11/02, but it is counted as an October payment so US Foods' October payments match Daniel's $10,195.81.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD165096","date":"2026-10-05","week":"O2","product":157.1,"fees":4.56,"total":161.66,"status":"paid","paidOn":"2026-10-15","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $157.10. Delivered by Omar, printed 10/05/2026 2:20 PM. PAID 10/15/2026 by PYMT27031 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $161.66 against the $157.10 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $4.56 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $161.66.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"124B4579M","date":"2026-10-05","week":"O2","product":85.3,"fees":0.0,"total":85.3,"status":"paid","paidOn":"2026-10-19","paidMonth":"2026-10","due":"2026-10-19","note":"CN14 Net 14 - payable on or before 10/19/2026. No fuel, no tax (single-item order, SYSCO FOOD SRVCS-CHICAGO). PAID BY SYSCOPAY ACH 10/19/2026 (Sysco payment report, ref 261019-n0USlmN6, EXODO ACCOUNT ACH-8903, $85.30 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924575860","date":"2026-10-05","week":"O2","product":97.55,"fees":0.0,"total":97.55,"status":"paid","paidOn":"2026-10-19","paidMonth":"2026-10","due":"2026-10-19","note":"Net 14 - payable on or before 10/19/2026. CUSTOMER WILL CALL (manifest 1436748) - never picked up; CANCELLED in full by credit memo 924578881 (10/06); the pair nets to $0.00. The cotija came on the 10/07 truck instead (924580756). PAID BY SYSCOPAY ACH 10/19/2026 (Sysco payment report, ref 261019-n0USlmN6, EXODO ACCOUNT ACH-8903, $97.55 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924576319","date":"2026-10-05","week":"O2","product":867.47,"fees":10.0,"total":877.47,"status":"paid","paidOn":"2026-10-19","paidMonth":"2026-10","due":"2026-10-19","note":"Net 14 - payable on or before 10/19/2026 (2 pages). Fees = $10.00 fuel surcharge, no tax. Manifest 1436778. PAID BY SYSCOPAY ACH 10/19/2026 (Sysco payment report, ref 261019-n0USlmN6, EXODO ACCOUNT ACH-8903, $877.47 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2405900","date":"2026-10-05","week":"O2","product":962.94,"fees":92.44,"total":1055.38,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-04","note":"NET 30 DAYS - remit by 11/04/2026 (AYAYAY PNTO; 3 pages). Fees = $13.00 fuel surcharge. Tax 8.25% $79.44 - everything on this truck is soda, water, tea or paper. Order 829547.","openAmount":1055.38,"card":null},{"vendor":"Lakeshore Beverage","number":"485235","date":"2026-10-06","week":"O2","product":516.0,"fees":22.83,"total":538.83,"status":"paid","paidOn":"2026-10-07","paidMonth":"2026-10","due":"2026-10-06","note":"Due 10/06/2026 (due on delivery; Lakeshore is normally charged through Fintech the next day - not on any Fintech report yet). Fees = $10.00 service charge. Tax $12.83 = $9.79 Chicago ONP + $3.04 Cook County. Billed to 'EXODO HOSPITALITY LLC dba Ayayay'. PAID BY FINTECH ACH 10/07/2026 (Fintech 'My Invoices' report, October 2026, pay method 8903, $538.83 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"CM 924578881","date":"2026-10-06","week":"O2","product":-97.55,"fees":0.0,"total":-97.55,"status":"paid","paidOn":"2026-10-06","paidMonth":"2026-10","due":"2026-10-19","note":"CREDIT MEMO - cancels will-call 924575860 (10/05) in full, 'W/C INVOICE NOT PICKED UP'; the pair nets to $0.00. Sysco should net it against 924575860 - check both are gone from the next SyscoPay report. PAID BY SYSCOPAY ACH 10/06/2026 (Sysco payment report, ref 261006-t7ehZBsS, EXODO ACCOUNT ACH-8903, $-97.55 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2441715","date":"2026-10-06","week":"O2","product":721.2,"fees":55.22,"total":776.42,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-05","note":"NET 30 DAYS - remit by 11/05/2026 (AUTO DEDUCT; 3 pages; total is an estimate). Fees = $13.00 fuel + $35.00 PRONTO UNDER MIN. Tax 1.000% $7.22 on $721.20. Order 830339.","openAmount":776.42,"card":null},{"vendor":"Allen Brothers","number":"328691","date":"2026-10-07","week":"O2","product":774.09,"fees":7.95,"total":782.04,"status":"paid","paidOn":"2026-10-16","paidMonth":"2026-10","due":"2026-10-14","note":"NET CASH 7 DAYS ACH - shipped 10/08, due 10/14/2026 (cash-discounted; full price $805.50). Fees = $7.95 fuel surcharge. No cust PO printed. PAID 10/16/2026 per Allen Brothers account statement (11/05), $782.04 - matched to the cent. Paid 2 days after the due date - cash-discount price at risk.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924580756","date":"2026-10-07","week":"O2","product":1231.46,"fees":15.24,"total":1246.7,"status":"paid","paidOn":"2026-10-20","paidMonth":"2026-10","due":"2026-10-21","note":"Net 14 - payable on or before 10/21/2026 (2 pages). Fees = $10.00 fuel surcharge. Tax $5.24 = $5.20 on the can liners + $0.04 on the fuel. Manifest 1437227. PAID BY SYSCOPAY ACH 10/20/2026 (Sysco payment report, ref 261020-paEoRvkt, EXODO ACCOUNT ACH-8903, $1,246.70 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"330069","date":"2026-10-09","week":"O2","product":374.87,"fees":7.95,"total":382.82,"status":"paid","paidOn":"2026-10-16","paidMonth":"2026-10","due":"2026-10-16","note":"NET CASH 7 DAYS ACH - shipped Saturday 10/10 (PO 'SATURDAY'), due 10/16/2026 (cash-discounted; full price $394.30). Fees = $7.95 fuel surcharge. Cust service TaRodriguez. PRICE UP to $6.99/LB from $5.99. PAID 10/16/2026 per Allen Brothers account statement (11/05), $382.82 - matched to the cent.","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"330071","date":"2026-10-09","week":"O2","product":594.22,"fees":7.95,"total":602.17,"status":"paid","paidOn":"2026-10-16","paidMonth":"2026-10","due":"2026-10-16","note":"NET CASH 7 DAYS ACH - shipped Monday 10/12 (PO 'MONDAY'), due 10/16/2026 (cash-discounted; full price $620.24). Fees = $7.95 fuel surcharge. Cust service TaRodriguez. PAID 10/16/2026 per Allen Brothers account statement (11/05), $602.17 - matched to the cent; Daniel's October payments ($1,767.03 on 10/16) include it. The invoice reached the file late (11/05).","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD167380","date":"2026-10-09","week":"O2","product":133.95,"fees":3.88,"total":137.83,"status":"paid","paidOn":"2026-10-15","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $133.95. Delivered by Omar, printed 10/09/2026 10:30 AM. PAID 10/15/2026 by PYMT27031 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $137.83 against the $133.95 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $3.88 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $137.83.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924585917","date":"2026-10-09","week":"O2","product":821.38,"fees":10.0,"total":831.38,"status":"paid","paidOn":"2026-10-22","paidMonth":"2026-10","due":"2026-10-23","note":"Net 14 - payable on or before 10/23/2026 (2 pages). Fees = $10.00 fuel surcharge, no tax. Manifest 1437671. PAID BY SYSCOPAY ACH 10/22/2026 (Sysco payment report, ref 261022-G5ejYE3A, EXODO ACCOUNT ACH-8903, $831.38 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2603683","date":"2026-10-09","week":"O2","product":521.06,"fees":18.21,"total":539.27,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-08","note":"NET 30 DAYS - remit by 11/08/2026 (AUTO DEDUCT; 3 pages; total is an estimate). Product $554.06 less $33.00 allowances ($3.00 flyer savings on the eggs, $30.00 closeout/overstock allowance on the mushrooms). Fees = $13.00 fuel. Tax 1.000% $5.21 on $521.06. Order 832665.","openAmount":539.27,"card":null},{"vendor":"US Foods","number":"2624536","date":"2026-10-09","week":"O2","product":74.61,"fees":1.12,"total":75.73,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-08","note":"NET 30 DAYS - remit by 11/08/2026. VENDOR SHIP (FedEx 878239568678, shipped 10/07). No fuel. Tax 1.50% $1.12. Order 830375.","openAmount":75.73,"card":null},{"vendor":"Sysco","number":"924592165","date":"2026-10-10","week":"O2","product":291.58,"fees":15.93,"total":307.51,"status":"paid","paidOn":"2026-10-23","paidMonth":"2026-10","due":"2026-10-24","note":"Net 14 - payable on or before 10/24/2026. Fees = $10.00 fuel surcharge. Tax $5.93 = $5.74 on the Ecolab sanitizer + $0.19 on the fuel. Manifest 1437844. PAID BY SYSCOPAY ACH 10/23/2026 (Sysco payment report, ref 261023-j8f0cffY, EXODO ACCOUNT ACH-8903, $307.51 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2634606","date":"2026-10-10","week":"O2","product":519.13,"fees":90.84,"total":609.97,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-09","note":"NET 30 DAYS - remit by 11/09/2026 (AYAYAY PNTO; 3 pages). Fees = $13.00 fuel + $35.00 PRONTO UNDER MIN - nine pieces only. Tax 8.25% $42.84 - soda, napkins and register tape. Order 833044.","openAmount":609.97,"card":null},{"vendor":"Restaurant Depot","number":"07337J","date":"2026-10-11","week":"O2","product":280.56,"fees":9.71,"total":290.27,"status":"paid","paidOn":"2026-10-11","paidMonth":"2026-10","due":"2026-10-11","note":"PAID AT REGISTER - Mastercard ****2501 contactless, approval 07337J, ref 2501: $290.27 of an $840.11 receipt. The other $549.84 went ON ACCOUNT (row '07337J-ACCT'). The top of the receipt is torn off, so no date, store or receipt number - dated 10/11/2026 (the day it was sent); confirm. This row carries the 18 items that can be read ($280.56) and the rest of the tax.","openAmount":0.0,"card":"Mastercard 2501"},{"vendor":"Restaurant Depot","number":"07337J-ACCT","date":"2026-10-11","week":"O2","product":497.59,"fees":52.25,"total":549.84,"status":"paid","paidOn":"2026-10-11","paidMonth":"2026-10","due":"2026-10-11","note":"ON ACCOUNT - $549.84 of the same $840.11 receipt charged to the Restaurant Depot account ('CASH OUT APPROVED BY #37158 - FRANCISC', balance $549.84); terms not printed. The item is on the torn-off top of the receipt: subtotal $778.15 less the $280.56 that can be read = $497.59, one unit, taxed at the general rate. Send the top of the receipt or the account statement. PAID 10/11/2026 per owner (confirmed 11/05: Restaurant Depot purchases are paid instantly, at the time of purchase - Paid On set to the receipt date).","openAmount":0.0,"card":"Restaurant Depot account 4243924"},{"vendor":"El Popocatepetl","number":"FD168684","date":"2026-10-12","week":"O3","product":200.5,"fees":5.81,"total":206.31,"status":"paid","paidOn":"2026-10-22","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $200.50. Delivered by Omar, printed 10/12/2026 10:01 AM. PAID 10/22/2026 by PYMT27546 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $206.31 against the $200.50 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $5.81 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $206.31.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924594273","date":"2026-10-12","week":"O3","product":1106.3,"fees":19.79,"total":1126.09,"status":"paid","paidOn":"2026-10-26","paidMonth":"2026-10","due":"2026-10-26","note":"Net 14 - payable on or before 10/26/2026 (2 pages). Fees = $10.00 fuel surcharge. Tax $9.79 = $9.71 on the Ecolab degreaser + $0.08 on the fuel. Manifest 1437997. PAID BY SYSCOPAY ACH 10/26/2026 (Sysco payment report, ref 261026-BqRyd7vz, EXODO ACCOUNT ACH-8903, $1,126.09 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2669159","date":"2026-10-12","week":"O3","product":913.9,"fees":22.14,"total":936.04,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-11","note":"NET 30 DAYS - remit by 11/11/2026 (AUTO DEDUCT; page 01 of 03; total is an estimate). Fees = $13.00 fuel surcharge. Tax 1.000% $9.14 on $913.90. Order 833551, route 8014.","openAmount":936.04,"card":null},{"vendor":"Sysco","number":"924596833","date":"2026-10-13","week":"O3","product":25.5,"fees":10.0,"total":35.5,"status":"paid","paidOn":"2026-10-26","paidMonth":"2026-10","due":"2026-10-27","note":"Net 14 - payable on or before 10/27/2026. Fees = $10.00 fuel surcharge on $25.50 of goods, no tax. Manifest 1438200. PAID BY SYSCOPAY ACH 10/26/2026 (Sysco payment report, ref 261026-BqRyd7vz, EXODO ACCOUNT ACH-8903, $35.50 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2719130","date":"2026-10-13","week":"O3","product":273.67,"fees":67.27,"total":340.94,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-12","note":"NET 30 DAYS - remit by 11/12/2026 (AYAYAY PNTO; 3 pages). Fees = $13.00 fuel + $35.00 PRONTO UNDER MIN - nine pieces only. Tax printed $19.27 at rate 8.25 (VAR) on $273.67. Order 834623.","openAmount":340.94,"card":null},{"vendor":"US Foods","number":"2738014","date":"2026-10-13","week":"O3","product":273.7,"fees":2.75,"total":276.45,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-12","note":"NET 30 DAYS - remit by 11/12/2026. VENDOR SHIP (FedEx 536527346830, shipped 10/11). No fuel. Product $274.71 less $1.01 Direct Ship Savings; tax 1.00% $2.75. Order 833045. Agave re-order - same as 1476830 (09/10).","openAmount":276.45,"card":null},{"vendor":"Allen Brothers","number":"332122","date":"2026-10-14","week":"O3","product":962.87,"fees":7.95,"total":970.82,"status":"paid","paidOn":"2026-10-23","paidMonth":"2026-10","due":"2026-10-21","note":"NET CASH 7 DAYS ACH - shipped 10/15, due 10/21/2026 (cash-discounted; full price $999.94). Fees = $7.95 fuel surcharge. No cust PO printed; cust service VVillalpando. PAID 10/23/2026 per Allen Brothers account statement (11/05), $970.82 - matched to the cent. Paid 2 days after the due date - cash-discount price at risk.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924599683","date":"2026-10-14","week":"O3","product":70.99,"fees":10.0,"total":80.99,"status":"paid","paidOn":"2026-10-27","paidMonth":"2026-10","due":"2026-10-28","note":"Net 14 - payable on or before 10/28/2026. Fees = $10.00 fuel surcharge, no tax. Manifest 1438437. PAID BY SYSCOPAY ACH 10/27/2026 (Sysco payment report, ref 261027-mKqfXeS8, EXODO ACCOUNT ACH-8903, $80.99 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924601404","date":"2026-10-15","week":"O3","product":562.29,"fees":10.0,"total":572.29,"status":"paid","paidOn":"2026-10-28","paidMonth":"2026-10","due":"2026-10-29","note":"Net 14 - payable on or before 10/29/2026. Fees = $10.00 fuel surcharge, no tax. Manifest 1438602. PAID BY SYSCOPAY ACH 10/28/2026 (Sysco payment report, ref 261028-UyiXR7oI, EXODO ACCOUNT ACH-8903, $572.29 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"333708","date":"2026-10-16","week":"O3","product":591.98,"fees":7.95,"total":599.93,"status":"paid","paidOn":"2026-10-23","paidMonth":"2026-10","due":"2026-10-23","note":"NET CASH 7 DAYS ACH - ships Monday 10/19 (PO 'MONDAY'), due 10/23/2026 (cash-discounted; full price $617.93). Fees = $7.95 fuel surcharge. Cust service VVillalpando. PAID 10/23/2026 per Allen Brothers account statement (11/05), $599.93 - matched to the cent.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924604391","date":"2026-10-16","week":"O3","product":1039.86,"fees":15.79,"total":1055.65,"status":"paid","paidOn":"2026-10-29","paidMonth":"2026-10","due":"2026-10-30","note":"Net 14 - payable on or before 10/30/2026 (2 pages). Fees = $10.00 fuel surcharge. Tax $5.79 = $5.74 on the gloves + $0.05 on the fuel. Manifest 1438838. PAID BY SYSCOPAY ACH 10/29/2026 (Sysco payment report, ref 261029-nsda2Gi9, EXODO ACCOUNT ACH-8903, $1,055.65 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2873466","date":"2026-10-16","week":"O3","product":656.21,"fees":67.13,"total":723.34,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-15","note":"NET 30 DAYS - remit by 11/15/2026 (AYAYAY PNTO; 3 pages). Fees = $13.00 fuel surcharge. Tax 8.25% $54.13 - soda, water and containers. Order 836386.","openAmount":723.34,"card":null},{"vendor":"El Popocatepetl","number":"FD171593","date":"2026-10-17","week":"O3","product":62.6,"fees":1.82,"total":64.42,"status":"paid","paidOn":"2026-10-22","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $62.60. Delivered by Omar, printed 10/17/2026 10:16 AM. PAID 10/22/2026 by PYMT27546 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $64.42 against the $62.60 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $1.82 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $64.42.","openAmount":0.0,"card":null},{"vendor":"Staples","number":"Store 1511 / Txn 15180","date":"2026-10-17","week":"O3","product":33.36,"fees":3.65,"total":37.01,"status":"paid","paidOn":"2026-10-17","paidMonth":"2026-10","due":"2026-10-17","note":"PAID AT REGISTER - Mastercard ****2501 contactless, 10/17/2026, Staples store 1511 (Chicago). Tax $3.50 (Illinois 10.5%) plus a $0.15 bag fee, both in the Sales Tax column. Office supplies.","openAmount":0.0,"card":"Mastercard 2501"},{"vendor":"Sysco","number":"924609850","date":"2026-10-17","week":"O3","product":236.85,"fees":0.0,"total":236.85,"status":"paid","paidOn":"2026-10-30","paidMonth":"2026-10","due":"2026-10-31","note":"Net 14 - payable on or before 10/31/2026. Same truck as 924609851 (manifest 1438960), no fuel, no tax. PAID BY SYSCOPAY ACH 10/30/2026 (Sysco payment report, ref 261030-okmHeNk1, EXODO ACCOUNT ACH-8903, $236.85 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924609851","date":"2026-10-17","week":"O3","product":319.6,"fees":10.0,"total":329.6,"status":"paid","paidOn":"2026-10-30","paidMonth":"2026-10","due":"2026-10-31","note":"Net 14 - payable on or before 10/31/2026. Fees = $10.00 fuel surcharge, no tax. Manifest 1438960. PAID BY SYSCOPAY ACH 10/30/2026 (Sysco payment report, ref 261030-okmHeNk1, EXODO ACCOUNT ACH-8903, $329.60 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Restaurant Depot","number":"C11 I10543","date":"2026-10-18","week":"O3","product":504.81,"fees":11.39,"total":516.2,"status":"paid","paidOn":"2026-10-18","paidMonth":"2026-10","due":"2026-10-18","note":"PAID AT REGISTER - Mastercard ****2501 contactless, approval 09719J, 10/18/2026 11:02 AM, store #42, account 4243924 (Daniel Avenado, 'HAVING FONS', 2566 N Clark St). Tax $11.39 = IL Food $6.94 + IL general $4.45 on the chef pants. Nothing on account.","openAmount":0.0,"card":"Mastercard 2501"},{"vendor":"Restaurant Depot","number":"C14 I15622","date":"2026-10-18","week":"O3","product":323.36,"fees":7.1,"total":330.46,"status":"paid","paidOn":"2026-10-18","paidMonth":"2026-10","due":"2026-10-18","note":"PAID AT REGISTER - Mastercard ****2501 contactless, 10/18/2026 11:13 AM (date faint - could be 10/19; confirm), store #42, account 4243924 (HAVING FONS). Tax $7.10 = IL food $4.48 + IL general $2.62 on the torch. Nothing on account.","openAmount":0.0,"card":"Mastercard 2501"},{"vendor":"El Popocatepetl","number":"FD172097","date":"2026-10-19","week":"O4","product":157.1,"fees":4.56,"total":161.66,"status":"paid","paidOn":"2026-10-28","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $157.10. Delivered by Omar, printed 10/19/2026 10:34 AM. PAID 10/28/2026 by PYMT28038 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $161.66 against the $157.10 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $4.56 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $161.66.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924611822","date":"2026-10-19","week":"O4","product":1093.14,"fees":21.99,"total":1115.13,"status":"paid","paidOn":"2026-11-02","paidMonth":"2026-11","due":"2026-11-02","note":"Net 14 - payable on or before 11/02/2026 (2 pages). Fees = $10.00 fuel surcharge. Tax $11.99 = $5.74 on the film + $6.15 on the towel roll + $0.10 on the fuel. Manifest 1439105. PAID BY SYSCOPAY ACH 11/02/2026 (Sysco payment report, ref 261102-UxSYgYVJ, EXODO ACCOUNT ACH-8903, $1,115.13 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"2935400","date":"2026-10-19","week":"O4","product":742.91,"fees":22.67,"total":765.58,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-18","note":"NET 30 DAYS - remit by 11/18/2026 (AUTO DEDUCT; page 01 of 03; total is an estimate). Fees = $13.00 fuel surcharge. Tax VAR% $9.67 on $742.91. Order 830328, route 8014.","openAmount":765.58,"card":null},{"vendor":"Allen Brothers","number":"335397","date":"2026-10-20","week":"O4","product":729.55,"fees":7.95,"total":737.5,"status":"paid","paidOn":"2026-10-30","paidMonth":"2026-10","due":"2026-10-27","note":"NET CASH 7 DAYS ACH - shipped 10/21, due 10/27/2026 (cash-discounted; full price $759.63). Fees = $7.95 fuel surcharge. No cust PO printed; cust service sshernandez. PAID 10/30/2026 per Allen Brothers account statement (11/05), $737.50 - matched to the cent. Paid 3 days after the due date - cash-discount price at risk.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924614563","date":"2026-10-21","week":"O4","product":170.0,"fees":0.0,"total":170.0,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-04","note":"Net 14 - payable on or before 11/04/2026. Keystone Ecolab dish-machine lease, SEPTEMBER 2026 billing (request 3013754). No fuel, no tax.","openAmount":170.0,"card":null},{"vendor":"Sysco","number":"924617437","date":"2026-10-21","week":"O4","product":419.74,"fees":0.0,"total":419.74,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-04","note":"Net 14 - payable on or before 11/04/2026. Same truck as 924617438 (manifest 1439609), no fuel, no tax.","openAmount":419.74,"card":null},{"vendor":"Sysco","number":"924617438","date":"2026-10-21","week":"O4","product":707.14,"fees":10.0,"total":717.14,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-04","note":"Net 14 - payable on or before 11/04/2026 (2 pages). Fees = $10.00 fuel surcharge, no tax. Manifest 1439609.","openAmount":717.14,"card":null},{"vendor":"Southern Glazer's Wine & Spirits","number":"02523892","date":"2026-10-22","week":"O4","product":3595.34,"fees":316.93,"total":3912.27,"status":"paid","paidOn":"2026-10-28","paidMonth":"2026-10","due":"2026-10-29","note":"Due 10/29/2026 (invoice-report PDF; Fintech). Spirits - vodka and tequila. $316.93 Summary Level Adjustment in the Sales Tax column as presumed spirits excise. PAID BY FINTECH ACH 10/28/2026 (Fintech 'My Invoices' report, October 2026, pay method 8903, $3,912.27 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"0134215","date":"2026-10-22","week":"O4","product":583.48,"fees":50.34,"total":633.82,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-21","note":"NET 30 DAYS - remit by 11/21/2026 (AUTO DEDUCT; 2 pages; total is an estimate). Fees = $13.00 fuel surcharge. Tax VAR% $37.34 - soda and lime juice. Order 841555, route 8044.","openAmount":633.82,"card":null},{"vendor":"US Foods","number":"0134818","date":"2026-10-22","week":"O4","product":843.93,"fees":11.19,"total":855.12,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-21","note":"NET 30 DAYS - remit by 11/21/2026 (AUTO DEDUCT; 3 pages; total is an estimate). Same truck as 0134215, no fuel. Product $846.93 less $3.00 flyer savings on the eggs. Tax VAR% $11.19. Order 841731.","openAmount":855.12,"card":null},{"vendor":"Allen Brothers","number":"337302","date":"2026-10-23","week":"O4","product":301.9,"fees":7.95,"total":309.85,"status":"paid","paidOn":"2026-10-30","paidMonth":"2026-10","due":"2026-10-30","note":"NET CASH 7 DAYS ACH - shipped Saturday 10/24 (PO 'Saturday'), due 10/30/2026 (cash-discounted; full price $319.15). Fees = $7.95 fuel surcharge. Cust service VVillalpando. PAID 10/30/2026 per Allen Brothers account statement (11/05), $309.85 - matched to the cent.","openAmount":0.0,"card":null},{"vendor":"Allen Brothers","number":"337304","date":"2026-10-23","week":"O4","product":753.52,"fees":7.95,"total":761.47,"status":"paid","paidOn":"2026-10-30","paidMonth":"2026-10","due":"2026-10-30","note":"NET CASH 7 DAYS ACH - ships Monday 10/26 (PO 'Monday'), due 10/30/2026 (cash-discounted; full price $784.31). Fees = $7.95 fuel surcharge. Cust service VVillalpando. PAID 10/30/2026 per Allen Brothers account statement (11/05), $761.47 - matched to the cent.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD174399","date":"2026-10-23","week":"O4","product":127.9,"fees":3.71,"total":131.61,"status":"paid","paidOn":"2026-10-28","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $127.90. Delivered by Omar, printed 10/23/2026 1:27 PM. PAID 10/28/2026 by PYMT28038 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $131.61 against the $127.90 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $3.71 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $131.61.","openAmount":0.0,"card":null},{"vendor":"El Popocatepetl","number":"FD174953","date":"2026-10-24","week":"O4","product":48.4,"fees":1.4,"total":49.8,"status":"paid","paidOn":"2026-10-28","paidMonth":"2026-10","due":null,"note":"NO TERMS PRINTED - balance due $48.40. Delivered by Omar, printed 10/24/2026 10:26 AM. PAID 10/28/2026 by PYMT28038 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $49.80 against the $48.40 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $1.40 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $49.80.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924627756","date":"2026-10-24","week":"O4","product":549.11,"fees":19.26,"total":568.37,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-07","note":"Net 14 - payable on or before 11/07/2026 (2 pages). Fees = $10.00 fuel surcharge. Tax $9.26 = $3.90 on the bags + $5.20 on the can liners + $0.16 on the fuel. Manifest 1440149.","openAmount":568.37,"card":null},{"vendor":"El Popocatepetl","number":"FD175635","date":"2026-10-26","week":"O5","product":121.95,"fees":3.54,"total":125.49,"status":"paid","paidOn":"2026-11-04","paidMonth":"2026-11","due":null,"note":"NO TERMS PRINTED - balance due $121.95. Delivered by Omar, printed 10/26/2026 10:18 AM. PAID 11/04/2026 by PYMT28554 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $125.49 against the $121.95 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $3.54 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $125.49.","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"924630105","date":"2026-10-26","week":"O5","product":942.74,"fees":10.0,"total":952.74,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-09","note":"Net 14 - payable on or before 11/09/2026 (2 pages). Fees = $10.00 fuel surcharge, no tax. Manifest 1440343.","openAmount":952.74,"card":null},{"vendor":"US Foods","number":"0262333","date":"2026-10-26","week":"O5","product":443.52,"fees":49.6,"total":493.12,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-25","note":"NET 30 DAYS - remit by 11/25/2026 (AUTO DEDUCT; 2 pages; total is an estimate). Fees = $13.00 fuel surcharge. Tax 8.250% $36.60 - soda, tea, napkins, cutlery kits. Order 843547, route 8014.","openAmount":493.12,"card":null},{"vendor":"US Foods","number":"0262335","date":"2026-10-26","week":"O5","product":1098.68,"fees":10.98,"total":1109.66,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-25","note":"NET 30 DAYS - remit by 11/25/2026 (AUTO DEDUCT; 3 pages; total is an estimate). Same truck as 0262333, no fuel. Tax 1.000% $10.98. Order 843773.","openAmount":1109.66,"card":null},{"vendor":"Lakeshore Beverage","number":"524967","date":"2026-10-27","week":"O5","product":172.0,"fees":14.27,"total":186.27,"status":"paid","paidOn":"2026-10-28","paidMonth":"2026-10","due":"2026-10-27","note":"Due 10/27/2026 (due on delivery; Lakeshore is normally charged through Fintech the next day - not on any Fintech report yet). Fees = $10.00 service charge. Tax $4.27 = Chicago ONP $3.26 + Cook County $1.01. PAID BY FINTECH ACH 10/28/2026 (Fintech 'My Invoices' report, October 2026, pay method 8903, $186.27 - matched to the cent).","openAmount":0.0,"card":null},{"vendor":"Sysco","number":"124B5215M","date":"2026-10-27","week":"O5","product":85.3,"fees":0.0,"total":85.3,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-10","note":"CN14 Net 14 - payable on or before 11/10/2026. No fuel, no tax (single-item order, SYSCO FOOD SRVCS-CHICAGO).","openAmount":85.3,"card":null},{"vendor":"Sysco","number":"924632590","date":"2026-10-27","week":"O5","product":262.8,"fees":6.14,"total":268.94,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-10","note":"Net 14 - payable on or before 11/10/2026. Same truck as 924632591 (manifest 1440535), no fuel. Tax $6.14 on the towel roll.","openAmount":268.94,"card":null},{"vendor":"Sysco","number":"924632591","date":"2026-10-27","week":"O5","product":157.9,"fees":10.0,"total":167.9,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-10","note":"Net 14 - payable on or before 11/10/2026. Fees = $10.00 fuel surcharge, no tax. Manifest 1440535.","openAmount":167.9,"card":null},{"vendor":"Sysco","number":"924635388","date":"2026-10-28","week":"O5","product":70.99,"fees":10.0,"total":80.99,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-11","note":"Net 14 - payable on or before 11/11/2026. Fees = $10.00 fuel surcharge on one $70.99 case, no tax. Manifest 1440764.","openAmount":80.99,"card":null},{"vendor":"Allen Brothers","number":"340263","date":"2026-10-29","week":"O5","product":362.43,"fees":7.95,"total":370.38,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-05","note":"NET CASH 7 DAYS ACH - shipped 10/30, due 11/05/2026 (cash-discounted; full price $381.49). Fees = $7.95 fuel surcharge. No cust PO printed; cust service sshernandez.","openAmount":370.38,"card":null},{"vendor":"US Foods","number":"0408819","date":"2026-10-29","week":"O5","product":691.7,"fees":49.1,"total":740.8,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-28","note":"NET 30 DAYS - remit by 11/28/2026 (AUTO DEDUCT; 3 pages; total is an estimate). Fees = $13.00 fuel surcharge. Tax $36.10 = VAR% sales tax $34.90 + $1.20 Chicago bottled water tax. Order 846005, route 8044.","openAmount":740.8,"card":null},{"vendor":"Allen Brothers","number":"340830","date":"2026-10-30","week":"O5","product":731.01,"fees":7.95,"total":738.96,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-06","note":"NET CASH 7 DAYS ACH - ships Monday 11/02 (PO 'MONDAY'), due 11/06/2026 (cash-discounted; full price $761.13). Fees = $7.95 fuel surcharge. Cust service TaRodriguez.","openAmount":738.96,"card":null},{"vendor":"Sysco","number":"924640104","date":"2026-10-30","week":"O5","product":628.75,"fees":30.41,"total":659.16,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-13","note":"Net 14 - payable on or before 11/13/2026. Fees = $10.00 fuel surcharge. Tax $20.41 = $20.09 on the two Keystone presoak cases + $0.32 on the fuel. Manifest 1441153.","openAmount":659.16,"card":null},{"vendor":"El Popocatepetl","number":"FD177908","date":"2026-10-31","week":"O5","product":38.4,"fees":1.11,"total":39.51,"status":"paid","paidOn":"2026-11-04","paidMonth":"2026-11","due":null,"note":"NO TERMS PRINTED - balance due $38.40. Delivered by Omar, printed 10/31/2026 10:46 AM. PAID 11/04/2026 by PYMT28554 per El Popocatepetl statement of account (11/04/2026, account 630, terms Net 8). The statement charges $39.51 against the $38.40 printed on the ticket - 2.9% more, apparently a card processing surcharge. Fees = $1.11 card processing surcharge (2.9%) added 11/05 to match the El Popocatepetl statement charge of $39.51.","openAmount":0.0,"card":null},{"vendor":"US Foods","number":"0497068","date":"2026-10-31","week":"O5","product":288.45,"fees":61.94,"total":350.39,"status":"open","paidOn":null,"paidMonth":null,"due":"2026-11-30","note":"NET 30 DAYS - remit by 11/30/2026 (AUTO DEDUCT; 3 pages; total is an estimate). Fees = $13.00 fuel + $35.00 PRONTO UNDER MIN - five pieces. Tax VAR% $13.94. Order 847243, route 8064.","openAmount":350.39,"card":null},{"vendor":"NuCO2","number":"85086271","date":"2026-11-01","week":"O5","product":199.43,"fees":36.46,"total":235.89,"status":"paid","paidOn":"2026-10-09","paidMonth":"2026-10","due":"2026-10-09","note":"Enrolled in Automatic Payment - customer 807580, delivery ticket 79163222 (service 10/09/2026). Fees = $14.95 invoice processing fee. Tax $21.51 ($2.48 + $13.89 + $3.57 + $1.57 on the fee). PAID 10/09/2026 per owner (confirmed 11/05: paid on the delivery date; exact debit not seen).","openAmount":0.0,"card":"Mastercard 1133 (NuCO2 autopay)"}],"watch":[{"tag":"To decide","title":"Decision 1 - Catering / Events in food sales","body":"$4,288.60. Catering / DD_Catering $1,623.70 and Events $2,664.90 through O3 are typed on the Sales sheet but excluded while Ratios!B2 = No. Type Yes in Ratios!B2 to include them everywhere. The $999.70 of Catering in A3 and A5 is known only as a combined figure - the A3 and A5 ProductMix files are needed to type it per week (not entered). O4's $722 catering trays came through Open Food and are counted.  [To decide]"},{"tag":"To decide","title":"Decision 2 - Agave and lime juice","body":"$1,511.62. Classed Food ($1,511.62 August-O4: agave incl. 3 cases $274.71 on US Foods 2738014 10/13; Natural Brands lime juice 2 cases $148.98 on 0134215 10/22). Moving them to Bar = change the Category on the Lines (Ctrl+F 'agave', 'lime juice'); every ratio follows.  [To decide]"},{"tag":"To decide","title":"Decision 3 - Payments position date","body":"$3,509.06. Owed!B2 is still 10/14/2026 (nothing past due at that date). On 11/06 six invoices ($3,509.06) are past their due date with no evidence: US Foods 2405900 and 2441715, Sysco 924614563 / 924617437 / 924617438 (SyscoPay shows them paid 11/03 but left NOT PAID per owner), Allen Brothers 340263. Type a new date in Owed!B2 to roll forward.  [To decide]"},{"tag":"To decide","title":"Decision 4 - Business cards","body":"Which are business cards: Restaurant Depot account 4243924 (Daniel Avenado / 'HAVING FONS, 2566 N Clark St'), Visa debit 7347 (GFS, Farmers Best), Mastercard 2501 (Mariano's, Staples, Restaurant Depot 10/11 and 10/18 runs), Mastercard 1133 (NuCO2 autopay)? Totals per card are on the Owed sheet; type Yes/No in its 'Business card?' column.  [To decide]"},{"tag":"To decide","title":"Decision 5 - November","body":"Extend this workbook (4 Calendar rows for N1-N4 + November on the Month list) or start a new one carrying the 28 open invoices. The TEST design is built to extend.  [To decide]"},{"tag":"Open","title":"Payment evidence needed","body":"$3,509.06. Past due on today's date with no evidence: US Foods 2405900 ($1,055.38, due 11/04) and 2441715 ($776.42, due 11/05) - send the November EFT history; Allen Brothers 340263 ($370.38, due 11/05) and 340830 ($738.96, due 11/06) - statement needed; Sysco 924614563 / 924617437 / 924617438 ($1,306.88) paid 11/03 on SyscoPay but kept NOT PAID per owner."},{"tag":"Open","title":"Next payment records","body":"SyscoPay November report (incl. the 11/03 payments); US Foods EFT history from EFT1102 on; Allen Brothers statement for 340263 / 340830; Fintech November report."},{"tag":"Open","title":"Daniel's records","body":"$11,845.94. $11,845.94 unexplained in Daniel's records (probably September invoices - owner said 'don't worry' for now). Daniel's store runs $1,322.48 vs file $1,723.78 (card receipts $1,173.94; gap $148.54)."},{"tag":"Open","title":"US Foods portal","body":"$136.04. Portal shows $9,090.61 owed vs file not-yet-due $9,226.65 (gap $136.04)."},{"tag":"Open","title":"Allen Brothers 308292 missing","body":"$392.57. 08/28, $392.57, paid 09/04 per statement - an A5 delivery. Not in the file until the paper arrives."},{"tag":"Open","title":"NuCO2 October bill missing","body":"Bill dated 10/01 not received (August 84231023 and September 84535362 are in; November 85086271 entered in O5)."},{"tag":"Open","title":"Sysco credit 924628237","body":"$-6.95. -$6.95 seen on SyscoPay, not entered - no document."},{"tag":"Open","title":"Restaurant Depot 07337J","body":"$497.59. Receipt top torn off: dated 10/11 by upload; $497.59 item unidentified (Supply placeholder). 07337J-ACCT $549.84 on account is PAID 10/11 per owner - do not delete. Send the top of the receipt."},{"tag":"Billing","title":"US Foods iceberg credit on 1363784","body":"$40.69. Receiving wrote 'no ingreso lechuga / no ingreso pera'. Settled at $447.54 via a -$130.90 delivery-adjustment line; the $40.69 iceberg claim itself has no credit memo."},{"tag":"Billing","title":"US Foods PRONTO under-minimum fees","body":"$245.00. $35 PRONTO UNDER MIN on 33084, 204307, 1857055, 1911525, 2441715, 2634606 and later - $245+ so far. Consolidate small orders."},{"tag":"Billing","title":"Sysco avocado substitutions","body":"$106.16. Hass breaking #2 short on 08/05, 08/14 and 09/14; Mexican Hass sent at $60.53-$66.53 instead - $106.16 extra, no credit."},{"tag":"Billing","title":"Sysco fuel on small trucks","body":"$10 fuel on near-empty trucks (924552701: $82.24 of product; 924596833: $25.50; 924635388: one $70.99 case)."},{"tag":"Open","title":"Liquor purchases gap","body":"Only two spirits invoices in the file: Southern Glazer's 02448750 (08/27) and 02523892 (10/22, $3,912.27). Liquor purchases about 9.3% of cocktail & liquor sales through O5 (18-22% is normal). Ask where else liquor is bought."},{"tag":"Price","title":"Allen Brothers tenderloin tails","body":"$6.99/LB since 330069 (10/09), up from $5.99 - and it has stuck."},{"tag":"Price","title":"Sysco produce","body":"Grape tomatoes +110% in a month ($23.55 09/19 to $49.55 10/19); iceberg ~$70-75 a case. Compare vendors on the day."},{"tag":"Price","title":"US Foods chicken thigh","body":"Jumbo boneless 4/10 LB: $80.48 (August) to $93.97 (10/12), +16.8%."},{"tag":"Price","title":"Octopus","body":"~$279-321 a case (Sysco vs US Foods) - the most expensive single case. Compare on the day."},{"tag":"Price","title":"Soda cost runs high","body":"Non-alcoholic purchases about 42% of soda sales (S3 hit 85%)."},{"tag":"Open","title":"Bill-to names","body":"US Foods bills 'AYAYAY PNTO'; Allen Brothers, CCS and El Popocatepetl bill 'Ayayay'; Lakeshore bills 'EXODO HOSPITALITY LLC dba Ayayay'. Invoices billed to another restaurant (546 N Wells) were sent by mistake on 10/27 and rejected - not entered. Check the Bill To on every document."},{"tag":"Open","title":"El Popocatepetl same order two days running","body":"$97.75. FD152641 (09/08) and FD153402 (09/09) are line-for-line identical ($97.75 each); both on the statement as paid, so both kept."},{"tag":"Open","title":"$158.02 unidentified on US Foods 1279871","body":"$158.02. Five cases across three unreadable items on one placeholder line, Bar / Unallocated. Re-photograph the invoice."},{"tag":"Migration","title":"Payments - SyscoPay (55 rows)","body":"Built from the invoice notes: 54 Sysco invoices + CM 924578881 paid by SyscoPay ACH on the dates in the notes. Check a few against the SyscoPay reports, then set this row to Confirmed."},{"tag":"Migration","title":"Payments - US Foods EFT (48 rows)","body":"46 EFT payments on the dates in the notes (EFTmmdd), plus 2933474 / CM 2965273 netted to $0.00. EFT1102 (2362474, 2362475): date 11/02 with Account month 2026-10 per owner."},{"tag":"Migration","title":"Payments - Allen Brothers (27 rows)","body":"Paid by ACH on the statement dates in the notes. 6 August invoices are 'paid in August per owner' - no date, Account month 2026-08 (296249, 297376, 300286, 301089, 301090 + see Owner confirmation rows)."},{"tag":"Migration","title":"Payments - El Popocatepetl (25 rows)","body":"13 tickets paid weekly by card per the 11/04 statement (PYMT numbers). 11 are 'paid in August / September per owner' - no date, Account month only. FD155536 / FD157362 / FD159673: date 09/30 (PYMT25829) with Account month 2026-10 per owner."},{"tag":"Migration","title":"Payments - Fintech (7 rows)","body":"Lakeshore 392085, 432248, 485235, 524967 and Southern Glazer's 02448750, 09042059, 02523892 - Fintech report dates from the notes."},{"tag":"Migration","title":"Payments - store runs and NuCO2 (17 rows)","body":"Restaurant Depot, GFS, Farmers Best, Mariano's, Staples, CCS paid at the register on the purchase date (card from the receipt); 07337J-ACCT on account, paid 10/11 per owner; NuCO2 autopay on Mastercard 1133 (84231023 paid 10/31 per owner; 84535362 confirmation 3142628957; 85086271 paid 10/09 per owner)."},{"tag":"Migration","title":"Owner month-only payments (17 rows)","body":"Invoices the owner confirmed as 'paid in August / September' with no date: Paid On is blank and the Account month carries the month. The old file showed these as month-end dates (08/31, 09/30). Totals by month are unchanged."}],"carry":{"monthKey":"2026-10","month":"October","next":"November","to":"2026-11-01","paidFrom":"2026-11-02","title":"October carried into November","desc":"Invoices dated 09/28 to 11/01 that were paid in November (or count in a later month) or are still open.","label":"Carried from October","paidLabel":"Paid in November","from":"2026-09-28"},"footer":"Built from TEST_Ayayay_v2.xlsx on 11/06/2026; payment position as of 10/14/2026, payments month 2026-10. Weeks run Monday to Sunday by invoice date; a week that crosses a month end goes to the month with more of its days, so 09/28-10/04 is O1 (October). A1 (07/27-08/02) covers 08/01-08/02 only. Bar ratio = bar purchases / cocktails & liquor, beer, non-alcoholic and open-drink sales. Catering and Events sales are excluded from food sales (Ratios!B2 = No).","cards":[{"card":"Card (not printed)","amount":25.0},{"card":"Mastercard (last 4 not printed)","amount":620.25},{"card":"Mastercard 1133 (NuCO2 autopay)","amount":657.94},{"card":"Mastercard 2501","amount":1184.99},{"card":"Restaurant Depot account 4243924","amount":549.84},{"card":"Visa debit 7347","amount":195.4}]};
+</script>
+<script>
+/* Ayayay purchasing dashboard. Reads window.AYAYAY_DATA. No dependencies. */
+(function () {
+  "use strict";
+  const D = window.AYAYAY_DATA;
+  if (!D) { document.getElementById("main").innerHTML = '<p class="hint">The data block did not load. Rebuild this page from the Ayayay workbook.</p>'; return; }
+
+  /* ---------- helpers ---------- */
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const sum = a => a.reduce((x, y) => x + (+y || 0), 0);
+  const money = (n, d = 0) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const money2 = n => money(n, 2);
+  const pct = n => (n * 100).toFixed(1) + "%";
+  const md = s => s ? s.slice(5, 7) + "/" + s.slice(8, 10) : "–";
+  const asOf = new Date(D.asOf + "T12:00:00");
+  const daysTo = s => Math.round((new Date(s + "T12:00:00") - asOf) / 864e5);
+
+  const W = D.weeks;
+  const CATS = ["Food", "Bar", "Supply", "Cleaning"];
+  const CAT_C = { Food: "var(--indigo)", Bar: "var(--amber)", Supply: "var(--stone)", Cleaning: "var(--mist)" };
+  const SUBS = ["Cocktails & liquor", "Beer", "Non-alcoholic", "Unallocated"];
+  const SUB_C = { "Cocktails & liquor": "var(--liquor)", Beer: "var(--beer)", "Non-alcoholic": "var(--na)", Unallocated: "var(--mist)" };
+  const DRINK_SALES = ["Cocktails & liquor", "Beer", "Non-alcoholic", "Open drink"];
+  const product = i => sum(CATS.map(c => D.categories[c][i]));
+  const hasSales = i => (D.sales.Food || [])[i] > 0;
+  const foodSales = i => (D.sales.Food || [])[i] || 0;
+  const drinkSales = i => sum(DRINK_SALES.map(k => (D.sales[k] || [])[i] || 0));
+  const entered = W.map((w, i) => i).filter(i => W[i].entered);
+  const PARTIAL = new Set(D.partial || []);
+  const isPartial = i => PARTIAL.has(W[i].id);
+  const complete = entered.filter(i => !isPartial(i));
+  const lastIdx = (complete.length ? complete : entered).slice(-1)[0];
+  const partialIds = entered.filter(isPartial).map(i => W[i].id);
+
+  const WMONTH = Object.fromEntries(W.map(w => [w.id, w.month]));
+  const MONTHS = [...new Set(W.map(w => w.month))];
+  const INV = D.invoices.map(x => ({ ...x }));
+  INV.forEach(x => {
+    x.month = WMONTH[x.week] || x.week || "";
+    if (x.status === "open") {
+      const d = x.due ? daysTo(x.due) : null;
+      x.bucket = d === null ? "later" : d < 0 ? "past" : d <= 7 ? "soon" : "later";
+      x.dueText = d === null ? "no due date" : d < 0 ? `${-d} day${d === -1 ? "" : "s"} past due` : d === 0 ? "due today" : d <= 7 ? `due in ${d} day${d === 1 ? "" : "s"}` : "due " + md(x.due);
+    }
+  });
+  const OPEN = INV.filter(x => x.status === "open");
+  const VENDORS = D.vendors.map(v => v.name);
+  const allProduct = sum(entered.map(product));
+
+  const statusTag = x => x.status === "paid"
+    ? `<span class="tag paid">paid${x.paidOn ? " " + md(x.paidOn) : ""}</span>`
+    : `<span class="tag ${x.bucket}">${esc(x.dueText)}</span>`;
+
+  /* ---------- theme ---------- */
+  const root = document.documentElement, themeBtn = $("#theme");
+  const curTheme = () => root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const paintTheme = () => { themeBtn.textContent = curTheme() === "dark" ? "☀" : "☾"; themeBtn.setAttribute("aria-label", curTheme() === "dark" ? "Switch to light theme" : "Switch to dark theme"); };
+  try { const t = localStorage.getItem("ayayay-theme"); if (t) root.dataset.theme = t; } catch (e) {}
+  paintTheme();
+  themeBtn.addEventListener("click", () => { root.dataset.theme = curTheme() === "dark" ? "light" : "dark"; try { localStorage.setItem("ayayay-theme", root.dataset.theme); } catch (e) {} paintTheme(); });
+
+  /* ---------- header ---------- */
+  $("#asof").innerHTML = `Updated <b>${asOf.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</b><br>Invoices through ${W[lastIdx].id} (${W[lastIdx].end})${partialIds.length ? ", " + partialIds.join(", ") + " partial" : ""}`;
+  const past = OPEN.filter(x => x.bucket === "past");
+  $("#tab-owed").textContent = past.length || "";
+  $("#tab-owed").setAttribute("aria-label", past.length + " past due");
+  $("#tab-watch").textContent = D.watch.length || "";
+  $("#foot").textContent = D.footer || "";
+
+  /* ---------- tooltip ---------- */
+  const tip = $("#tip");
+  const showTip = (html, el) => {
+    tip.innerHTML = html; tip.hidden = false;
+    const r = el.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    let x = r.left + r.width / 2 - t.width / 2, y = r.top - t.height - 8;
+    if (y < 8) y = r.bottom + 8;
+    x = Math.max(8, Math.min(x, innerWidth - t.width - 8));
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  };
+  const hideTip = () => { tip.hidden = true; };
+  addEventListener("scroll", hideTip, { passive: true });
+
+  /* ---------- generic sortable table ---------- */
+  function table(host, cols, rows, opts = {}) {
+    const st = host._sort || (host._sort = { key: opts.sortKey || null, dir: opts.sortDir || 1 });
+    const draw = () => {
+      let data = rows.slice();
+      if (st.key) {
+        const c = cols.find(c => c.key === st.key);
+        const val = c.sort || (r => r[c.key]);
+        data.sort((a, b) => { const x = val(a), y = val(b); return (x > y ? 1 : x < y ? -1 : 0) * st.dir; });
+      }
+      let h = "<table><thead><tr>";
+      cols.forEach(c => {
+        const aria = st.key === c.key ? (st.dir > 0 ? "ascending" : "descending") : "none";
+        h += `<th class="${c.r ? "r " : ""}${c.cls || ""}" aria-sort="${aria}">${c.nosort ? esc(c.label) : `<button class="sort" type="button" data-k="${c.key}">${esc(c.label)}</button>`}</th>`;
+      });
+      h += "</tr></thead><tbody>";
+      if (!data.length) h += `<tr class="empty-row"><td colspan="${cols.length}">${esc(opts.empty || "Nothing matches these filters.")}</td></tr>`;
+      data.forEach((r, i) => {
+        h += `<tr${opts.onRow ? ` class="click" tabindex="0" data-i="${rows.indexOf(r)}"` : ""}>`;
+        cols.forEach(c => { h += `<td class="${c.r ? "r num " : ""}${c.cls || ""}">${c.html ? c.html(r) : esc(r[c.key])}</td>`; });
+        h += "</tr>";
+        if (opts.expand && opts.expanded && opts.expanded.has(r)) h += `<tr class="note"><td colspan="${cols.length}">${opts.expand(r)}</td></tr>`;
+      });
+      h += "</tbody>";
+      if (opts.foot) h += `<tfoot><tr>${opts.foot(data)}</tr></tfoot>`;
+      host.innerHTML = h + "</table>";
+      $$("button.sort", host).forEach(b => b.addEventListener("click", () => {
+        const k = b.dataset.k; st.dir = st.key === k ? -st.dir : 1; st.key = k; draw();
+      }));
+      if (opts.onRow) $$("tr.click", host).forEach(tr => {
+        const go = () => opts.onRow(rows[+tr.dataset.i], draw);
+        tr.addEventListener("click", go);
+        tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+      });
+    };
+    draw();
+  }
+
+  function csv(name, cols, rows) {
+    const q = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const text = [cols.map(c => q(c[0])).join(",")].concat(rows.map(r => cols.map(c => q(c[1](r))).join(","))).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  const hbar = (label, v, tot, color, attrs = "") => {
+    const w = tot ? Math.max(0, v / tot * 100) : 0;
+    const tagName = attrs ? "button" : "div";
+    return `<${tagName} class="hbar" ${attrs}${attrs ? ' type="button"' : ""}><span>${esc(label)}</span><span class="track"><span class="fill" style="width:${w.toFixed(1)}%;background:${color}"></span></span><span class="val num">${money(v)}<small>${tot ? w.toFixed(0) + "%" : ""}</small></span></${tagName}>`;
+  };
+  const legend = (host, items, line) => { host.innerHTML = items.map(([n, c]) => `<span><i class="${line ? "line" : ""}" style="background:${c}"></i>${esc(n)}</span>`).join(""); };
+
+  /* ---------- ratios ---------- */
+  // Workbook rule (as on the Ratios tab): month and total ratios use only the weeks that have sales loaded.
+  function ratiosFor(ix) {
+    ix = ix.filter(hasSales);
+    if (!ix.length) return { food: null, bar: null };
+    return {
+      food: sum(ix.map(i => D.categories.Food[i])) / sum(ix.map(foodSales)),
+      bar: sum(ix.map(i => D.categories.Bar[i])) / sum(ix.map(drinkSales)),
+    };
+  }
+  const salesIx = entered.filter(hasSales);
+  const AVG = ratiosFor(salesIx);
+
+  /* =========================================================
+     OVERVIEW
+     ========================================================= */
+  function renderOverview() {
+    const last = lastIdx, prev = complete[complete.indexOf(last) - 1];
+    const pLast = product(last), pPrev = prev != null ? product(prev) : null;
+    const ch = pPrev ? (pLast - pPrev) / pPrev : null;
+    const r = ratiosFor([last]);
+    const pastSum = sum(past.map(x => x.total));
+    const carry = carryData();
+    const deltaTag = (c, invert) => c === null ? "" : `<span class="delta ${Math.abs(c) < .01 ? "flat" : (c > 0) !== !!invert ? "up" : "down"}">${c > 0 ? "+" : ""}${(c * 100).toFixed(1)}%</span>`;
+    $("#kpis").innerHTML = [
+      `<a class="kpi${past.length ? " alert" : ""}" href="#owed"><div class="l">Still owed</div><div class="v num">${money2(sum(OPEN.map(x => x.total)))}</div><div class="n">${past.length ? `${money2(pastSum)} past due on ${past.length} invoices` : "Nothing past due"}</div></a>`,
+      `<a class="kpi" href="#weeks/${W[last].id}"><div class="l">Spend in ${W[last].id}</div><div class="v num">${money(pLast)}</div><div class="n">${pPrev ? `vs ${W[prev].id} ${deltaTag(ch)}` : ""}</div></a>`,
+      `<a class="kpi" href="#weeks/${W[last].id}"><div class="l">Food ratio, ${W[last].id}</div><div class="v num">${r.food === null ? "–" : pct(r.food)}</div><div class="n">${AVG.food !== null ? "average " + pct(AVG.food) : "No sales figures yet"}</div></a>`,
+      `<a class="kpi" href="#weeks/${W[last].id}"><div class="l">Bar ratio, ${W[last].id}</div><div class="v num">${r.bar === null ? "–" : pct(r.bar)}</div><div class="n">${AVG.bar !== null ? "average " + pct(AVG.bar) : "No sales figures yet"}</div></a>`,
+      `<a class="kpi" href="#owed"><div class="l">Carried from October</div><div class="v num">${money2(carry.total)}</div><div class="n">${money2(carry.open)} still open</div></a>`,
+    ].join("");
+
+    // ledger
+    const maxP = Math.max(...entered.map(product));
+    let h = "";
+    W.forEach((w, i) => {
+      let col = '<span class="col">';
+      if (w.entered) CATS.slice().reverse().forEach(c => { const v = D.categories[c][i]; if (v > 0) col += `<span class="seg-bar" style="height:${(v / maxP * 100).toFixed(2)}%;background:${CAT_C[c]}"></span>`; });
+      else col += '<span class="empty">not in yet</span>';
+      col += "</span>";
+      h += `<button class="wk${isPartial(i) ? " partial" : ""}" type="button" data-i="${i}" ${w.entered ? "" : "disabled"} aria-label="${w.id}, ${w.start} to ${w.end}${w.entered ? ", " + money(product(i)) : ", not uploaded yet"}">${col}<span class="amt num">${w.entered ? money(product(i)) : "&nbsp;"}${isPartial(i) ? '<em class="prog">part week</em>' : ""}</span><span class="id">${w.id}</span><span class="dates">${w.start}–${w.end}</span></button>`;
+    });
+    let col = 1;
+    MONTHS.forEach(m => { const n = W.filter(w => w.month === m).length; if (n) { h += `<span class="month" style="grid-column:${col}/${col + n}">${m}</span>`; col += n; } });
+    const L = $("#ledger"); L.innerHTML = h;
+    $$(".wk", L).forEach(b => {
+      const i = +b.dataset.i;
+      b.addEventListener("click", () => { go("weeks/" + W[i].id); });
+      if (!W[i].entered) return;
+      const t = () => `<b>${W[i].id}, ${W[i].start}–${W[i].end}</b>` + CATS.map(c => `<div class="row"><span>${c}</span><span class="num">${money(D.categories[c][i])}</span></div>`).join("") + `<div class="row"><span>${W[i].invoices} invoices${isPartial(i) ? ". " + (D.partialNote || {})[W[i].id] : ""}</span></div>`;
+      b.addEventListener("mouseenter", () => showTip(t(), b)); b.addEventListener("mouseleave", hideTip);
+      b.addEventListener("focus", () => showTip(t(), b)); b.addEventListener("blur", hideTip);
+    });
+    const sc = $(".ledger-scroll"), lb = $(`.wk[data-i="${lastIdx}"]`, L);
+    requestAnimationFrame(() => { if (sc.scrollWidth > sc.clientWidth) sc.scrollLeft = lb.offsetLeft - sc.clientWidth / 2 + lb.offsetWidth / 2; });
+    legend($("#legend"), CATS.map(c => [c, CAT_C[c]]));
+
+    // attention
+    const soon = OPEN.filter(x => x.bucket === "soon");
+    const list = past.concat(soon).sort((a, b) => (a.due || "") < (b.due || "") ? -1 : 1).slice(0, 7);
+    const extra = past.length + soon.length - list.length;
+    $("#attention").innerHTML = list.length
+      ? list.map(x => `<li><span class="who">${esc(x.vendor)} ${esc(x.number)}</span><span class="amt num">${money2(x.total)}</span><span class="what">${statusTag(x)} dated ${md(x.date)}</span><span></span></li>`).join("") + (extra > 0 ? `<li><span class="what">and ${extra} more</span></li>` : "")
+      : `<li class="empty-state">Nothing is past due or due in the next 7 days.</li>`;
+
+    ratioChart();
+  }
+
+  function ratioChart() {
+    const ix = salesIx;
+    if (!ix.length) { $("#ratio-chart").innerHTML = '<p class="hint">Ratios appear once sales figures are in.</p>'; return; }
+    const series = [["Food", ix.map(i => D.categories.Food[i] / foodSales(i)), "var(--indigo)"], ["Bar", ix.map(i => D.categories.Bar[i] / drinkSales(i)), "var(--amber)"]];
+    const Wd = 520, H = 230, pl = 36, pr = 56, pt = 14, pb = 28;
+    const max = Math.max(0.3, Math.ceil(Math.max(...series.flatMap(s => s[1])) * 10) / 10);
+    const x = k => pl + (ix.length === 1 ? (Wd - pl - pr) / 2 : k * (Wd - pl - pr) / (ix.length - 1));
+    const y = v => pt + (1 - v / max) * (H - pt - pb);
+    let s = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Food and bar purchase ratios by week">`;
+    for (let g = 0; g <= max + 1e-9; g += 0.1) s += `<line class="grid" x1="${pl}" x2="${Wd - pr}" y1="${y(g)}" y2="${y(g)}"/><text x="${pl - 6}" y="${y(g) + 4}" text-anchor="end">${Math.round(g * 100)}%</text>`;
+    ix.forEach((i, k) => { s += `<text x="${x(k)}" y="${H - 8}" text-anchor="middle">${W[i].id}</text>`; });
+    series.forEach(([n, vals, c]) => {
+      s += `<polyline fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" points="${vals.map((v, k) => x(k) + "," + y(v)).join(" ")}"/>`;
+      vals.forEach((v, k) => { s += `<circle cx="${x(k)}" cy="${y(v)}" r="4" fill="var(--surface)" stroke="${c}" stroke-width="2"><title>${n} ${W[ix[k]].id}: ${pct(v)}</title></circle>`; });
+      const lv = vals[vals.length - 1];
+      s += `<text class="lab" x="${x(vals.length - 1) + 8}" y="${y(lv) + 4}" style="fill:${c}">${pct(lv)}</text>`;
+    });
+    $("#ratio-chart").innerHTML = s + "</svg>";
+    legend($("#ratio-legend"), series.map(s => [s[0] + " purchases ÷ " + (s[0] === "Food" ? "food" : "drink") + " sales", s[2]]), true);
+  }
+
+  /* =========================================================
+     WEEKS
+     ========================================================= */
+  const SCOPES = W.map((w, i) => ({ key: w.id, label: w.id, ix: [i], disabled: !w.entered, week: i }))
+    .concat(MONTHS.map(m => ({ key: "m-" + m, label: m, ix: entered.filter(i => W[i].month === m) })).filter(s => s.ix.length));
+  let scopeKey = W[lastIdx].id;
+
+  function renderWeeks(key) {
+    if (key) scopeKey = key;
+    const sc = SCOPES.find(s => s.key === scopeKey) || SCOPES[lastIdx];
+    const seg = $("#wk-seg");
+    if (!seg.childElementCount) {
+      seg.innerHTML = SCOPES.map((s, k) => (k === W.length ? '<span class="sep" aria-hidden="true"></span>' : "") + `<button type="button" data-k="${s.key}" ${s.disabled ? "disabled" : ""}>${s.label}</button>`).join("");
+      $$("button", seg).forEach(b => b.addEventListener("click", () => { go("weeks/" + b.dataset.k); }));
+    }
+    $$("button", seg).forEach(b => b.setAttribute("aria-pressed", String(b.dataset.k === sc.key)));
+    const active = $(`button[aria-pressed="true"]`, seg); if (active) active.scrollIntoView({ block: "nearest", inline: "center" });
+    const pos = entered.indexOf(sc.week);
+    $("#wk-prev").disabled = !(sc.week != null && pos > 0);
+    $("#wk-next").disabled = !(sc.week != null && pos < entered.length - 1);
+
+    const ix = sc.ix;
+    const S = arr => sum(ix.map(i => arr[i]));
+    const prod = sum(ix.map(product)), fees = S(D.fees), inv = sum(ix.map(i => W[i].invoices));
+    const food = S(D.categories.Food), bar = S(D.categories.Bar);
+    const r = ratiosFor(ix);
+    const noSales = ix.filter(i => !hasSales(i)).map(i => W[i].id);
+    $("#wk-title").textContent = sc.week != null ? `${W[sc.week].id}, ${W[sc.week].start} to ${W[sc.week].end}${isPartial(sc.week) ? " (" + (D.partialNote || {})[W[sc.week].id] + ")" : ""}` : sc.label + ", " + ix.map(i => W[i].id).join(" + ");
+
+    // previous comparable
+    let prev = null;
+    if (sc.week != null && pos > 0) prev = [entered[pos - 1]];
+    const prevP = prev ? sum(prev.map(product)) : null;
+    const dP = prevP ? (prod - prevP) / prevP : null;
+    const pr = prev ? ratiosFor(prev) : null;
+    const pts = (a, b) => a === null || b === null ? "" : `<span class="delta ${Math.abs(a - b) < .002 ? "flat" : a > b ? "up" : "down"}">${a > b ? "+" : "−"}${Math.abs((a - b) * 100).toFixed(1)} pts</span>`;
+    const flag = (v, avg) => v === null || sc.week == null || avg === null ? "" : v > avg * 1.25 ? '<span class="flag hi">high for us</span>' : v < avg * .6 ? '<span class="flag lo">unusually low</span>' : "";
+    const vs = prev ? ` vs ${W[prev[0]].id}` : "";
+    $("#wk-figs").innerHTML = [
+      ["Product spend", money(prod), `${inv} invoices` + (dP !== null ? `${vs} <span class="delta ${Math.abs(dP) < .01 ? "flat" : dP > 0 ? "up" : "down"}">${dP > 0 ? "+" : ""}${(dP * 100).toFixed(1)}%</span>` : "")],
+      ["Freight, fees and tax", money(fees), prod ? pct(fees / prod) + " of product" : ""],
+      ["Food ratio", r.food === null ? "–" : pct(r.food) + flag(r.food, AVG.food), r.food === null ? "No sales figures for this period" : (sc.week == null && noSales.length ? `Without ${noSales.join(", ")} (no sales yet)` : `${money(food)} of food` + (pr ? vs + " " + pts(r.food, pr.food) : ""))],
+      ["Bar ratio", r.bar === null ? "–" : pct(r.bar) + flag(r.bar, AVG.bar), r.bar === null ? "No sales figures for this period" : (sc.week == null && noSales.length ? `Without ${noSales.join(", ")} (no sales yet)` : `${money(bar)} of bar` + (pr ? vs + " " + pts(r.bar, pr.bar) : ""))],
+    ].map(f => `<div class="kpi"><div class="l">${f[0]}</div><div class="v num">${f[1]}</div><div class="n">${f[2]}</div></div>`).join("");
+
+    $("#wk-cats").innerHTML = CATS.map(c => hbar(c, S(D.categories[c]), prod, CAT_C[c])).join("");
+    const bt = sum(SUBS.map(s => S(D.barSub[s])));
+    $("#wk-barstack").innerHTML = bt ? SUBS.map(s => `<span title="${esc(s)}" style="width:${(S(D.barSub[s]) / bt * 100).toFixed(2)}%;background:${SUB_C[s]}"></span>`).join("") : "";
+    $("#wk-bar").innerHTML = SUBS.map(s => hbar(s, S(D.barSub[s]), bt, SUB_C[s])).join("");
+    const vs2 = D.vendors.map(v => ({ n: v.name, t: S(v.weeks) })).filter(v => v.t > 0).sort((a, b) => b.t - a.t);
+    $("#wk-vend").innerHTML = vs2.map(v => hbar(v.n, v.t, prod, "var(--indigo)", `data-v="${esc(v.n)}" aria-label="Open ${esc(v.n)}"`)).join("") || '<p class="hint">No purchases.</p>';
+    $$("#wk-vend .hbar").forEach(b => b.addEventListener("click", () => openVendor(b.dataset.v)));
+
+    const ids = new Set(ix.map(i => W[i].id));
+    const rows = INV.filter(x => ids.has(x.week));
+    $("#wk-inv-sum").textContent = `${rows.length} invoices, ${money2(sum(rows.map(x => x.total)))} including fees and tax`;
+    const host = $("#wk-inv"); host._sort = null;
+    table(host, [
+      { key: "date", label: "Dated", html: x => md(x.date) },
+      { key: "vendor", label: "Vendor" },
+      { key: "number", label: "Invoice", cls: "hide-sm" },
+      { key: "product", label: "Product", r: 1, html: x => money2(x.product), cls: "hide-sm" },
+      { key: "total", label: "Total", r: 1, html: x => money2(x.total) },
+      { key: "status", label: "Status", sort: x => x.status + (x.due || ""), html: statusTag },
+    ], rows, { sortKey: "date" });
+  }
+  $("#wk-prev").addEventListener("click", () => step(-1));
+  $("#wk-next").addEventListener("click", () => step(1));
+  function step(d) {
+    const sc = SCOPES.find(s => s.key === scopeKey); if (!sc || sc.week == null) return;
+    const p = entered.indexOf(sc.week) + d; if (p < 0 || p >= entered.length) return;
+    go("weeks/" + W[entered[p]].id);
+  }
+  addEventListener("keydown", e => {
+    if (current !== "weeks" || e.target.closest("input,select,textarea,dialog")) return;
+    if (e.key === "ArrowLeft") step(-1); if (e.key === "ArrowRight") step(1);
+  });
+
+  /* =========================================================
+     OWED
+     ========================================================= */
+  function carryData() {
+    const C = D.carry || {};
+    const isAug = d => d >= C.from && d <= C.to;
+    const paidSep = INV.filter(x => isAug(x.date) && x.status === "paid" && ((x.paidMonth && x.paidMonth > C.monthKey) || (!x.paidMonth && x.paidOn && x.paidOn >= C.paidFrom)));
+    const openAug = OPEN.filter(x => isAug(x.date));
+    const p = sum(paidSep.map(x => x.total)), o = sum(openAug.map(x => x.total));
+    return { paidSep, openAug, paid: p, open: o, total: p + o };
+  }
+  const owedState = { bucket: "all", vendor: "" };
+  function renderOwed() {
+    const B = { all: OPEN, past: OPEN.filter(x => x.bucket === "past"), soon: OPEN.filter(x => x.bucket === "soon"), later: OPEN.filter(x => x.bucket === "later") };
+    $("#owed-kpis").innerHTML = [
+      ["Total owed", B.all, ""], ["Past due", B.past, "alert"], ["Due in the next 7 days", B.soon, ""], ["Due later", B.later, ""],
+    ].map(([l, a, c]) => `<div class="kpi ${a.length && c ? c : ""}"><div class="l">${l}</div><div class="v num">${money2(sum(a.map(x => x.total)))}</div><div class="n">${a.length} invoice${a.length === 1 ? "" : "s"}</div></div>`).join("");
+    const chips = $("#owed-chips");
+    chips.innerHTML = [["all", "All"], ["past", "Past due"], ["soon", "Next 7 days"], ["later", "Later"]]
+      .map(([k, l]) => `<button type="button" data-b="${k}" aria-pressed="${owedState.bucket === k}">${l}<span class="c">${B[k].length}</span></button>`).join("");
+    $$("button", chips).forEach(b => b.addEventListener("click", () => { owedState.bucket = b.dataset.b; renderOwed(); }));
+    const sel = $("#owed-vendor");
+    if (!sel.childElementCount) {
+      const vs = [...new Set(OPEN.map(x => x.vendor))].sort();
+      sel.innerHTML = '<option value="">All vendors</option>' + vs.map(v => `<option>${esc(v)}</option>`).join("");
+      sel.addEventListener("change", () => { owedState.vendor = sel.value; renderOwed(); });
+    }
+    const rows = B[owedState.bucket].filter(x => !owedState.vendor || x.vendor === owedState.vendor);
+    const cols = [
+      { key: "vendor", label: "Vendor" },
+      { key: "number", label: "Invoice" },
+      { key: "date", label: "Dated", html: x => `${md(x.date)} <span class="muted">${esc(x.week)}</span>`, cls: "hide-sm" },
+      { key: "due", label: "Status", sort: x => x.due || "9999", html: statusTag },
+      { key: "total", label: "Amount", r: 1, html: x => money2(x.total) },
+    ];
+    table($("#owed-table"), cols, rows, {
+      sortKey: "due", empty: "Nothing owed in this group.",
+      foot: d => `<td colspan="2">${d.length} invoice${d.length === 1 ? "" : "s"}</td><td class="hide-sm"></td><td></td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>`,
+      onRow: x => openVendor(x.vendor),
+    });
+    $("#owed-csv").onclick = () => csv("ayayay-owed-" + D.asOf + ".csv",
+      [["Vendor", x => x.vendor], ["Invoice", x => x.number], ["Dated", x => x.date], ["Week", x => x.week], ["Due", x => x.due || ""], ["Status", x => x.dueText], ["Amount", x => x.total.toFixed(2)]], rows);
+
+    const c = carryData();
+    $("#carry").innerHTML = [["Carried into November", c.total], [`Paid in November (${c.paidSep.length})`, c.paid], [`Still open (${c.openAug.length})`, c.open]]
+      .map(([l, v]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${money2(v)}</div></div>`).join("");
+    const small = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) }];
+    table($("#carry-paid"), small.concat([{ key: "paidOn", label: "Paid", html: x => md(x.paidOn) }, { key: "total", label: "Amount", r: 1, html: x => money2(x.total) }]), c.paidSep,
+      { sortKey: "vendor", foot: d => `<td colspan="4">Total</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>` });
+    table($("#carry-open"), small.concat([{ key: "due", label: "Status", html: statusTag }, { key: "total", label: "Amount", r: 1, html: x => money2(x.total) }]), c.openAug,
+      { sortKey: "vendor", foot: d => `<td colspan="4">Total</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>` });
+  }
+
+  /* =========================================================
+     INVOICES
+     ========================================================= */
+  const expanded = new Set();
+  function renderInvoices() {
+    const sel = $("#inv-vendor");
+    if (!sel.childElementCount) {
+      sel.innerHTML = '<option value="">All vendors</option>' + [...new Set(INV.map(x => x.vendor))].sort().map(v => `<option>${esc(v)}</option>`).join("");
+      ["#inv-q", "#inv-month", "#inv-status", "#inv-vendor"].forEach(s => $(s).addEventListener(s === "#inv-q" ? "input" : "change", renderInvoices));
+    }
+    const q = $("#inv-q").value.trim().toLowerCase(), m = $("#inv-month").value, st = $("#inv-status").value, v = sel.value;
+    const rows = INV.filter(x => (!m || x.month === m) && (!st || x.status === st) && (!v || x.vendor === v) &&
+      (!q || (x.vendor + " " + x.number + " " + x.note).toLowerCase().includes(q)));
+    $("#inv-count").textContent = `${rows.length} of ${INV.length} invoices, ${money2(sum(rows.map(x => x.total)))}`;
+    table($("#inv-table"), [
+      { key: "date", label: "Dated", html: x => md(x.date) },
+      { key: "vendor", label: "Vendor" },
+      { key: "number", label: "Invoice" },
+      { key: "week", label: "Week", cls: "hide-sm" },
+      { key: "product", label: "Product", r: 1, html: x => money2(x.product), cls: "hide-sm" },
+      { key: "fees", label: "Fees & tax", r: 1, html: x => money2(x.fees), cls: "hide-sm" },
+      { key: "total", label: "Total", r: 1, html: x => money2(x.total) },
+      { key: "status", label: "Status", sort: x => x.status + (x.due || x.paidOn || ""), html: statusTag },
+    ], rows, {
+      sortKey: "date", expanded, expand: x => esc(x.note || "No notes."),
+      onRow: (x, redraw) => { expanded.has(x) ? expanded.delete(x) : expanded.add(x); redraw(); },
+      foot: d => `<td colspan="3">${d.length} invoices</td><td class="hide-sm"></td><td class="r num hide-sm">${money2(sum(d.map(x => x.product)))}</td><td class="r num hide-sm">${money2(sum(d.map(x => x.fees)))}</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td><td></td>`,
+    });
+    $("#inv-csv").onclick = () => csv("ayayay-invoices-" + D.asOf + ".csv",
+      [["Dated", x => x.date], ["Vendor", x => x.vendor], ["Invoice", x => x.number], ["Week", x => x.week], ["Product", x => x.product.toFixed(2)], ["Fees and tax", x => x.fees.toFixed(2)], ["Total", x => x.total.toFixed(2)], ["Status", x => x.status === "paid" ? "Paid" : "Not paid"], ["Paid on", x => x.paidOn || ""], ["Due", x => x.due || ""], ["Note", x => x.note]], rows);
+  }
+
+  /* =========================================================
+     VENDORS
+     ========================================================= */
+  function spark(weeks) {
+    const vm = Math.max(...weeks);
+    return `<span class="spark" aria-hidden="true">${weeks.map((x, i) => !W[i].entered ? '<i class="na"></i>' : x > 0 ? `<i style="height:${Math.max(2, x / vm * 26).toFixed(1)}px"></i>` : '<i class="z"></i>').join("")}</span>`;
+  }
+  function renderVendors() {
+    const rows = D.vendors.map(v => {
+      const inv = INV.filter(x => x.vendor === v.name), op = inv.filter(x => x.status === "open");
+      return { name: v.name, weeks: v.weeks, total: sum(v.weeks), share: sum(v.weeks) / allProduct, count: inv.length, owed: sum(op.map(x => x.total)), past: op.some(x => x.bucket === "past") };
+    });
+    table($("#vend-table"), [
+      { key: "name", label: "Vendor", html: r => esc(r.name) },
+      { key: "weeks", label: "A1 to O5", nosort: 1, html: r => spark(r.weeks), cls: "hide-sm" },
+      { key: "total", label: "To date", r: 1, html: r => money(r.total) },
+      { key: "share", label: "Share", r: 1, html: r => pct(r.share), cls: "hide-sm" },
+      { key: "count", label: "Invoices", r: 1, cls: "hide-sm" },
+      { key: "owed", label: "Owed", r: 1, html: r => r.owed ? `<span class="${r.past ? "tag past" : ""}">${money2(r.owed)}</span>` : '<span class="muted">–</span>' },
+    ], rows, { sortKey: "total", sortDir: -1, onRow: r => openVendor(r.name) });
+  }
+
+  const drawer = $("#drawer");
+  $("#dr-close").addEventListener("click", () => drawer.close());
+  drawer.addEventListener("click", e => { if (e.target === drawer) drawer.close(); });
+  function openVendor(name) {
+    const v = D.vendors.find(v => v.name === name); if (!v) return;
+    const inv = INV.filter(x => x.vendor === name), op = inv.filter(x => x.status === "open");
+    const t = sum(v.weeks), vm = Math.max(...v.weeks, 1);
+    $("#dr-title").textContent = name;
+    let bars = `<div class="ledger" style="min-width:0;grid-template-columns:repeat(${W.length},1fr);padding:0">`;
+    W.forEach((w, i) => { bars += `<div class="wk" style="cursor:default;padding:4px 0"><span class="col" style="height:90px">${w.entered ? (v.weeks[i] > 0 ? `<span class="seg-bar" style="height:${(v.weeks[i] / vm * 100).toFixed(1)}%;background:var(--indigo)" title="${w.id} ${money(v.weeks[i])}"></span>` : "") : '<span class="empty" style="font-size:10px">–</span>'}</span><span class="dates">${w.id}</span></div>`; });
+    bars += "</div>";
+    $("#dr-body").innerHTML = `<div class="kpis"><div class="kpi"><div class="l">Product to date</div><div class="v num">${money(t)}</div><div class="n">${pct(t / allProduct)} of all spend</div></div><div class="kpi ${op.some(x => x.bucket === "past") ? "alert" : ""}"><div class="l">Owed</div><div class="v num">${money2(sum(op.map(x => x.total)))}</div><div class="n">${op.length} open of ${inv.length} invoices</div></div></div><h3 class="mt">Product spend by week</h3>${bars}<h3 class="mt">Invoices</h3><div class="table-wrap" id="dr-inv"></div>`;
+    table($("#dr-inv"), [
+      { key: "date", label: "Dated", html: x => md(x.date) },
+      { key: "number", label: "Invoice" },
+      { key: "total", label: "Total", r: 1, html: x => money2(x.total) },
+      { key: "status", label: "Status", sort: x => x.status + (x.due || x.paidOn || ""), html: statusTag },
+    ], inv, { sortKey: "date", sortDir: -1 });
+    if (!drawer.open) drawer.showModal();
+  }
+
+  /* =========================================================
+     WATCH
+     ========================================================= */
+  function renderWatch() {
+    const groups = [["To decide", "Your decisions", "var(--stamp)"], ["Open", "Open items", "var(--indigo)"], ["Billing", "Billing issues", "var(--stamp)"], ["Price", "Price changes", "var(--amber)"], ["Held", "Held documents", "var(--warn)"], ["Migration", "Migration rows to confirm", "var(--stone)"]];
+    $("#watch").innerHTML = groups.map(([k, l, c]) => {
+      const items = D.watch.filter(w => w.tag === k); if (!items.length) return "";
+      return `<div class="watch-group"><h2><span class="dot" style="background:${c}"></span>${l}</h2><div class="watch-grid">${items.map(w => `<div class="w" data-tag="${k}"><div class="t">${esc(w.title)}</div><p>${esc(w.body)}</p></div>`).join("")}</div></div>`;
+    }).join("") || '<p class="hint">Nothing on the watch list.</p>';
+  }
+
+  /* =========================================================
+     ROUTER
+     ========================================================= */
+  const VIEWS = { overview: renderOverview, weeks: renderWeeks, owed: renderOwed, invoices: renderInvoices, vendors: renderVendors, watch: renderWatch };
+  const done = new Set();
+  let current = null;
+  // Navigation is handled in JS (not by the browser following "#" links), so tabs also work
+  // where hash navigation is blocked, e.g. file previews and sandboxed frames.
+  let path = "overview";
+  try { path = decodeURIComponent(location.hash.slice(1)) || "overview"; } catch (e) {}
+  function go(p) {
+    path = p || "overview";
+    try { if (location.hash.slice(1) !== path) history.pushState(null, "", "#" + path); } catch (e) {}
+    route();
+  }
+  document.addEventListener("click", e => {
+    const link = e.target.closest('a[href^="#"]');
+    if (!link) return;
+    const target = link.getAttribute("href").slice(1);
+    if (!VIEWS[target.split("/")[0]]) return; // e.g. the skip link
+    e.preventDefault();
+    go(target);
+  });
+  function route() {
+    hideTip();
+    const [view, arg] = (path || "overview").split("/");
+    const v = VIEWS[view] ? view : "overview";
+    const changed = v !== current;
+    current = v;
+    $$(".view").forEach(s => { s.hidden = s.id !== "view-" + v; });
+    $$("#tabs a").forEach(a => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    const tab = $(`#tabs a[data-view="${v}"]`); if (tab) tab.scrollIntoView({ block: "nearest", inline: "nearest" });
+    if (v === "weeks") renderWeeks(arg ? decodeURIComponent(arg) : null);
+    else if (!done.has(v)) { VIEWS[v](); done.add(v); }
+    if (changed) { window.scrollTo(0, 0); $("#main").focus({ preventScroll: true }); }
+    document.title = `Ayayay purchasing: ${$(`#tabs a[data-view="${v}"]`).firstChild.textContent.trim()}`;
+  }
+  const fromUrl = () => { try { const h = decodeURIComponent(location.hash.slice(1)); if (h && h !== path) { path = h; route(); } } catch (e) {} };
+  addEventListener("hashchange", fromUrl);
+  addEventListener("popstate", fromUrl);
+  route();
+})();
+
+</script>
+</body>
+</html>
