@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exodo Hospitality — Performance Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg: #FAF6F0;
+    --surface: #FFFFFF;
+    --border: #E8E0D5;
+    --ink: #241D1A;
+    --ink-soft: #7A6F68;
+    --oxblood: #6B1F2A;
+    --oxblood-light: #8C3240;
+    --gold: #B8894A;
+    --green: #2F6B4F;
+    --green-bg: #EAF3EE;
+    --amber: #B8863A;
+    --amber-bg: #FBF3E4;
+    --red: #A23B3B;
+    --red-bg: #FBEDED;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px;}
+
+  /* ===== HEADER ===== */
+  header{
+    padding:44px 0 22px;
+    border-bottom:2px solid var(--ink);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--oxblood);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-size:42px;
+    font-weight:600;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+    line-height:1.05;
+  }
+  .subtitle{
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:640px;
+    line-height:1.5;
+  }
+  .period-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:14px;
+  }
+
+  /* ===== CONTROLS ROW ===== */
+  .controls-row{
+    display:flex;
+    align-items:flex-end;
+    gap:20px;
+    margin:28px 0 0;
+    flex-wrap:wrap;
+  }
+  .location-select-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .location-select-wrap label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .styled-select{
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--surface);
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    padding:9px 36px 9px 14px;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23241D1A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position: right 14px center;
+    min-width:220px;
+  }
+  .styled-select:hover{ background-color:var(--border); }
+
+  .week-select{
+    min-width:210px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    padding:10px 34px 10px 12px;
+  }
+  .reset-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    padding:10px 18px;
+    background:var(--surface);
+    color:var(--ink);
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    cursor:pointer;
+    transition:all .15s;
+    white-space:nowrap;
+  }
+  .reset-btn:hover{ background:var(--ink); color:var(--bg); }
+  .reset-btn:disabled{ opacity:.35; cursor:default; }
+  .reset-btn:disabled:hover{ background:var(--surface); color:var(--ink); }
+
+  .date-input{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--surface);
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    padding:8px 10px;
+    cursor:pointer;
+  }
+
+  /* ===== TOGGLE ===== */
+  .view-toggle{
+    display:flex;
+    gap:0;
+    margin:0;
+    border:1.5px solid var(--ink);
+    width:fit-content;
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .view-toggle button{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    padding:10px 22px;
+    background:var(--surface);
+    color:var(--ink);
+    border:none;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .view-toggle button.active{
+    background:var(--ink);
+    color:var(--bg);
+  }
+  .view-toggle button:not(.active):hover{ background:var(--border); }
+
+  /* ===== DATA SOURCE / UPLOAD ===== */
+  .upload-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    padding:10px 20px;
+    background:var(--surface);
+    color:var(--oxblood);
+    border:1.5px solid var(--oxblood);
+    border-radius:3px;
+    cursor:pointer;
+    transition:all .15s;
+    white-space:nowrap;
+  }
+  .upload-btn:hover{ background:var(--oxblood); color:var(--bg); }
+  .upload-btn:disabled{ opacity:.5; cursor:progress; }
+  #fileInput{ display:none; }
+  .source-line{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    margin-top:12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .source-pill{
+    padding:3px 9px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+  .pill-builtin{ background:var(--border); color:var(--ink-soft); }
+  .pill-live{ background:var(--green-bg); color:var(--green); }
+  .pill-error{ background:var(--red-bg); color:var(--red); }
+  .source-text{ color:var(--ink-soft); }
+  .source-text.err{ color:var(--red); font-weight:600; }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:52px 0 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .section-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--border);
+  }
+
+  /* ===== KPI CARDS ===== */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+  }
+  @media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+  .kpi-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:18px 18px 16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .kpi-card .bar{
+    position:absolute; top:0; left:0; right:0; height:3px;
+  }
+  .kpi-name{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:10px;
+  }
+  .kpi-value{
+    font-family:'Fraunces',serif;
+    font-size:30px;
+    font-weight:600;
+    line-height:1;
+    margin-bottom:4px;
+  }
+  .kpi-dollar{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .kpi-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:11px;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+  }
+  .kpi-bench{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--ink-soft);
+  }
+  .kpi-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:20px;
+    font-size:10px;
+    letter-spacing:.03em;
+  }
+  .badge-pass{ background:var(--green-bg); color:var(--green); }
+  .badge-fail{ background:var(--red-bg); color:var(--red); }
+
+  /* ===== DRILL-DOWN ===== */
+  .kpi-card.has-detail{ cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+  .kpi-card.has-detail:hover{ border-color:var(--ink); box-shadow:0 2px 10px rgba(36,29,26,.08); }
+  .detail-cue{
+    position:absolute; top:14px; right:14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--oxblood); font-weight:700;
+    border:1px solid var(--oxblood); border-radius:20px; padding:1px 7px;
+  }
+  #modalOverlay{
+    position:fixed; inset:0; z-index:900;
+    background:rgba(36,29,26,.45);
+    display:none; align-items:flex-start; justify-content:center;
+    padding:40px 20px; overflow-y:auto;
+  }
+  #modalOverlay.open{ display:flex; }
+  .modal-card{
+    background:var(--surface);
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    width:100%; max-width:860px;
+    padding:26px 28px 30px;
+  }
+  .modal-head{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:16px; margin-bottom:4px;
+  }
+  .modal-title{ font-family:'Fraunces',serif; font-size:24px; font-weight:600; }
+  .modal-sub{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+    color:var(--ink-soft); margin-bottom:20px;
+  }
+  .modal-close{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700;
+    background:none; border:1.5px solid var(--ink); color:var(--ink);
+    border-radius:3px; padding:5px 11px; cursor:pointer; line-height:1;
+  }
+  .modal-close:hover{ background:var(--ink); color:var(--bg); }
+  .modal-stats{ display:flex; gap:26px; flex-wrap:wrap; margin-bottom:18px; }
+  .modal-stat-label{
+    font-family:'IBM Plex Mono',monospace; font-size:10px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
+  }
+  .modal-stat-value{ font-family:'Fraunces',serif; font-size:21px; font-weight:600; }
+  .modal-chart{ height:210px; position:relative; margin-bottom:22px; }
+  .modal-note{
+    font-size:12.5px; line-height:1.55; color:var(--ink-soft);
+    border-left:3px solid var(--amber); background:var(--amber-bg);
+    padding:11px 14px; border-radius:0 4px 4px 0; margin-top:20px;
+  }
+  .modal-note strong{ color:var(--ink); }
+  .modal-empty{
+    font-size:13.5px; line-height:1.6; color:var(--ink-soft);
+    padding:26px 0 6px;
+  }
+  .share-bar{
+    display:inline-block; height:6px; border-radius:3px;
+    background:var(--oxblood); vertical-align:middle; margin-right:7px;
+    min-width:2px;
+  }
+
+  /* ===== CHART CARD ===== */
+  .chart-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:20px 22px 12px;
+    margin-bottom:16px;
+  }
+  .chart-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chart-title{
+    font-family:'Fraunces',serif;
+    font-size:18px;
+    font-weight:600;
+  }
+  .chart-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    display:flex;
+    gap:16px;
+  }
+  .legend-dot{
+    display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;
+  }
+  .chart-container{ height:230px; position:relative; }
+  .chart-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:900px){ .chart-grid-2{grid-template-columns:1fr;} }
+
+  /* ===== TABLE ===== */
+  details{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:4px 22px;
+  }
+  summary{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    padding:16px 0;
+    cursor:pointer;
+    color:var(--oxblood);
+  }
+  .table-scroll{ overflow-x:auto; padding-bottom:20px; }
+  table{ border-collapse:collapse; width:100%; font-size:12px; font-family:'IBM Plex Mono',monospace; }
+  th,td{ text-align:right; padding:7px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  th{ text-align:right; color:var(--ink-soft); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; }
+  td:first-child, th:first-child{ text-align:left; }
+  tr:hover td{ background:#FBF8F3; }
+  .result-tag{ padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+
+  footer{
+    margin-top:60px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  /* ===== LOCK SCREEN ===== */
+  #lockScreen{
+    position:fixed; inset:0; z-index:1000;
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .lock-card{
+    background:var(--surface);
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    padding:44px 40px;
+    max-width:380px;
+    width:100%;
+    text-align:center;
+  }
+  .lock-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--oxblood);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .lock-title{
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    font-weight:600;
+    margin:0 0 8px;
+  }
+  .lock-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:26px;
+    line-height:1.5;
+  }
+  #passcodeInput{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:16px;
+    letter-spacing:.08em;
+    text-align:center;
+    width:100%;
+    padding:12px 14px;
+    border:1.5px solid var(--ink);
+    border-radius:4px;
+    background:var(--bg);
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  #passcodeInput:focus{ outline:2px solid var(--oxblood); outline-offset:1px; }
+  #lockSubmit{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-weight:600;
+    width:100%;
+    padding:12px;
+    background:var(--ink);
+    color:var(--bg);
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  #lockSubmit:hover{ background:var(--oxblood); }
+  #lockError{
+    color:var(--red);
+    font-size:12.5px;
+    margin-top:12px;
+    min-height:16px;
+    font-weight:600;
+  }
+  #dashboardRoot{ display:none; }
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-eyebrow">Performance Ledger · Confidential</div>
+    <div class="lock-title">Exodo Hospitality</div>
+    <div class="lock-sub">This dashboard contains confidential sales, cost, and labor data. Enter the access code to continue.</div>
+    <input type="password" id="passcodeInput" placeholder="Access code" autocomplete="off">
+    <button id="lockSubmit">Unlock Dashboard</button>
+    <div id="lockError"></div>
+  </div>
+</div>
+
+<div id="modalOverlay">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-sub" id="modalSub"></div>
+      </div>
+      <button class="modal-close" id="modalClose">Close ✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div id="dashboardRoot">
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Performance Ledger · Confidential</div>
+    <h1>Exodo Hospitality</h1>
+    <div class="subtitle">Historical KPI dashboard — weekly and monthly view against house benchmarks, across all Exodo Hospitality locations.</div>
+    <div class="period-tag" id="periodTag">Loading period…</div>
+    <div class="source-line">
+      <span class="source-pill pill-builtin" id="sourcePill">Built-in data</span>
+      <span class="source-text" id="sourceText">Upload the weekly sales log to refresh.</span>
+    </div>
+    <style>
+      .checks-box{margin:18px 0 0;border:1.5px solid var(--amber);background:var(--amber-bg);border-radius:3px;padding:12px 16px;font-size:13px;line-height:1.5;}
+      .checks-box.ok{border-color:var(--green);background:var(--green-bg);}
+      .checks-box summary{cursor:pointer;font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;}
+      .checks-box ul{margin:8px 0 0;padding-left:18px;}
+      .nodata{color:var(--ink-soft);font-weight:500;font-size:.8em;letter-spacing:.04em;}
+      tr.week-missing td{color:var(--ink-soft);font-style:italic;}
+    </style>
+    <div id="checksBox"></div>
+
+        <style>
+      .invoice-nav{ display:flex; flex-direction:column; gap:6px; margin:28px 0 0; }
+      .invoice-nav-label{
+        font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em;
+        text-transform:uppercase; color:var(--ink-soft); font-weight:600;
+      }
+      .invoice-nav-links{ display:flex; gap:12px; flex-wrap:wrap; }
+      .invoice-btn{
+        font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.06em;
+        text-transform:uppercase; font-weight:600; text-decoration:none;
+        padding:10px 20px; background:var(--surface); color:var(--oxblood);
+        border:1.5px solid var(--oxblood); border-radius:3px;
+        transition:all .15s; white-space:nowrap;
+      }
+      .invoice-btn:hover{ background:var(--oxblood); color:var(--bg); }
+    </style>
+
+    <div class="invoice-nav">
+      <div class="invoice-nav-label">Invoice processing</div>
+      <div class="invoice-nav-links">
+__INVOICE_BUTTONS__
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <div class="location-select-wrap">
+        <label for="locationSelect">Location</label>
+        <select id="locationSelect" class="styled-select"></select>
+      </div>
+      <div class="view-toggle">
+        <button id="btnWeekly" class="active">Weekly</button>
+        <button id="btnMonthly">Monthly</button>
+      </div>
+      <div class="location-select-wrap">
+        <label for="weekFrom">From week</label>
+        <select id="weekFrom" class="styled-select week-select"></select>
+      </div>
+      <div class="location-select-wrap">
+        <label for="weekTo">To week</label>
+        <select id="weekTo" class="styled-select week-select"></select>
+      </div>
+      <div class="location-select-wrap">
+        <label>&nbsp;</label>
+        <button class="reset-btn" id="resetRange">All weeks</button>
+      </div>
+      <div class="location-select-wrap">
+        <label>Data</label>
+        <button class="upload-btn" id="uploadBtn">Update from Excel</button>
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.xls">
+      </div>
+    </div>
+  </header>
+
+  <div class="section-label" id="salesOverviewLabel">Sales Overview — All-Time Average</div>
+  <div class="kpi-grid" id="salesGrid"></div>
+
+  <div class="section-label" id="benchmarkLabel">Benchmark Scorecard — All-Time Average</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="section-label">Sales &amp; Revenue Trend</div>
+  <div class="chart-card">
+    <div class="chart-head">
+      <div class="chart-title">Gross vs. Net Sales</div>
+      <div class="chart-meta">
+        <span><span class="legend-dot" style="background:#6B1F2A"></span>Gross Sales</span>
+        <span><span class="legend-dot" style="background:#B8894A"></span>Net Sales</span>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="chartSales"></canvas></div>
+  </div>
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Food vs. Bar Sales Mix</div>
+      </div>
+      <div class="chart-container"><canvas id="chartMix"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Dinner vs. Brunch Avg. Check</div>
+      </div>
+      <div class="chart-container"><canvas id="chartCheck"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section-label">Cost &amp; Labor KPIs vs. Benchmark</div>
+  <div class="chart-grid-2" id="kpiChartsGrid"></div>
+  <div class="chart-card">
+    <div class="chart-head"><div class="chart-title">Prime Cost %</div><div class="chart-meta" id="m-prime"></div></div>
+    <div class="chart-container" style="height:200px;"><canvas id="chart-prime"></canvas></div>
+  </div>
+
+  <div class="section-label">Raw Ledger</div>
+  <details>
+    <summary id="tableSummary">Show full weekly data table</summary>
+    <div class="table-scroll">
+      <table id="dataTable"></table>
+    </div>
+  </details>
+
+  <footer id="footerText">Exodo Hospitality — Performance Ledger · Benchmarks: Discount ≤2% · Food COGS ≤25% · Bar COGS ≤18% · FOH ≤8% · BOH ≤12% · Salaried ≤10% · Prime Cost ≤55%</footer>
+</div>
+</div>
+
+<script>
+const ALL_DATA = __ALL_DATA__;
+
+const BUILT_FROM = '__BUILT_FROM__';
+const BUILT_THROUGH = '__BUILT_THROUGH__';
+const BUILT_ON = '__BUILT_ON__';
+const BUILD_CHECKS = __BUILD_CHECKS__;
+const LINK_MODE = '__LINK_MODE__';
+
+const BENCH = {
+  discount_pct: 0.02, food_cogs_pct: 0.25, bar_cogs_pct: 0.18,
+  foh_pct: 0.08, boh_pct: 0.12, salaried_pct: 0.10, prime_pct: 0.55
+};
+const PRIME_META = {key:'prime_pct', label:'Prime Cost', dollarKey:'prime_cost', bench:BENCH.prime_pct};
+
+const DEFAULT_KPI_META = [
+  {key:'discount_pct', label:'Discount %', dollarKey:'discounts', bench:BENCH.discount_pct},
+  {key:'food_cogs_pct', label:'Food COGS', dollarKey:'food_cost', bench:BENCH.food_cogs_pct},
+  {key:'bar_cogs_pct', label:'Bar COGS', dollarKey:'bar_cost', bench:BENCH.bar_cogs_pct},
+  {key:'foh_pct', label:'FOH %', dollarKey:'foh_cost', bench:BENCH.foh_pct},
+  {key:'boh_pct', label:'BOH %', dollarKey:'boh_cost', bench:BENCH.boh_pct},
+  {key:'salaried_pct', label:'Salaried %', dollarKey:'salaried_cost', bench:BENCH.salaried_pct},
+  PRIME_META,
+];
+
+const MATILDA_KPI_META = [
+  {key:'discount_pct', label:'Discount %', dollarKey:'discounts', bench:BENCH.discount_pct},
+  {key:'food_cogs_pct', label:'Food COGS', dollarKey:'food_cost', bench:BENCH.food_cogs_pct},
+  {key:'bar_cogs_pct', label:'Bar COGS', dollarKey:'bar_cost', bench:BENCH.bar_cogs_pct},
+  {key:'mat_boh_pct', label:'Matilda BOH %', dollarKey:'mat_boh_cost', bench:BENCH.boh_pct},
+  {key:'mat_foh_pct', label:'Matilda FOH %', dollarKey:'mat_foh_cost', bench:BENCH.foh_pct},
+  {key:'cld_foh_pct', label:'Clandestino FOH %', dollarKey:'cld_foh_cost', bench:BENCH.foh_pct},
+  {key:'mat_salaried_pct', label:'Matilda Salaried %', dollarKey:'mat_salaried_cost', bench:BENCH.salaried_pct},
+  {key:'cld_salaried_pct', label:'Clandestino Salaried %', dollarKey:'cld_salaried_cost', bench:BENCH.salaried_pct},
+  PRIME_META,
+];
+
+function getKpiMeta(){
+  return currentLocation === 'matilda' ? MATILDA_KPI_META : DEFAULT_KPI_META;
+}
+
+let locationKeys = Object.keys(ALL_DATA.locations);
+let currentLocation = locationKeys[0];
+let currentView = 'weekly';
+let rangeStart = null;   // ISO start date of the first selected week
+let rangeEnd = null;     // ISO start date of the last selected week
+let charts = {};
+
+function DATA(){ return ALL_DATA.locations[currentLocation]; }
+
+const NODATA = '<span class="nodata">no data</span>';
+function fmtPct(v){ return (v===null||v===undefined||isNaN(v)) ? NODATA : (v*100).toFixed(1)+'%'; }
+function fmtDollar(v){ return (v===null||v===undefined||isNaN(v)) ? NODATA : '$'+Math.round(v).toLocaleString('en-US'); }
+// average / sum over the weeks that actually carry a number (blank cells are skipped, never counted as 0)
+function avgOf(arr, key){ const v = arr.map(w=>w[key]).filter(x=>x!==null&&x!==undefined&&!isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; }
+function sumOf(arr, key){ const v = arr.map(w=>w[key]).filter(x=>x!==null&&x!==undefined&&!isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0) : null; }
+function nullDiv(a,b){ return (a===null||a===undefined||b===null||b===undefined||!b) ? null : a/b; }
+
+function renderChecks(){
+  const box = document.getElementById('checksBox');
+  if(!box) return;
+  const n = BUILD_CHECKS.length;
+  box.innerHTML = n
+    ? `<details class="checks-box"><summary>Checks from the last build (${BUILT_ON}): ${n} item${n>1?'s':''} to look at</summary><ul>${BUILD_CHECKS.map(c=>`<li>${c}</li>`).join('')}</ul></details>`
+    : `<div class="checks-box ok"><summary>Checks from the last build (${BUILT_ON}): all clear</summary></div>`;
+}
+renderChecks();
+
+const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// "Sep 22 – Sep 28, 2025" — exactly the weeks that exist in the workbook.
+function weekOptionLabel(w){
+  const a = w.start.split('-'), b = w.end.split('-');
+  const from = MONTH_ABBR[+a[1]-1] + ' ' + a[2];
+  const to   = MONTH_ABBR[+b[1]-1] + ' ' + b[2];
+  return from + ' – ' + to + ', ' + b[0];
+}
+
+// The weeks currently in scope, straight off the workbook order.
+function filteredWeeks(){
+  const all = DATA().weekly;
+  if(!rangeStart && !rangeEnd) return all;
+  const lo = rangeStart || all[0].start;
+  const hi = rangeEnd   || all[all.length-1].start;
+  const out = all.filter(w=> w.start >= lo && w.start <= hi);
+  return out.length ? out : all;
+}
+
+function isFullRange(){
+  const all = DATA().weekly;
+  if(!all.length) return true;
+  return (!rangeStart || rangeStart === all[0].start) &&
+         (!rangeEnd   || rangeEnd === all[all.length-1].start);
+}
+
+function getSeries(){
+  const weeks = filteredWeeks();
+  // Monthly view is rolled up from exactly the weeks in scope, so a
+  // partially-selected month never reports a full month of totals.
+  return currentView === 'weekly'
+    ? weeks
+    : rollupMonths(weeks, currentLocation === 'matilda');
+}
+function getLabels(){
+  const s = getSeries();
+  return currentView === 'weekly' ? s.map(w=>w.label) : s.map(m=>m.month_label);
+}
+
+function destroyAll(){
+  Object.values(charts).forEach(c=>c && c.destroy());
+  charts = {};
+}
+
+function makeLineChart(ctx, labels, dataArr, color, benchLine, isPercent, fillGood){
+  const benchArr = benchLine!=null ? labels.map(()=>benchLine) : null;
+  const datasets = [{
+    label:'Value',
+    data: dataArr,
+    borderColor: color,
+    backgroundColor: color+'22',
+    borderWidth: 2,
+    pointRadius: labels.length>20 ? 0 : 2.5,
+    pointBackgroundColor: color,
+    tension:.25,
+    fill:true,
+  }];
+  if(benchArr){
+    datasets.push({
+      label:'Benchmark',
+      data: benchArr,
+      borderColor:'#A23B3B',
+      borderDash:[5,4],
+      borderWidth:1.5,
+      pointRadius:0,
+      fill:false,
+    });
+  }
+  return new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label: (item)=> {
+              if(item.datasetIndex===1) return 'Benchmark: '+(isPercent?fmtPct(item.raw):fmtDollar(item.raw));
+              return (isPercent?fmtPct(item.raw):fmtDollar(item.raw));
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{ font:{family:'IBM Plex Mono', size:9}, maxRotation:60, minRotation: currentView==='weekly'?60:0, autoSkip:true, maxTicksLimit: currentView==='weekly'?16:12 } },
+        y:{ grid:{color:'#EDE7E0'}, ticks:{ font:{family:'IBM Plex Mono', size:10}, callback:(v)=> isPercent? (v*100).toFixed(0)+'%' : '$'+(v/1000).toFixed(0)+'k' } }
+      }
+    }
+  });
+}
+
+function renderSalesCards(){
+  const s = getSeries();
+  const grid = document.getElementById('salesGrid');
+  grid.innerHTML='';
+
+  const avgGross = avgOf(s,'gross_sales');
+  const avgNet = avgOf(s,'net_sales');
+  const avgFoodSales = avgOf(s,'food_sales');
+  const avgBarSales = avgOf(s,'bar_sales');
+  const avgFoodPct = nullDiv(avgFoodSales, avgNet);
+  const avgBarPct = nullDiv(avgBarSales, avgNet);
+
+  const cards = [
+    { name:'Gross Sales', value: fmtDollar(avgGross), sub:`Average per ${currentView==='weekly'?'week':'month'}`, color:'#241D1A' },
+    { name:'Net Sales', value: fmtDollar(avgNet), sub:`Average per ${currentView==='weekly'?'week':'month'}`, color:'#6B1F2A' },
+    { name:'Food Sales', value: fmtPct(avgFoodPct), sub: avgFoodSales===null ? 'no data' : fmtDollar(avgFoodSales)+' avg of net sales', color:'#B8894A' },
+    { name:'Bar Sales', value: fmtPct(avgBarPct), sub: avgBarSales===null ? 'no data' : fmtDollar(avgBarSales)+' avg of net sales', color:'#8C3240' },
+  ];
+
+  cards.forEach(c=>{
+    const card = document.createElement('div');
+    card.className='kpi-card';
+    card.innerHTML = `
+      <div class="bar" style="background:${c.color}"></div>
+      <div class="kpi-name">${c.name}</div>
+      <div class="kpi-value" style="color:${c.color}">${c.value}</div>
+      <div class="kpi-dollar" style="margin-bottom:0;">${c.sub ? c.sub : ''}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderKPICards(){
+  const s = getSeries();
+  const n = s.length;
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML='';
+  getKpiMeta().forEach(k=>{
+    const val = avgOf(s, k.key);
+    const dollar = avgOf(s, k.dollarKey);
+    const noData = (val === null);
+    const pass = !noData && val <= k.bench;
+    const barColor = noData ? 'var(--border)' : pass ? 'var(--green)' : 'var(--red)';
+    const card = document.createElement('div');
+
+    // Food COGS / Bar COGS open a vendor-level drill-down when the
+    // matching detail tab has rows inside the current date range.
+    const detailKind = k.key==='food_cogs_pct' ? 'food' : k.key==='bar_cogs_pct' ? 'bar' : null;
+    const hasDetail = detailKind && detailRowsInRange(detailKind).length > 0;
+    card.className = 'kpi-card' + (hasDetail ? ' has-detail' : '');
+    if(hasDetail){
+      card.addEventListener('click', ()=> openDetail(detailKind));
+    }
+
+    card.innerHTML = `
+      <div class="bar" style="background:${barColor}"></div>
+      ${hasDetail ? '<div class="detail-cue">Detail</div>' : ''}
+      <div class="kpi-name">${k.label}</div>
+      <div class="kpi-value" style="color:${noData?'var(--ink-soft)':pass?'var(--green)':'var(--red)'}">${fmtPct(val)}</div>
+      <div class="kpi-dollar">${dollar===null ? 'no data' : fmtDollar(dollar)+' avg per '+(currentView==='weekly'?'week':'month')}</div>
+      <div class="kpi-foot">
+        <span class="kpi-bench">Target ≤${fmtPct(k.bench)}</span>
+        <span class="kpi-badge ${noData?'':pass?'badge-pass':'badge-fail'}">${noData?'NO DATA':pass?'ON TARGET':'OVER'}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderSalesCharts(){
+  const s = getSeries();
+  const labels = getLabels();
+  charts.sales && charts.sales.destroy();
+  charts.sales = new Chart(document.getElementById('chartSales'), {
+    type:'line',
+    data:{ labels, datasets:[
+      {label:'Gross', data:s.map(w=>w.gross_sales), borderColor:'#6B1F2A', backgroundColor:'#6B1F2A15', borderWidth:2, pointRadius: labels.length>20?0:2, tension:.25, fill:true},
+      {label:'Net', data:s.map(w=>w.net_sales), borderColor:'#B8894A', backgroundColor:'#B8894A15', borderWidth:2, pointRadius: labels.length>20?0:2, tension:.25, fill:true},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(item)=> item.dataset.label+': '+fmtDollar(item.raw)}}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{family:'IBM Plex Mono',size:9}, maxRotation:60, minRotation:currentView==='weekly'?60:0, autoSkip:true, maxTicksLimit:16}},
+               y:{grid:{color:'#EDE7E0'}, ticks:{font:{family:'IBM Plex Mono',size:10}, callback:(v)=>'$'+(v/1000).toFixed(0)+'k'}} }
+    }
+  });
+
+  charts.mix && charts.mix.destroy();
+  charts.mix = new Chart(document.getElementById('chartMix'), {
+    type:'bar',
+    data:{ labels, datasets:[
+      {label:'Food', data:s.map(w=>w.food_sales), backgroundColor:'#6B1F2A', stack:'a'},
+      {label:'Bar', data:s.map(w=>w.bar_sales), backgroundColor:'#B8894A', stack:'a'},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{font:{family:'Inter',size:11}, boxWidth:10}}, tooltip:{callbacks:{label:(item)=> item.dataset.label+': '+fmtDollar(item.raw)}}},
+      scales:{ x:{grid:{display:false}, stacked:true, ticks:{font:{family:'IBM Plex Mono',size:9}, maxRotation:60, minRotation:currentView==='weekly'?60:0, autoSkip:true, maxTicksLimit:14}},
+               y:{grid:{color:'#EDE7E0'}, stacked:true, ticks:{font:{family:'IBM Plex Mono',size:10}, callback:(v)=>'$'+(v/1000).toFixed(0)+'k'}} }
+    }
+  });
+
+  charts.check && charts.check.destroy();
+  const dinnerKey = currentView==='weekly' ? 'dinner_check' : 'dinner_check_avg';
+  const brunchKey = currentView==='weekly' ? 'brunch_check' : 'brunch_check_avg';
+  charts.check = new Chart(document.getElementById('chartCheck'), {
+    type:'line',
+    data:{ labels, datasets:[
+      {label:'Dinner', data:s.map(w=>w[dinnerKey]), borderColor:'#6B1F2A', borderWidth:2, pointRadius: labels.length>20?0:2, tension:.25},
+      {label:'Brunch', data:s.map(w=>w[brunchKey]), borderColor:'#2F6B4F', borderWidth:2, pointRadius: labels.length>20?0:2, tension:.25},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{font:{family:'Inter',size:11}, boxWidth:10}}, tooltip:{callbacks:{label:(item)=> item.dataset.label+': '+(item.raw==null?'no data':'$'+item.raw.toFixed(2))}}},
+      scales:{ x:{grid:{display:false}, ticks:{font:{family:'IBM Plex Mono',size:9}, maxRotation:60, minRotation:currentView==='weekly'?60:0, autoSkip:true, maxTicksLimit:14}},
+               y:{grid:{color:'#EDE7E0'}, ticks:{font:{family:'IBM Plex Mono',size:10}, callback:(v)=>'$'+v}} }
+    }
+  });
+}
+
+function renderKPICharts(){
+  const s = getSeries();
+  const labels = getLabels();
+  const colorPalette = ['#6B1F2A','#B8894A','#8C3240','#2F6B4F','#4A6B8C','#7A6F68','#A2673B','#5C7A99'];
+
+  // dynamically rebuild the grid to match this location's KPI set
+  const gridEl = document.getElementById('kpiChartsGrid');
+  gridEl.innerHTML='';
+  const gridItems = getKpiMeta().filter(k=>k.key!=='prime_pct');
+
+  gridItems.forEach((k,i)=>{
+    const color = colorPalette[i % colorPalette.length];
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    const chartId = 'chart-dyn-'+k.key;
+    const metaId = 'm-dyn-'+k.key;
+    card.innerHTML = `
+      <div class="chart-head"><div class="chart-title">${k.label}</div><div class="chart-meta" id="${metaId}"></div></div>
+      <div class="chart-container"><canvas id="${chartId}"></canvas></div>
+    `;
+    gridEl.appendChild(card);
+
+    const dataArr = s.map(w=> (w[k.key]===undefined ? null : w[k.key]));
+    charts[chartId] && charts[chartId].destroy();
+    charts[chartId] = makeLineChart(document.getElementById(chartId), labels, dataArr, color, k.bench, true);
+
+    const avgVal = avgOf(s, k.key);
+    document.getElementById(metaId).innerHTML = `<span>Period avg: ${fmtPct(avgVal)}</span><span style="color:#A23B3B">Target ≤${fmtPct(k.bench)}</span>`;
+  });
+
+  // Prime Cost — fixed full-width chart, same across all locations
+  const primeDataArr = s.map(w=> (w[PRIME_META.key]===undefined ? null : w[PRIME_META.key]));
+  charts['chart-prime'] && charts['chart-prime'].destroy();
+  charts['chart-prime'] = makeLineChart(document.getElementById('chart-prime'), labels, primeDataArr, '#241D1A', PRIME_META.bench, true);
+  const primeAvg = avgOf(s, PRIME_META.key);
+  document.getElementById('m-prime').innerHTML = `<span>Period avg: ${fmtPct(primeAvg)}</span><span style="color:#A23B3B">Target ≤${fmtPct(PRIME_META.bench)}</span>`;
+}
+
+function renderTable(){
+  const s = filteredWeeks();
+  const table = document.getElementById('dataTable');
+  let html = '<thead><tr><th>Week</th><th>Gross</th><th>Net</th><th>Disc%</th><th>Food COGS</th><th>Bar COGS</th><th>BOH%</th><th>FOH%</th><th>Sal%</th><th>Prime%</th><th>Result</th></tr></thead><tbody>';
+  s.forEach(w=>{
+    const resultColors = {Excellent:'#EAF3EE;color:#2F6B4F', Acceptable:'#FBF3E4;color:#B8863A', Warning:'#FBEDED;color:#A23B3B'};
+    const rc = resultColors[w.result] || '#EDE7E0;color:#7A6F68';
+    const missing = (w.net_sales===null || w.net_sales===undefined);
+    html += `<tr class="${missing?'week-missing':''}">
+      <td>${w.label} '${w.start.slice(2,4)}${missing?' (no data)':''}</td>
+      <td>${fmtDollar(w.gross_sales)}</td>
+      <td>${fmtDollar(w.net_sales)}</td>
+      <td>${fmtPct(w.discount_pct)}</td>
+      <td>${fmtPct(w.food_cogs_pct)}</td>
+      <td>${fmtPct(w.bar_cogs_pct)}</td>
+      <td>${fmtPct(w.boh_pct)}</td>
+      <td>${fmtPct(w.foh_pct)}</td>
+      <td>${fmtPct(w.salaried_pct)}</td>
+      <td>${fmtPct(w.prime_pct)}</td>
+      <td><span class="result-tag" style="background:${rc}">${w.result||'-'}</span></td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function updatePeriodTag(){
+  const all = DATA().weekly;
+  const weeks = filteredWeeks();
+  const first = weeks[0], last = weeks[weeks.length-1];
+  let txt = `${all.length} weeks logged total · `;
+  if(isFullRange()){
+    txt += `all weeks shown (${all[0].start} → ${all[all.length-1].end})`;
+  } else {
+    txt += `showing ${weeks.length} of ${all.length} weeks (${first.start} → ${last.end})`;
+  }
+  if(currentView === 'monthly'){
+    txt += ` · rolled into ${getSeries().length} month${getSeries().length>1?'s':''}`;
+  }
+  const miss = all.filter(w=> w.net_sales===null || w.net_sales===undefined).length;
+  if(miss) txt += ` · ${miss} week${miss>1?'s':''} with no data`;
+  document.getElementById('periodTag').textContent = `${DATA().name} · ${txt}`;
+}
+
+function currentRangeDisplayLabel(){
+  return isFullRange() ? 'All Weeks Average' : 'Selected Range Average';
+}
+
+function renderAll(){
+  destroyAll();
+  renderSalesCards();
+  renderKPICards();
+  renderSalesCharts();
+  renderKPICharts();
+  renderTable();
+  updatePeriodTag();
+  document.getElementById('salesOverviewLabel').textContent = 'Sales Overview — ' + currentRangeDisplayLabel();
+  document.getElementById('benchmarkLabel').textContent = 'Benchmark Scorecard — ' + currentRangeDisplayLabel();
+}
+
+/* ==================================================================
+   VENDOR / CATEGORY DRILL-DOWN
+   Food tabs carry purchases per vendor; bar tabs carry sales AND
+   purchases per category, so the bar view can show COGS per category.
+   ================================================================== */
+
+const DETAIL_COLORS = ['#6B1F2A','#B8894A','#2F6B4F','#8C3240','#4A6B8C',
+                       '#A2673B','#7A6F68','#5C7A99','#9C7A3C','#3E5C4A'];
+
+function detailSet(kind){
+  const d = DATA().detail;
+  return (d && d[kind]) ? d[kind] : null;
+}
+
+// Detail rows that fall inside whatever week range is currently applied.
+function detailRowsInRange(kind){
+  const set = detailSet(kind);
+  if(!set) return [];
+  const weeks = filteredWeeks();
+  if(!weeks.length) return [];
+  const lo = weeks[0].start, hi = weeks[weeks.length-1].end;
+  return set.rows.filter(r=> r.end >= lo && r.start <= hi);
+}
+
+// Main-tab cost for the same weeks, so the popup can reconcile the two.
+function mainCostForWeeks(kind, rows){
+  const costKey = kind==='food' ? 'food_cost' : 'bar_cost';
+  const byStart = {};
+  DATA().weekly.forEach(w=>{ byStart[w.start] = w; });
+  let total = 0, matched = 0;
+  rows.forEach(r=>{
+    const w = byStart[r.start];
+    if(w){ total += w[costKey]||0; matched++; }
+  });
+  return {total, matched};
+}
+
+let modalChart = null;
+
+function openDetail(kind){
+  const rows = detailRowsInRange(kind);
+  const overlay = document.getElementById('modalOverlay');
+  const isFood = kind === 'food';
+
+  document.getElementById('modalTitle').textContent =
+    isFood ? 'Food Purchases by Vendor' : 'Bar Performance by Category';
+
+  const body = document.getElementById('modalBody');
+  if(modalChart){ modalChart.destroy(); modalChart = null; }
+
+  if(!rows.length){
+    const set = detailSet(kind);
+    document.getElementById('modalSub').textContent = DATA().name;
+    body.innerHTML = `<div class="modal-empty">${
+      set
+        ? `The ${isFood?'food':'bar'} detail tab only covers ${set.rows[0].start} → ${set.rows[set.rows.length-1].end}, which falls outside the current date range. Widen the range to see it.`
+        : `No ${isFood?'food':'bar'} detail tab exists for ${DATA().name}.`
+    }</div>`;
+    overlay.classList.add('open');
+    return;
+  }
+
+  document.getElementById('modalSub').textContent =
+    `${DATA().name} · ${rows.length} week${rows.length>1?'s':''} · ${rows[0].start} → ${rows[rows.length-1].end}`;
+
+  // Totals across the weeks in view
+  const totals = {};
+  const catSales = {};
+  let sumCost = 0, sumSales = 0;
+  rows.forEach(r=>{
+    sumCost += r.purchases;
+    sumSales += r.sales;
+    r.items.forEach(it=>{
+      totals[it.name] = (totals[it.name]||0) + it.cost;
+      if(it.sales != null) catSales[it.name] = (catSales[it.name]||0) + it.sales;
+    });
+  });
+  const names = Object.keys(totals).sort((a,b)=> totals[b]-totals[a]);
+  const grandCost = names.reduce((a,n)=>a+totals[n],0);
+
+  const recon = mainCostForWeeks(kind, rows);
+  const gap = recon.total - sumCost;
+
+  // Stats strip
+  const stats = [
+    {label:'Purchases in view', value: fmtDollar(sumCost)},
+    {label:isFood?'Food sales':'Bar sales', value: fmtDollar(sumSales)},
+    {label:'Purchases ÷ sales', value: fmtPct(sumSales ? sumCost/sumSales : 0)},
+    {label:isFood?'Vendors':'Categories', value: String(names.length)},
+  ];
+
+  // Table
+  let tableHTML = `<table><thead><tr>
+      <th>${isFood?'Vendor':'Category'}</th>
+      ${isFood?'':'<th>Sales</th>'}
+      <th>Purchases</th>
+      <th>${isFood?'Share of spend':'COGS %'}</th>
+      <th style="width:34%">${isFood?'':'Share of spend'}</th>
+    </tr></thead><tbody>`;
+  names.forEach((n,i)=>{
+    const share = grandCost ? totals[n]/grandCost : 0;
+    const cogs = catSales[n] ? totals[n]/catSales[n] : null;
+    tableHTML += `<tr>
+      <td>${n}</td>
+      ${isFood?'':`<td>${catSales[n]!=null?fmtDollar(catSales[n]):'—'}</td>`}
+      <td>${fmtDollar(totals[n])}</td>
+      <td>${isFood ? fmtPct(share) : (cogs!=null?fmtPct(cogs):'—')}</td>
+      <td style="text-align:left">
+        <span class="share-bar" style="width:${(share*100).toFixed(1)}%;background:${DETAIL_COLORS[i%DETAIL_COLORS.length]}"></span>
+        <span style="color:var(--ink-soft)">${isFood?'':fmtPct(share)}</span>
+      </td>
+    </tr>`;
+  });
+  tableHTML += '</tbody>';
+
+  body.innerHTML = `
+    <div class="modal-stats">
+      ${stats.map(s=>`<div><div class="modal-stat-label">${s.label}</div><div class="modal-stat-value">${s.value}</div></div>`).join('')}
+    </div>
+    <div class="modal-chart"><canvas id="modalCanvas"></canvas></div>
+    <div class="table-scroll">${tableHTML}</table></div>
+    ${recon.matched && Math.abs(gap) > 1 ? `
+      <div class="modal-note">
+        <strong>These weeks don't reconcile with the main ledger.</strong>
+        The ${isFood?'food':'bar'} detail tab totals ${fmtDollar(sumCost)} across
+        ${recon.matched} week${recon.matched>1?'s':''}, but the
+        ${DATA().name} tab records ${fmtDollar(recon.total)} of ${isFood?'food':'bar'} cost
+        for the same weeks — a gap of ${gap>0?'+':''}${fmtDollar(gap)}
+        (${fmtPct(recon.total ? Math.abs(gap)/recon.total : 0)}).
+        The KPI cards and charts use the main tab figure. Worth checking which is right.
+      </div>` : ''}
+  `;
+
+  overlay.classList.add('open');
+
+  // Stacked weekly spend
+  const datasets = names.map((n,i)=>({
+    label: n,
+    data: rows.map(r=>{
+      const hit = r.items.find(it=>it.name===n);
+      return hit ? hit.cost : 0;
+    }),
+    backgroundColor: DETAIL_COLORS[i % DETAIL_COLORS.length],
+    stack: 'spend',
+  }));
+
+  modalChart = new Chart(document.getElementById('modalCanvas'), {
+    type:'bar',
+    data:{ labels: rows.map(r=>r.label), datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom', labels:{font:{family:'Inter',size:10}, boxWidth:9, padding:9}},
+        tooltip:{callbacks:{label:(item)=> item.dataset.label+': '+fmtDollar(item.raw)}}
+      },
+      scales:{
+        x:{grid:{display:false}, stacked:true, ticks:{font:{family:'IBM Plex Mono',size:10}}},
+        y:{grid:{color:'#EDE7E0'}, stacked:true, ticks:{font:{family:'IBM Plex Mono',size:10}, callback:(v)=>'$'+(v/1000).toFixed(0)+'k'}}
+      }
+    }
+  });
+}
+
+function closeDetail(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  if(modalChart){ modalChart.destroy(); modalChart = null; }
+}
+document.getElementById('modalClose').addEventListener('click', closeDetail);
+document.getElementById('modalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'modalOverlay') closeDetail();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeDetail();
+});
+
+// ===== LOCATION DROPDOWN =====
+const locSelect = document.getElementById('locationSelect');
+
+function buildLocationOptions(){
+  const prev = currentLocation;
+  locationKeys = Object.keys(ALL_DATA.locations);
+  locSelect.innerHTML = '';
+  locationKeys.forEach(key=>{
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = ALL_DATA.locations[key].name;
+    locSelect.appendChild(opt);
+  });
+  currentLocation = locationKeys.includes(prev) ? prev : locationKeys[0];
+  locSelect.value = currentLocation;
+}
+buildLocationOptions();
+
+locSelect.addEventListener('change', (e)=>{
+  currentLocation = e.target.value;
+  buildWeekPickers();
+  renderAll();
+});
+
+document.getElementById('btnWeekly').addEventListener('click', ()=>{
+  currentView='weekly';
+  document.getElementById('btnWeekly').classList.add('active');
+  document.getElementById('btnMonthly').classList.remove('active');
+  renderAll();
+});
+document.getElementById('btnMonthly').addEventListener('click', ()=>{
+  currentView='monthly';
+  document.getElementById('btnMonthly').classList.add('active');
+  document.getElementById('btnWeekly').classList.remove('active');
+  renderAll();
+});
+
+// ===== WEEK RANGE PICKERS =====
+const weekFrom = document.getElementById('weekFrom');
+const weekTo = document.getElementById('weekTo');
+const resetRange = document.getElementById('resetRange');
+
+// Options are the workbook's own weeks, in file order — no synthetic periods.
+function buildWeekPickers(){
+  const all = DATA().weekly;
+  const opts = all.map(w=>`<option value="${w.start}">${weekOptionLabel(w)}</option>`).join('');
+  weekFrom.innerHTML = opts;
+  weekTo.innerHTML = opts;
+
+  const valid = all.map(w=>w.start);
+  // Locations don't all start the same week (Akiro is shorter), so carry the
+  // selection across where it exists and clamp to the nearest week where it doesn't.
+  if(!rangeStart || !valid.includes(rangeStart)){
+    rangeStart = (rangeStart && valid.find(v=> v >= rangeStart)) || valid[0];
+  }
+  if(!rangeEnd || !valid.includes(rangeEnd)){
+    rangeEnd = (rangeEnd && valid.slice().reverse().find(v=> v <= rangeEnd)) || valid[valid.length-1];
+  }
+  if(rangeStart > rangeEnd){ rangeStart = valid[0]; rangeEnd = valid[valid.length-1]; }
+
+  weekFrom.value = rangeStart;
+  weekTo.value = rangeEnd;
+  resetRange.disabled = isFullRange();
+}
+
+// Keep the pair ordered: nudging one past the other drags the other along.
+weekFrom.addEventListener('change', ()=>{
+  rangeStart = weekFrom.value;
+  if(rangeStart > rangeEnd){ rangeEnd = rangeStart; weekTo.value = rangeEnd; }
+  resetRange.disabled = isFullRange();
+  renderAll();
+});
+weekTo.addEventListener('change', ()=>{
+  rangeEnd = weekTo.value;
+  if(rangeEnd < rangeStart){ rangeStart = rangeEnd; weekFrom.value = rangeStart; }
+  resetRange.disabled = isFullRange();
+  renderAll();
+});
+resetRange.addEventListener('click', ()=>{
+  const all = DATA().weekly;
+  rangeStart = all[0].start;
+  rangeEnd = all[all.length-1].start;
+  weekFrom.value = rangeStart;
+  weekTo.value = rangeEnd;
+  resetRange.disabled = true;
+  renderAll();
+});
+
+buildWeekPickers();
+
+/* ==================================================================
+   EXCEL IMPORT
+   Reads the weekly sales log workbook and rebuilds ALL_DATA in place.
+   Expects one tab per location with the standard header row; extra
+   tabs (vendor detail, payroll, bonus) are ignored.
+   ================================================================== */
+
+const SHEET_MAP = __SHEET_MAP__;
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function xNum(v){
+  if(v === null || v === undefined || v === '') return null;
+  if(typeof v === 'boolean') return null;
+  if(typeof v === 'number') return isFinite(v) ? v : null;
+  const n = parseFloat(String(v).replace(/[$,\s%]/g,''));
+  return isFinite(n) ? n : null;
+}
+function nSum(a,b){ return (a===null||a===undefined) ? ((b===null||b===undefined)?null:b) : ((b===null||b===undefined)?a:a+b); }
+function xDiv(a,b){ return (a===null||a===undefined||b===null||b===undefined||!b) ? null : a/b; }
+function pad2(n){ return n<10 ? '0'+n : ''+n; }
+
+// Excel stores dates as a serial number; convert without timezone drift.
+function serialToParts(n){
+  const d = new Date(Math.round((n - 25569) * 86400000));
+  return {y:d.getUTCFullYear(), m:d.getUTCMonth(), d:d.getUTCDate()};
+}
+function dateParts(v){
+  if(v === null || v === undefined || v === '') return null;
+  if(typeof v === 'number') return v > 1 ? serialToParts(v) : null;
+  if(v instanceof Date) return {y:v.getFullYear(), m:v.getMonth(), d:v.getDate()};
+  const s = String(v).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return {y:+m[1], m:+m[2]-1, d:+m[3]};
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m) return {y:+m[3], m:+m[1]-1, d:+m[2]};
+  const dt = new Date(s);
+  return isNaN(dt.getTime()) ? null : {y:dt.getFullYear(), m:dt.getMonth(), d:dt.getDate()};
+}
+function partsToISO(p){ return p.y+'-'+pad2(p.m+1)+'-'+pad2(p.d); }
+
+function findSheet(wb, wanted){
+  if(wb.Sheets[wanted]) return wb.Sheets[wanted];
+  const norm = (s)=>String(s).toLowerCase().replace(/[^a-z0-9]/g,'');
+  const target = norm(wanted);
+  const hit = wb.SheetNames.find(n=>norm(n) === target);
+  return hit ? wb.Sheets[hit] : null;
+}
+
+function parseLocationSheet(ws, isMatilda){
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, blankrows:false, defval:null});
+  if(!rows.length) throw new Error('sheet is empty');
+
+  const hdr = (rows[0]||[]).map(h=> h===null||h===undefined ? '' : String(h).trim());
+  const idx = {};
+  hdr.forEach((h,i)=>{ if(h && !(h in idx)) idx[h] = i; });
+  if(!('Start date' in idx)) throw new Error('no "Start date" column found');
+
+  const g = (row, ...names)=>{
+    for(const n of names){ if(n in idx) return xNum(row[idx[n]]); }
+    return null;
+  };
+
+  const weekly = [];
+  for(let r=1; r<rows.length; r++){
+    const row = rows[r];
+    if(!row || row.length === 0) continue;
+    const sp = dateParts(row[idx['Start date']]);
+    if(!sp) continue;
+    const ep = ('End date' in idx ? dateParts(row[idx['End date']]) : null) || sp;
+
+    const net = g(row,'Net sales');
+    const foodSales = g(row,'Food sales');
+    const barSales  = g(row,'Bar sales');
+
+    const w = {
+      start: partsToISO(sp),
+      end: partsToISO(ep),
+      label: MONTHS[sp.m]+' '+pad2(sp.d),
+      month_key: sp.y+'-'+pad2(sp.m+1),
+      month_label: MONTHS[sp.m]+' '+sp.y,
+      gross_sales: g(row,'Gross sales'),
+      discounts: g(row,'Discounts'),
+      discount_pct: g(row,'Discount %'),
+      refunds: g(row,'Refunds'),
+      net_sales: net,
+      voids: g(row,'Voids'),
+      dinner_covers: g(row,'Dinner covers'),
+      dinner_check: g(row,'Dinner Check Ave','Dinner Ave. Check'),
+      brunch_covers: g(row,'Brunch covers'),
+      brunch_check: g(row,'Brunch Check Ave','Brunch Ave. Check'),
+      food_sales: foodSales,
+      food_cost: g(row,'Food cost'),
+      food_cogs_pct: g(row,'Food COGS'),
+      bar_sales: barSales,
+      bar_cost: g(row,'Bar cost'),
+      bar_cogs_pct: g(row,'Bar COGS'),
+      prime_cost: g(row,'Prime cost'),
+      prime_pct: g(row,'%'),
+      food_sales_pct: xDiv(foodSales, net),
+      bar_sales_pct: xDiv(barSales, net),
+    };
+
+    // a % computed from a blank cost or blank sales is meaningless -> "no data", not 0.0%
+    [['food_cogs_pct','food_cost','food_sales'],['bar_cogs_pct','bar_cost','bar_sales'],
+     ['prime_pct','prime_cost','net_sales'],['discount_pct','discounts','gross_sales']].forEach(([pk,ck,sk])=>{
+      if(w[ck]===null || w[sk]===null) w[pk] = null;
+    });
+    const res = ('Result' in idx) ? row[idx['Result']] : null;
+    w.result = (res === null || res === undefined || res === '') ? null : String(res).trim();
+
+    if(isMatilda){
+      w.matilda_sales      = g(row,'Matilda sales');
+      w.clandestino_sales  = g(row,'Clandestino Sales');
+      w.mat_boh_cost       = g(row,'MAT BOH cost');
+      w.mat_boh_pct        = g(row,'MAT BOH');
+      w.mat_foh_cost       = g(row,'MAT FOH cost');
+      w.mat_foh_pct        = g(row,'MAT FOH');
+      w.cld_foh_cost       = g(row,'CLD FOH cost');
+      w.cld_foh_pct        = g(row,'CLD FOH');
+      w.mat_salaried_cost  = g(row,'MAT Salaried cost');
+      w.mat_salaried_pct   = g(row,'MAT Salaried');
+      w.cld_salaried_cost  = g(row,'CLD Salaried cost');
+      w.cld_salaried_pct   = g(row,'CLD Salaried');
+      // house-wide rollups so the shared charts and ledger table still work
+      w.boh_cost      = w.mat_boh_cost;
+      w.boh_pct       = xDiv(w.boh_cost, net);
+      w.foh_cost      = nSum(w.mat_foh_cost, w.cld_foh_cost);
+      w.foh_pct       = xDiv(w.foh_cost, net);
+      w.salaried_cost = nSum(w.mat_salaried_cost, w.cld_salaried_cost);
+      w.salaried_pct  = xDiv(w.salaried_cost, net);
+    } else {
+      w.boh_cost      = g(row,'BOH cost');
+      w.boh_pct       = g(row,'BOH');
+      w.foh_cost      = g(row,'FOH cost');
+      w.foh_pct       = g(row,'FOH');
+      w.salaried_cost = g(row,'Salaried cost');
+      w.salaried_pct  = g(row,'Salaried');
+    }
+
+    weekly.push(w);
+  }
+
+  if(!weekly.length) throw new Error('no dated rows found');
+  weekly.sort((a,b)=> a.start < b.start ? -1 : a.start > b.start ? 1 : 0);
+  return {weekly, monthly: rollupMonths(weekly, isMatilda)};
+}
+
+const SUM_KEYS = ['gross_sales','discounts','net_sales','food_sales','food_cost',
+                  'bar_sales','bar_cost','boh_cost','foh_cost','salaried_cost',
+                  'prime_cost','dinner_covers','brunch_covers'];
+const MAT_SUM_KEYS = ['mat_boh_cost','mat_foh_cost','cld_foh_cost','mat_salaried_cost','cld_salaried_cost'];
+
+function rollupMonths(weekly, isMatilda){
+  const buckets = {}, order = [];
+  weekly.forEach(w=>{
+    if(!buckets[w.month_key]){ buckets[w.month_key] = []; order.push(w.month_key); }
+    buckets[w.month_key].push(w);
+  });
+
+  return order.map(key=>{
+    const ws = buckets[key];
+    const m = {month_key:key, month_label:ws[0].month_label, weeks_count:ws.length};
+    SUM_KEYS.forEach(k=>{ m[k] = sumOf(ws, k); });
+    m.weeks_missing = ws.filter(w=> w.net_sales===null || w.net_sales===undefined).length;
+
+    if(isMatilda){
+      MAT_SUM_KEYS.forEach(k=>{ m[k] = sumOf(ws, k); });
+      const matSales = sumOf(ws,'matilda_sales');
+      const cldSales = sumOf(ws,'clandestino_sales');
+      m.mat_boh_pct      = xDiv(m.mat_boh_cost, matSales);
+      m.mat_foh_pct      = xDiv(m.mat_foh_cost, matSales);
+      m.cld_foh_pct      = xDiv(m.cld_foh_cost, cldSales);
+      m.mat_salaried_pct = xDiv(m.mat_salaried_cost, matSales);
+      m.cld_salaried_pct = xDiv(m.cld_salaried_cost, cldSales);
+    }
+
+    const net = m.net_sales;
+    m.discount_pct  = xDiv(m.discounts, m.gross_sales);
+    m.food_cogs_pct = xDiv(m.food_cost, m.food_sales);
+    m.bar_cogs_pct  = xDiv(m.bar_cost, m.bar_sales);
+    m.boh_pct       = xDiv(m.boh_cost, net);
+    m.foh_pct       = xDiv(m.foh_cost, net);
+    m.salaried_pct  = xDiv(m.salaried_cost, net);
+    m.prime_pct     = xDiv(m.prime_cost, net);
+    m.food_sales_pct = xDiv(m.food_sales, net);
+    m.bar_sales_pct  = xDiv(m.bar_sales, net);
+    m.dinner_check_avg = xDiv(ws.reduce((a,w)=>a+((w.dinner_covers||0)*(w.dinner_check||0)),0), m.dinner_covers);
+    m.brunch_check_avg = xDiv(ws.reduce((a,w)=>a+((w.brunch_covers||0)*(w.brunch_check||0)),0), m.brunch_covers);
+    return m;
+  });
+}
+
+/* Detail tabs: after the five fixed columns the layout is either
+   [Vendor Purchases, Vendor %] pairs (food) or
+   [Category, Category Purchases, Category %] triples (bar).       */
+function detailColumns(hdr){
+  const items = [];
+  let i = 5;
+  while(i < hdr.length){
+    const h = hdr[i];
+    if(!h || h === 'Total %' || h.endsWith('%')){ i++; continue; }
+    const nxt = hdr[i+1] || '';
+    if(nxt.endsWith('Purchases')){
+      items.push({name:h, salesIdx:i, costIdx:i+1});
+      i += 3;
+    } else {
+      items.push({name: h.replace(/ Purchases$/, ''), salesIdx:null, costIdx:i});
+      i += 2;
+    }
+  }
+  return items;
+}
+
+function parseDetailSheet(ws, kind){
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1, raw:true, blankrows:false, defval:null});
+  if(!rows.length) return null;
+  const hdr = (rows[0]||[]).map(h=> h===null||h===undefined ? '' : String(h).trim());
+  const idx = {};
+  hdr.forEach((h,i)=>{ if(h && !(h in idx)) idx[h] = i; });
+  if(!('Start date' in idx)) return null;
+
+  const cols = detailColumns(hdr);
+  if(!cols.length) return null;
+
+  const salesCol = kind==='food' ? 'Food sales' : 'Bar sales';
+  const purchCol = kind==='food' ? 'Food Purchases' : 'Bar Purchases';
+
+  const out = [];
+  for(let r=1; r<rows.length; r++){
+    const row = rows[r];
+    if(!row || !row.length) continue;
+    const sp = dateParts(row[idx['Start date']]);
+    if(!sp) continue;
+    const ep = ('End date' in idx ? dateParts(row[idx['End date']]) : null) || sp;
+
+    const items = [];
+    cols.forEach(c=>{
+      const cost = xNum(row[c.costIdx]) || 0;
+      const sales = c.salesIdx != null ? xNum(row[c.salesIdx]) : null;
+      if(cost === 0 && (sales === null || sales === 0)) return;
+      items.push({name:c.name, cost, sales});
+    });
+    if(!items.length) continue;
+
+    out.push({
+      start: partsToISO(sp),
+      end: partsToISO(ep),
+      label: MONTHS[sp.m]+' '+pad2(sp.d),
+      sales: (salesCol in idx) ? (xNum(row[idx[salesCol]]) || 0) : 0,
+      purchases: (purchCol in idx) ? (xNum(row[idx[purchCol]]) || 0) : 0,
+      items,
+    });
+  }
+  if(!out.length) return null;
+  out.sort((a,b)=> a.start < b.start ? -1 : a.start > b.start ? 1 : 0);
+
+  const names = [];
+  out.forEach(r=> r.items.forEach(it=>{ if(!names.includes(it.name)) names.push(it.name); }));
+  return {kind, names, rows: out};
+}
+
+function parseWorkbook(arrayBuffer){
+  const wb = XLSX.read(arrayBuffer, {type:'array'});
+  const locations = {};
+  const problems = [];
+
+  SHEET_MAP.forEach(cfg=>{
+    const ws = findSheet(wb, cfg.sheet);
+    if(!ws){ problems.push(`"${cfg.sheet}" tab not found`); return; }
+    try{
+      const {weekly, monthly} = parseLocationSheet(ws, cfg.matilda);
+      const detail = {};
+      [[cfg.food,'food'], [cfg.bar,'bar']].forEach(([tab, kind])=>{
+        const dws = findSheet(wb, tab);
+        if(!dws) return;
+        try{
+          const parsed = parseDetailSheet(dws, kind);
+          if(parsed) detail[kind] = parsed;
+        }catch(err){
+          problems.push(`"${tab}": ${err.message}`);
+        }
+      });
+      locations[cfg.key] = {name: cfg.name, weekly, monthly, detail};
+    }catch(err){
+      problems.push(`"${cfg.sheet}": ${err.message}`);
+    }
+  });
+
+  if(!Object.keys(locations).length){
+    throw new Error(problems.join('; ') || 'no recognizable location tabs');
+  }
+  return {locations, problems};
+}
+
+// ===== UPLOAD WIRING =====
+const uploadBtn = document.getElementById('uploadBtn');
+const fileInput = document.getElementById('fileInput');
+const sourcePill = document.getElementById('sourcePill');
+const sourceText = document.getElementById('sourceText');
+
+function setSource(kind, msg){
+  sourcePill.className = 'source-pill ' + (kind==='live' ? 'pill-live' : kind==='error' ? 'pill-error' : 'pill-builtin');
+  sourcePill.textContent = kind==='live' ? 'Workbook loaded' : kind==='error' ? 'Import failed' : 'Built-in data';
+  sourceText.className = 'source-text' + (kind==='error' ? ' err' : '');
+  sourceText.textContent = msg;
+}
+
+uploadBtn.addEventListener('click', ()=> fileInput.click());
+
+fileInput.addEventListener('change', (e)=>{
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  uploadBtn.disabled = true;
+  uploadBtn.textContent = 'Reading…';
+
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try{
+      const {locations, problems} = parseWorkbook(ev.target.result);
+      ALL_DATA.locations = locations;
+      buildLocationOptions();
+      rangeStart = null; rangeEnd = null;   // new workbook, new week list
+      buildWeekPickers();
+      renderAll();
+
+      let latest = '';
+      Object.values(locations).forEach(loc=>{
+        const end = loc.weekly[loc.weekly.length-1].end;
+        if(end > latest) latest = end;
+      });
+      const totalWeeks = Object.values(locations).reduce((a,l)=>a+l.weekly.length,0);
+      let msg = `${file.name} · ${Object.keys(locations).length} locations · ${totalWeeks} weeks · data through ${latest}`;
+      if(problems.length) msg += ' · skipped: ' + problems.join('; ');
+      setSource('live', msg);
+    }catch(err){
+      setSource('error', err.message + ' — showing the previously loaded data.');
+    }finally{
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = 'Update from Excel';
+      fileInput.value = '';
+    }
+  };
+  reader.onerror = ()=>{
+    setSource('error', 'Could not read that file.');
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = 'Update from Excel';
+    fileInput.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+// ===== PASSCODE GATE =====
+const ACCESS_CODE = 'Exodo2026';
+const lockScreen = document.getElementById('lockScreen');
+const dashboardRoot = document.getElementById('dashboardRoot');
+const passcodeInput = document.getElementById('passcodeInput');
+const lockSubmit = document.getElementById('lockSubmit');
+const lockError = document.getElementById('lockError');
+
+function unlockDashboard(){
+  lockScreen.style.display = 'none';
+  dashboardRoot.style.display = 'block';
+  renderAll(); // only render once the container is actually visible, so charts size correctly
+  setSource('builtin', `Built ${BUILT_ON} from ${BUILT_FROM} · data through ${BUILT_THROUGH} · invoice links: ${LINK_MODE}. Use “Update from Excel” to preview a newer workbook.`);
+  try{ sessionStorage.setItem('exodo_unlocked', 'true'); }catch(e){}
+}
+
+function attemptUnlock(){
+  if(passcodeInput.value === ACCESS_CODE){
+    lockError.textContent = '';
+    unlockDashboard();
+  } else {
+    lockError.textContent = 'Incorrect code. Please try again.';
+    passcodeInput.value = '';
+    passcodeInput.focus();
+  }
+}
+
+lockSubmit.addEventListener('click', attemptUnlock);
+passcodeInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') attemptUnlock();
+});
+
+// stay unlocked for the rest of this browser session
+try{
+  if(sessionStorage.getItem('exodo_unlocked') === 'true'){
+    unlockDashboard();
+  } else {
+    passcodeInput.focus();
+  }
+}catch(e){
+  passcodeInput.focus();
+}
+</script>
+</body>
+</html>
