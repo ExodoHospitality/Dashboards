@@ -132,8 +132,11 @@ for r in rows(wt, first_col_required=3):
 pos = wb["Owed"]["B2"].value; paymonth = str(wb["Owed"]["B3"].value)
 as_of = iso(pos)
 # carry card: the last month on the Month list that has invoices
+# carry card: the latest month with invoices whose last Calendar week has already ended (a month still in progress is not "carried")
+today = dt.datetime.combine(dt.date.today(), dt.time())
 mk_with_inv = [k for (m, k) in months if any(w["key"] == k and counts[WIX[w["id"]]] for w in weeks)]
-cm_key = mk_with_inv[-1] if mk_with_inv else months[-1][1]
+mk_done = [k for k in mk_with_inv if max(w["endD"] for w in weeks if w["key"] == k) < today]
+cm_key = mk_done[-1] if mk_done else (mk_with_inv[-1] if mk_with_inv else months[-1][1])
 cm_name = dict((k, m) for m, k in months)[cm_key]
 cm_weeks = [w for w in weeks if w["key"] == cm_key]
 nxt = (cm_weeks[-1]["endD"] + dt.timedelta(days=1))

@@ -53,11 +53,14 @@ def week_of(d):
 # ---------------- Vendors (for register flag only)
 # ---------------- Lines
 lines = []
-for v in rows(wb["Lines"], 15):
-    loc, date, _, _, vendor, inv, desc, cat, sub, qo, qr, unit, price, _, note = v
+owner = None
+for v in rows(wb["Lines"], 17):
+    loc, date, _, _, vendor, inv, desc, cat, sub, qo, qr, unit, price, _, note, _, charge = v
     if date is None: continue
+    owner = owner or loc
     ext = r2((qr or 0) * (price or 0))
-    lines.append(dict(date=date, week=week_of(date), vendor=str(vendor).strip(), inv=str(inv).strip(), cat=cat, sub=sub, ext=ext))
+    lines.append(dict(date=date, week=week_of(date), vendor=str(vendor).strip(), inv=str(inv).strip(), cat=cat, sub=sub, ext=ext,
+                      charge=(str(charge).strip() if charge else "")))
 # ---------------- Invoices
 invoices = []
 for v in rows(wb["Invoices"], 23):
@@ -90,20 +93,24 @@ for v in rows(wb["Watch log"], 5):
 
 # ---------------- compute
 NW = len(weeks)
-prod_by_inv = collections.defaultdict(float)
-for l in lines: prod_by_inv[(l["vendor"], l["inv"])] += l["ext"]
+prod_by_inv = collections.defaultdict(float); other_by_inv = collections.defaultdict(float); other_name = {}
+for l in lines:
+    prod_by_inv[(l["vendor"], l["inv"])] += l["ext"]
+    if l["charge"] != owner:
+        other_by_inv[(l["vendor"], l["inv"])] += l["ext"]; other_name[(l["vendor"], l["inv"])] = l["charge"] or "?"
 cats = ["Food", "Bar", "Supply", "Cleaning"]; subs = ["Cocktails & liquor", "Beer", "Wine", "Sake", "Non-alcoholic"]
 categories = {c: [0.0] * NW for c in cats}; barSub = {c: [0.0] * NW for c in subs}
 vend = collections.defaultdict(lambda: [0.0] * NW)
 for l in lines:
-    if l["week"] is None or l["cat"] not in cats: continue
+    if l["week"] is None or l["cat"] not in cats or l["charge"] != owner: continue
     i = widx[l["week"]]
     categories[l["cat"]][i] += l["ext"]; vend[l["vendor"]][i] += l["ext"]
     if l["cat"] == "Bar" and l["sub"] in subs: barSub[l["sub"]][i] += l["ext"]
 fees = [0.0] * NW; inv_count = [0] * NW
 inv_json = []; problems = []
+whole_other = {k for k, v in other_by_inv.items() if abs(v - prod_by_inv[k]) < 0.005 and abs(prod_by_inv[k]) > 0.005}
 for x in invoices:
-    if x["week"] is not None:
+    if x["week"] is not None and (x["vendor"], x["inv"]) not in whole_other:
         i = widx[x["week"]]
         fees[i] += x["fees"] + x["tax"]; inv_count[i] += 1
     product = r2(prod_by_inv.get((x["vendor"], x["inv"]), 0))
@@ -113,7 +120,10 @@ for x in invoices:
     paid = r2(sum(p["amt"] for p in pl))
     status = "paid" if paid >= total - 0.005 else "open"
     paid_on = max((p["date"] for p in pl if p["date"]), default=None) if pl else None
+    k = (x["vendor"], x["inv"]); oth = r2(other_by_inv.get(k, 0))
+    if oth: x["note"] = f"CHARGED TO {other_name[k].upper()}: ${oth + (x['fees'] + x['tax'] if k in whole_other else 0):,.2f} owed back to {owner} - not in {owner}'s purchases. " + x["note"]
     inv_json.append(dict(vendor=x["vendor"], number=x["inv"], date=iso(x["date"]), week=x["week"], product=product, fees=r2(x["fees"] + x["tax"]), total=total,
+                         chargedTo=(other_name[k] if oth else None), otherAmount=(r2(oth + (x["fees"] + x["tax"] if k in whole_other else 0)) if oth else 0),
                          status=status, paidOn=iso(paid_on), due=iso(x["due"]), note=(x["note"] + (f" | PARTIAL: {paid:.2f} paid" if 0 < paid < total - 0.005 else ""))))
 inv_json.sort(key=lambda x: (x["date"], x["vendor"].lower(), x["number"]))
 vendors = sorted(vend.items(), key=lambda kv: -sum(kv[1]))
@@ -125,6 +135,7 @@ for l in lines:
     if (l["vendor"], l["inv"]) not in inv_keys: problems.append(f"Line for {l['vendor']} {l['inv']} has no invoice on the Invoices table")
     if l["cat"] not in cats: problems.append(f"Line for {l['vendor']} {l['inv']} has unknown category '{l['cat']}'")
     if l["cat"] == "Bar" and not l["sub"]: problems.append(f"Bar line for {l['vendor']} {l['inv']} has no Bar Subcategory")
+    if not l["charge"]: problems.append(f"Line for {l['vendor']} {l['inv']} has no Charge to")
     if l["cat"] != "Bar" and l["sub"]: problems.append(f"{l['cat']} line for {l['vendor']} {l['inv']} carries a Bar Subcategory")
 for x in invoices:
     if x["week"] is None: problems.append(f"Invoice {x['vendor']} {x['inv']} dated {x['date']:%m/%d/%Y} is outside every Calendar week")
@@ -156,6 +167,10 @@ data = dict(
     sales={c: [r2(v) for v in vals] for c, vals in sales.items()},
     invoices=inv_json, watch=watch,
     checks=dict(ok=not problems, problems=problems),
+    payments=[dict(vendor=v, invoice=i, amount=r2(pp["amt"]), date=iso(pp["date"]), key=pp["key"], method=pp["method"],
+                   billedMonth=next((weeks[widx[x["week"]]]["month"] for x in invoices if (x["vendor"], x["inv"]) == (v, i) and x["week"]), None))
+              for (v, i), pl in pays.items() for pp in pl]
+             + [dict(vendor=c["vendor"], invoice="", amount=r2(c["amt"]), date=iso(c["date"]), key=c["key"], method=c["method"], billedMonth=None) for c in cash],
     cash=[dict(vendor=c["vendor"], amount=c["amt"], month=next((m["name"] for m in months if int(m["key"][:4]) * 100 + int(m["key"][5:7]) == c["key"]), str(c["key"])), note=c["ev"]) for c in cash],
     footer=f"Built from {xlsx.split('/')[-1]} by TEST_build_dashboard.py. Weeks run Monday to Sunday by invoice date (Calendar sheet). A week that crosses a month end belongs to the month with more of its days; {location} exception: A1 (07/27–08/02) stays in August. Cash paid without an invoice is listed on the Owed tab and is not in purchases.",
 )

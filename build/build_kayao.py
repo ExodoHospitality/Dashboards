@@ -75,6 +75,7 @@ for iv in invs:
     prod = round(prod_by_inv.get(key, 0), 2); ccp = round(cc_by_inv.get(key, 0), 2)
     paid = abs(paid_by_inv.get(key, 0) - total) < 0.005
     pd = paydate.get(key)
+    pmonth = acct.get(key) or (pd.strftime('%Y-%m') if pd else '')
     if paid and pd is None and key in acct:
         y, m = map(int, acct[key].split('-')); pd = dt.date(y, m, calendar.monthrange(y, m)[1])
     if w is not None:
@@ -83,7 +84,7 @@ for iv in invs:
                         product=round(prod_by_inv.get(key, 0), 2), fees=round(f, 2), total=total,
                         status='paid' if paid else 'open', paidOn=pd.isoformat() if pd else None,
                         due=D(iv['Due date']).isoformat() if D(iv['Due date']) else None,
-                        note=(iv['Terms / notes'] or ''),
+                        note=(iv['Terms / notes'] or ''), paidBy=(iv['Paid by'] or 'Kayao'), paidMonth=pmonth if paid else '',
                         chargeTo=('Cha Chin' if ccp and abs(ccp - prod) < 0.005 else 'Split' if ccp else 'Kayao'), owedCC=round(total if (ccp and abs(ccp - prod) < 0.005) else ccp, 2)))
 out_inv.sort(key=lambda x: (x['date'], x['vendor'], x['number']))
 
@@ -113,16 +114,28 @@ if prev:
     y, m = map(int, cur_key2.split('-'))
     carry = dict(**{'from': prev['name'], 'to': cur_name, 'start': prev['start'], 'end': prev['end'], 'weeks': prev['weeks'][0] + '\u2013' + prev['weeks'][-1], 'toStart': dt.date(y, m, 1).isoformat()})
 # Cha Chin
-cc_rows = list(rows('Cha Chin', 5)) if 'Cha Chin' in wb.sheetnames else []
-received = sum((r.get('Amount') or 0) for r in cc_rows if r.get('Amount'))
+def amounts(sheet):
+    if sheet not in wb.sheetnames: return 0.0
+    return sum((r[1] or 0) for r in wb[sheet].iter_rows(min_row=5, values_only=True) if isinstance(r[1], (int, float)))
+received = amounts('Cha Chin')
+ay_owed = round(sum(i['total'] for i in out_inv if i['paidBy'] == 'Ayayay'), 2)
+ay_open = round(sum(i['total'] for i in out_inv if i['paidBy'] == 'Ayayay' and i['status'] == 'open'), 2)
+ay_repaid = round(amounts('Ayayay'), 2)
+ayayay = dict(owed=ay_owed, vendorOpen=ay_open, repaid=ay_repaid, balance=round(ay_owed - ay_repaid, 2))
 owed_cc = round(sum(i['owedCC'] for i in out_inv), 2)
 open_owed = round(sum(i['owedCC'] for i in out_inv if i['status'] == 'open'), 2)
+pm_key = str(wb['Owed']['B3'].value or '').strip()
+try:
+    pm_label = dt.date(int(pm_key[:4]), int(pm_key[5:7]), 1).strftime('%B %Y')
+except Exception:
+    pm_label = pm_key
+pay_month = dict(key=pm_key, label=pm_label)
 chachin = dict(owed=owed_cc, received=round(received, 2), balance=round(owed_cc - received, 2), openOwed=open_owed)
 watch_out = [dict(tag=w['Tag'] or 'Open', title=str(w['Vendor / topic'] or ''), body=str(w['Item'] or ''))
              for w in watch if w['Item'] and str(w['Status']).lower() in ('open', 'to confirm')]
 data = dict(asOf=asof.isoformat(), weeks=weeks, categories={k: [round(x, 2) for x in v] for k, v in cats.items()},
             barSub={k: [round(x, 2) for x in v] for k, v in subs.items()}, fees=[round(x, 2) for x in fees], vendors=vendors,
-            partial=['A1'], partialNote={'A1': '08/01–08/02 only: July invoices not loaded'}, months=months, carry=carry, chaChin=chachin,
+            partial=['A1'], partialNote={'A1': '08/01–08/02 only: July invoices not loaded'}, months=months, carry=carry, chaChin=chachin, ayayay=ayayay, payMonth=pay_month,
             source=src.split('/')[-1].split('\\')[-1], built=dt.datetime.now().strftime('%m/%d/%Y %H:%M'),
             sales={k: [round(x, 2) for x in v] for k, v in sal.items()}, invoices=out_inv, watch=watch_out)
 html = open(tpl, encoding='utf-8').read().replace('/*KAYAO_DATA*/', json.dumps(data, ensure_ascii=False))
