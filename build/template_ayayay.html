@@ -116,7 +116,7 @@ a.kpi:hover{border-color:var(--muted)}
 
 /* ledger */
 .ledger-scroll{overflow-x:auto;margin:0 -6px}
-.ledger{display:grid;grid-template-columns:repeat(14,minmax(62px,1fr));gap:6px;min-width:924px;padding:0 6px 2px}
+.ledger{display:grid;grid-template-columns:repeat(14,minmax(62px,1fr));grid-auto-columns:minmax(62px,1fr);gap:6px;min-width:924px;padding:0 6px 2px}
 .wk{appearance:none;border:1px solid transparent;background:none;padding:8px 4px 10px;border-radius:var(--r);cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:center}
 .wk:hover:not(:disabled),.wk:focus-visible{background:var(--sunk)}
 .wk[aria-pressed="true"]{background:var(--sunk);border-color:var(--rule)}
@@ -620,6 +620,9 @@ window.AYAYAY_DATA = __AYAYAY_DATA__;
     let col = 1;
     MONTHS.forEach(m => { const n = W.filter(w => w.month === m).length; if (n) { h += `<span class="month" style="grid-column:${col}/${col + n}">${m}</span>`; col += n; } });
     const L = $("#ledger"); L.innerHTML = h;
+    // one equal column per Calendar week (was hard-coded to 14 in the CSS)
+    L.style.gridTemplateColumns = `repeat(${W.length},minmax(62px,1fr))`;
+    L.style.minWidth = (W.length * 68 - 6) + "px";
     $$(".wk", L).forEach(b => {
       const i = +b.dataset.i;
       b.addEventListener("click", () => { go("weeks/" + W[i].id); });

@@ -382,8 +382,16 @@ details.more .table-wrap{margin-bottom:6px}
     </div>
     <div class="table-wrap" id="owed-table"></div>
 
+    <div class="card mt-lg" id="paid-card">
+      <div class="card-head"><h2 id="paid-title">Paid in the month, by month billed</h2>
+        <p>Every payment whose account month is the selected month, split by the month the invoice was billed in. Cash with no invoice is shown on its own row.</p></div>
+      <div class="filters"><label class="field"><span>Month paid</span><select id="paid-month"></select></label></div>
+      <div class="table-wrap" id="paid-table"></div>
+    </div>
+
     <div id="carry-cards"></div>
     <p class="hint" id="cash-note"></p>
+    <p class="hint" id="other-note"></p>
   </section>
 
   <!-- INVOICES -->
@@ -758,7 +766,7 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
     return { paidLater, openList, paid: p, open: o, total: p + o };
   }
   // months newest first, each with the calendar month-end used as the cut-off for "carried"
-  const CARRY = MONTHS.slice().reverse().filter(m => m.end).map((m, k, arr) => ({ ...m, next: (k === 0 ? (m.next || "next month") : arr[k - 1].name), data: carryFor(m.name, m.end) }));
+  const CARRY = MONTHS.slice().reverse().filter(m => m.end && m.end < D.asOf).map((m, k, arr) => ({ ...m, next: (k === 0 ? (m.next || "next month") : arr[k - 1].name), data: carryFor(m.name, m.end) }));
   const carryLatest = () => CARRY.length ? CARRY[0] : null;
   const owedState = { bucket: "all", vendor: "" };
   function renderOwed() {
@@ -792,6 +800,8 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
     $("#owed-csv").onclick = () => csv("akiro-owed-" + D.asOf + ".csv",
       [["Vendor", x => x.vendor], ["Invoice", x => x.number], ["Dated", x => x.date], ["Week", x => x.week], ["Due", x => x.due || ""], ["Status", x => x.dueText], ["Amount", x => x.total.toFixed(2)]], rows);
 
+    renderPaidByBilled();
+
     const small = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) }];
     const drawCarry = (c, id, labels) => {
       $("#" + id).innerHTML = [[labels[0], c.total], [`${labels[1]} (${c.paidLater.length})`, c.paid], [`Still open (${c.openList.length})`, c.open]]
@@ -811,6 +821,8 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
       <details class="more"><summary>Still open</summary><div class="table-wrap" id="carry-${k}-open"></div></details></div>`).join("");
     }
     CARRY.forEach((c, k) => drawCarry(c.data, "carry-" + k, ["Carried into " + c.next, "Paid in " + c.next + " or later"]));
+    const oth = D.invoices.filter(x => x.chargedTo);
+    $("#other-note").textContent = oth.length ? "Charged to other restaurants on " + (D.location || "") + "'s bills (included in what we owe; they owe us back): " + oth.map(x => `${x.vendor} ${x.number} ${money2(x.otherAmount)} → ${x.chargedTo}`).join("; ") + ". Not in purchases or ratios." : "";
     $("#cash-note").textContent = (D.cash && D.cash.length) ? "Cash paid without an invoice (not in purchases or ratios): " + D.cash.map(c => `${money2(c.amount)} ${c.vendor} (${c.month})`).join("; ") + "." : "";
   }
 
@@ -893,6 +905,43 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
   /* =========================================================
      WATCH
      ========================================================= */
+  /* Paid in a month, by month billed */
+  const paidState = { key: null };
+  const mKey = m => Number(String(m.key || "").replace("-", "")) || 0;
+  function renderPaidByBilled() {
+    const P = D.payments || [];
+    const sel = $("#paid-month");
+    const monthsWithPay = MONTHS.filter(m => P.some(p => p.key === mKey(m)));
+    if (!monthsWithPay.length) { $("#paid-card").hidden = true; return; }
+    if (paidState.key === null) { const closed = monthsWithPay.filter(m => m.end && m.end < D.asOf); paidState.key = mKey((closed.length ? closed : monthsWithPay)[(closed.length ? closed : monthsWithPay).length - 1]); }
+    if (!sel.childElementCount) {
+      sel.innerHTML = monthsWithPay.map(m => `<option value="${mKey(m)}">${esc(m.name)}</option>`).join("");
+      sel.addEventListener("change", () => { paidState.key = Number(sel.value); renderPaidByBilled(); });
+    }
+    sel.value = String(paidState.key);
+    const mon = MONTHS.find(m => mKey(m) === paidState.key);
+    $("#paid-title").textContent = `Paid in ${mon ? mon.name : "–"}, by month billed`;
+    const rows = P.filter(p => p.key === paidState.key);
+    const billed = MONTHS.map(m => m.name).filter(n => rows.some(p => p.billedMonth === n));
+    const hasCash = rows.some(p => !p.invoice);
+    const byVendor = {};
+    rows.forEach(p => {
+      const r = byVendor[p.vendor] || (byVendor[p.vendor] = { vendor: p.vendor, total: 0, cash: 0, n: 0 });
+      if (!p.invoice) r.cash += p.amount; else { r[p.billedMonth || "Other"] = (r[p.billedMonth || "Other"] || 0) + p.amount; r.n++; }
+      r.total += p.amount;
+    });
+    const data = Object.values(byVendor).sort((a, b) => b.total - a.total);
+    const cols = [{ key: "vendor", label: "Vendor" }]
+      .concat(billed.map(n => ({ key: n, label: n + " invoices", r: 1, html: x => x[n] ? money2(x[n]) : '<span class="muted">–</span>' })))
+      .concat(hasCash ? [{ key: "cash", label: "Cash, no invoice", r: 1, html: x => x.cash ? money2(x.cash) : '<span class="muted">–</span>' }] : [])
+      .concat([{ key: "n", label: "Invoices", r: 1, html: x => x.n || '<span class="muted">–</span>' }, { key: "total", label: "Total paid", r: 1, html: x => money2(x.total) }]);
+    table($("#paid-table"), cols, data, {
+      sortKey: "total", sortDir: -1, empty: "No payments in this month.",
+      foot: d => `<td>Total</td>` + billed.map(n => `<td class="r num">${money2(sum(d.map(x => x[n] || 0)))}</td>`).join("") + (hasCash ? `<td class="r num">${money2(sum(d.map(x => x.cash)))}</td>` : "") + `<td class="r num">${sum(d.map(x => x.n))}</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>`,
+      onRow: x => openVendor(x.vendor),
+    });
+  }
+
   const watchState = { tag: "all" };
   function renderWatch() {
     const groups = [["Open", "Open questions", "var(--indigo)"], ["Billing", "Billing issues", "var(--stamp)"], ["Price", "Price changes", "var(--amber)"], ["Resolved", "Resolved", "var(--mist)"]];

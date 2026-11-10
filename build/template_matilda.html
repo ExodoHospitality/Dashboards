@@ -519,9 +519,10 @@ window.MATILDA_DATA = /*DATA*/{}/*END*/;
   const PM = D.payMonth; const MONTHS = D.months; const MLAB = k => (MONTHS.find(m => m.key === k) || {}).label || k; const MSHORT = k => (MONTHS.find(m => m.key === k) || {}).short || k;
   $("#h-paidm").textContent = `Paid in ${PM.label}, by month billed`;
   $("#p-paidm").textContent = `Everything that counts as paid in ${PM.label} (real date in the month, or the owner's instruction that it counts in ${PM.label}), split by the month of the invoice (` + MONTHS.filter(m => m.key <= PM.key).map(m => `${m.label} = invoices dated ${m.start}–${m.end}`).join(", ") + `). Credits on account have no cash date and are not included.`;
-  $("#h-carry").textContent = `${PM.label} carried into ${PM.nextLabel}`;
-  $("#p-carry").textContent = `${PM.label} invoices (dated ${(MONTHS.find(m => m.key === PM.key) || {}).start} to ${(MONTHS.find(m => m.key === PM.key) || {}).end}) still to pay, and those that were unpaid at the end of ${PM.label} but have been paid since.`;
-  $("#s-carry-paid").textContent = `Paid in ${PM.nextLabel} or later`;
+  const CM = MONTHS[MONTHS.findIndex(m => m.key === PM.key) - 1] || MONTHS.find(m => m.key === PM.key) || MONTHS[0];
+  $("#h-carry").textContent = `${CM.label} carried into ${PM.label}`;
+  $("#p-carry").textContent = `${CM.label} invoices (dated ${CM.start} to ${CM.end}) still to pay, and those that were unpaid at the end of ${CM.label} but have been paid since.`;
+  $("#s-carry-paid").textContent = `Paid in ${PM.label} or later`;
   { const sel = $("#inv-month"); [...new Set(W.map(w => w.month))].forEach(mm => { const o = document.createElement("option"); o.textContent = mm; sel.appendChild(o); }); }
 
   /* ---------- tooltip ---------- */
@@ -621,7 +622,7 @@ window.MATILDA_DATA = /*DATA*/{}/*END*/;
       `<a class="kpi" href="#weeks/${W[last].id}"><div class="l">Spend in ${W[last].id}</div><div class="v num">${money(pLast)}</div><div class="n">${pPrev ? `vs ${W[prev].id} ${deltaTag(ch)}` : ""}</div></a>`,
       `<a class="kpi" href="#weeks/${W[last].id}"><div class="l">Food ratio, ${W[last].id}</div><div class="v num">${r.food === null ? "–" : pct(r.food)}</div><div class="n">${AVG.food !== null ? (monthAvg(last).food !== null ? W[last].month + " " + pct(monthAvg(last).food) + " · all weeks " : "average ") + pct(AVG.food) : "No sales figures yet"}</div></a>`,
       `<a class="kpi" href="#weeks/${W[last].id}"><div class="l">Bar ratio, ${W[last].id}</div><div class="v num">${r.bar === null ? "–" : pct(r.bar)}</div><div class="n">${AVG.bar !== null ? (monthAvg(last).bar !== null ? W[last].month + " " + pct(monthAvg(last).bar) + " · all weeks " : "average ") + pct(AVG.bar) : "No sales figures yet"}</div></a>`,
-      `<a class="kpi" href="#owed"><div class="l">${PM.label} still to pay</div><div class="v num">${money2(carry.open)}</div><div class="n">${carry.openAug.length} invoices · ${money2(carry.paid)} already paid in ${PM.nextLabel} or later</div></a>`,
+      `<a class="kpi" href="#owed"><div class="l">Carried from ${CM.label}</div><div class="v num">${money2(carry.open)}</div><div class="n">${carry.openAug.length} ${CM.label} invoices still to pay · ${money2(carry.paid)} paid since</div></a>`,
     ].join("");
 
     // ledger
@@ -637,6 +638,7 @@ window.MATILDA_DATA = /*DATA*/{}/*END*/;
     let col = 1;
     [...new Set(W.map(w => w.month))].forEach(m => { const n = W.filter(w => w.month === m).length; if (n) { h += `<span class="month" style="grid-column:${col}/${col + n}">${m}</span>`; col += n; } });
     const L = $("#ledger"); L.innerHTML = h;
+    L.style.gridTemplateColumns = `repeat(${W.length},minmax(62px,1fr))`; L.style.minWidth = `${W.length * 66}px`;
     $$(".wk", L).forEach(b => {
       const i = +b.dataset.i;
       b.addEventListener("click", () => { go("weeks/" + W[i].id); });
@@ -764,8 +766,8 @@ window.MATILDA_DATA = /*DATA*/{}/*END*/;
      OWED
      ========================================================= */
   function carryData() {
-    const isOct = d => billM(d) === PM.key;
-    const paidSep = INV.filter(x => isOct(x.date) && x.status === "paid" && x.paidMonth && x.paidMonth > PM.key);
+    const isOct = d => billM(d) === CM.key;
+    const paidSep = INV.filter(x => isOct(x.date) && x.status === "paid" && x.paidMonth && x.paidMonth > CM.key);
     const openAug = OPEN.filter(x => isOct(x.date));
     const p = sum(paidSep.map(x => x.total)), o = sum(openAug.map(x => x.total));
     return { paidSep, openAug, paid: p, open: o, total: p + o };
@@ -827,7 +829,7 @@ window.MATILDA_DATA = /*DATA*/{}/*END*/;
     table($("#paidmatrix"), [{ key: "label", label: "Billed in" }].concat(MS.map(([k, l, s]) => ({ key: k, label: "Paid " + s, r: 1, html: x => cell(x[k]) }))).concat([{ key: "nocash", label: "Credit on account", r: 1, html: x => cell(x.nocash) }, { key: "open", label: "Not paid", r: 1, html: x => cell(x.open) }]),
       mrows, { sortKey: null, foot: d => `<td>Total</td>` + MS.map(([k]) => `<td class="r num">${money2(sum(d.map(x => x[k] || 0)))}</td>`).join("") + `<td class="r num">${money2(sum(d.map(x => x.nocash)))}</td><td class="r num">${money2(sum(d.map(x => x.open)))}</td>` });
     const c = carryData();
-    $("#carry").innerHTML = [[`Still to pay (${c.openAug.length})`, c.open], [`Already paid in ${PM.nextLabel} or later (${c.paidSep.length})`, c.paid], [`Unpaid at the end of ${PM.label}`, c.total]]
+    $("#carry").innerHTML = [[`Still to pay (${c.openAug.length})`, c.open], [`Paid since, in ${PM.label} or later (${c.paidSep.length})`, c.paid], [`Unpaid at the end of ${CM.label}`, c.total]]
       .map(([l, v]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${money2(v)}</div></div>`).join("");
     const small = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) }];
     table($("#carry-paid"), small.concat([{ key: "paidOn", label: "Paid", html: x => md(x.paidOn) }, { key: "total", label: "Amount", r: 1, html: x => money2(x.total) }]), c.paidSep,

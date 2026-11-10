@@ -208,6 +208,8 @@ tfoot td{font-weight:700;border-top:1px solid var(--rule);border-bottom:none}
 .tag.later{background:var(--sunk);color:var(--muted)}
 .tag.paid{background:var(--moss-soft);color:var(--moss)}
 .tag.cc{background:#FCE4D6;color:#8a4b0f}
+.tag.ay{background:#DDEBF7;color:#1f4e79}
+[data-theme="dark"] .tag.ay{background:#1f3a55;color:#cfe3f7}
 [data-theme="dark"] .tag.cc{background:#5a3a1f;color:#ffd9b8}
 .spark{display:flex;gap:2px;align-items:flex-end;height:26px}
 .spark i{display:block;width:9px;background:var(--indigo);border-radius:1px}
@@ -380,6 +382,25 @@ details.more .table-wrap{margin-bottom:6px}
     </div>
     <div class="table-wrap" id="owed-table"></div>
 
+    <div class="card mt-lg" id="pm-card">
+      <div class="card-head">
+        <h2 id="pm-title"></h2>
+        <p>Every payment whose account month is the selected month, split by the month the invoice was billed in. Cash with no invoice is shown on its own row.</p>
+      </div>
+      <div class="filters"><label class="field"><span>Month paid</span><select id="pm-month"></select></label></div>
+      <div class="table-wrap" id="pm-table"></div>
+      <details class="more"><summary id="pm-sum">Invoices</summary><div class="table-wrap" id="pm-inv"></div></details>
+    </div>
+
+    <div class="card mt-lg" id="ay-card">
+      <div class="card-head">
+        <h2>Kayao owes Ayayay</h2>
+        <p>Kayao invoices that Ayayay pays to the vendor (Paid by = Ayayay). They count in Kayao's purchases but not in what Kayao owes vendors above; Kayao pays Ayayay back instead.</p>
+      </div>
+      <div class="kpis compact" id="ay-kpis"></div>
+      <details class="more"><summary>Invoices paid by Ayayay</summary><div class="table-wrap" id="ay-table"></div></details>
+    </div>
+
     <div class="card mt-lg" id="cc-card">
       <div class="card-head">
         <h2>Cha Chin owes Kayao</h2>
@@ -493,12 +514,13 @@ window.KAYAO_DATA = /*KAYAO_DATA*/;
       x.dueText = d === null ? "no due date" : d < 0 ? `${-d} day${d === -1 ? "" : "s"} past due` : d === 0 ? "due today" : d <= 7 ? `due in ${d} day${d === 1 ? "" : "s"}` : "due " + md(x.due);
     }
   });
-  const OPEN = INV.filter(x => x.status === "open");
+  const OPEN = INV.filter(x => x.status === "open" && (x.paidBy || "Kayao") === "Kayao");
   const MONTHS = [...new Set(W.map(w => w.month))];
   const CARRY = D.carry || {};
   const CC = D.chaChin || { owed: 0, received: 0, balance: 0 };
   const WATCH_OPEN = D.watch.filter(w => w.tag !== "Migration"), WATCH_MIG = D.watch.filter(w => w.tag === "Migration");
-  const ccTag = x => x.chargeTo && x.chargeTo !== "Kayao" ? ` <span class="tag cc">${esc(x.chargeTo)}</span>` : "";
+  const AY = D.ayayay || { owed: 0, vendorOpen: 0, repaid: 0, balance: 0 };
+  const ccTag = x => (x.chargeTo && x.chargeTo !== "Kayao" ? ` <span class="tag cc">${esc(x.chargeTo)}</span>` : "") + (x.paidBy && x.paidBy !== "Kayao" ? ` <span class="tag ay">paid by ${esc(x.paidBy)}</span>` : "");
   const VENDORS = D.vendors.map(v => v.name);
   const allProduct = sum(entered.map(product));
 
@@ -800,6 +822,43 @@ window.KAYAO_DATA = /*KAYAO_DATA*/;
     $("#owed-csv").onclick = () => csv("kayao-owed-" + D.asOf + ".csv",
       [["Vendor", x => x.vendor], ["Invoice", x => x.number], ["Dated", x => x.date], ["Week", x => x.week], ["Due", x => x.due || ""], ["Status", x => x.dueText], ["Amount", x => x.total.toFixed(2)]], rows);
 
+    const PM = D.payMonth || {};
+    const pmSel = $("#pm-month");
+    if (!pmSel.childElementCount) {
+      const keys = [...new Set(INV.filter(x => x.paidMonth).map(x => x.paidMonth))].sort();
+      const lab = k => { const [y, m] = k.split("-"); return new Date(+y, +m - 1, 1).toLocaleDateString("en-US", { month: "long" }); };
+      pmSel.innerHTML = keys.map(k => `<option value="${k}">${lab(k)}</option>`).join("");
+      pmSel.value = keys.includes(PM.key) ? PM.key : keys[keys.length - 1] || "";
+      pmSel.addEventListener("change", renderOwed);
+    }
+    const pmKey = pmSel.value, pmLabel = pmSel.selectedOptions[0] ? pmSel.selectedOptions[0].textContent : pmKey;
+    const pmRows = INV.filter(x => x.status === "paid" && x.paidMonth === pmKey);
+    $("#pm-title").textContent = `Paid in ${pmLabel}, by month billed`;
+    const PMM = MONTHS.filter(m => pmRows.some(x => x.month === m));
+    const pmVend = [...new Set(pmRows.map(x => x.vendor))].map(v => {
+      const a = pmRows.filter(x => x.vendor === v), row = { vendor: v, n: a.length, total: sum(a.map(x => x.total)), cash: 0 };
+      PMM.forEach(m => { row[m] = sum(a.filter(x => x.month === m).map(x => x.total)); });
+      return row;
+    }).sort((a, b) => b.total - a.total);
+    const dash = v => v ? money2(v) : '<span class="muted">–</span>';
+    const pmCols = [{ key: "vendor", label: "Vendor" }]
+      .concat(PMM.map(m => ({ key: m, label: m + " invoices", r: 1, html: x => dash(x[m]) })))
+      .concat([{ key: "cash", label: "Cash, no invoice", r: 1, html: x => dash(x.cash) }, { key: "n", label: "Invoices", r: 1 }, { key: "total", label: "Total paid", r: 1, html: x => money2(x.total) }]);
+    table($("#pm-table"), pmCols, pmVend, {
+      sortKey: "total", sortDir: -1, empty: "Nothing paid in this month yet.",
+      foot: d => `<td>Total</td>` + PMM.map(m => `<td class="r num">${money2(sum(d.map(x => x[m])))}</td>`).join("") + `<td class="r num">${money2(sum(d.map(x => x.cash)))}</td><td class="r num">${sum(d.map(x => x.n))}</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>`,
+      onRow: x => openVendor(x.vendor),
+    });
+    $("#pm-sum").textContent = `Invoices paid in ${pmLabel} (${pmRows.length})`;
+    table($("#pm-inv"), [{ key: "month", label: "Month billed" }, { key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) },
+      { key: "paidOn", label: "Paid", html: x => x.paidOn ? md(x.paidOn) : "month only" }, { key: "total", label: "Amount", r: 1, html: x => money2(x.total) }], pmRows,
+      { sortKey: "date", foot: d => `<td colspan="5">Total</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>` });
+    $("#ay-kpis").innerHTML = [["Kayao invoices paid by Ayayay", AY.owed], ["Ayayay has not yet paid the vendor", AY.vendorOpen], ["Repaid to Ayayay", AY.repaid], ["Balance Kayao owes Ayayay", AY.balance]]
+      .map(([l, v]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${money2(v)}</div></div>`).join("");
+    table($("#ay-table"), [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) },
+      { key: "due", label: "Vendor due", html: x => x.due ? md(x.due) : "" }, { key: "status", label: "Vendor paid?", html: statusTag }, { key: "total", label: "Kayao owes Ayayay", r: 1, html: x => money2(x.total) }], INV.filter(x => x.paidBy === "Ayayay"),
+      { sortKey: "date", empty: "None.", foot: d => `<td colspan="5">Total</td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>` });
+    $("#ay-card").hidden = !INV.some(x => x.paidBy === "Ayayay");
     $("#cc-kpis").innerHTML = [["Owed by Cha Chin (all invoices)", CC.owed], ["Received from Cha Chin", CC.received], ["Balance still owed", CC.balance], ["Kayao has not yet paid the vendor", CC.openOwed || 0]]
       .map(([l, v]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${money2(v)}</div></div>`).join("");
     const ccRows = INV.filter(x => x.owedCC);
