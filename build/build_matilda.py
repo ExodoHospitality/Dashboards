@@ -4,6 +4,8 @@ Reads ONLY the typed tables (Lines, Invoices, Payments, Sales, Calendar, Vendors
 so it does not matter whether Excel has recalculated. The dashboard never contains anything that is not in the workbook."""
 import sys, json, datetime, collections
 import openpyxl
+from decimal import Decimal, ROUND_HALF_UP
+XR = lambda x: float(Decimal(repr(round(x, 9))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))  # Excel ROUND
 
 src, tpl, out = (sys.argv + ['TEST_Matilda_v2.xlsx', 'TEST_dashboard_template_matilda.html', 'TEST_Matilda_index.html'])[1:4]
 wb = openpyxl.load_workbook(src, data_only=True)
@@ -42,10 +44,14 @@ def month_key_of_date(d):
 
 # Lines: Paid by, Date, Week, Month, Vendor, Invoice #, Description, Category, Bar Subcategory, Qty ordered, Qty received, Unit, Unit price, Extended(formula), Invoice found?, Notes, Key
 lines = []
-for r in rows(wb['Lines'], 17):
+for r in rows(wb['Lines'], 18):
     if not r[1]: continue
-    ext = round(num(r[10]) * num(r[12]), 2)
-    lines.append(dict(date=iso(r[1]), week=week_of(r[1]), vendor=r[4], inv=str(r[5]), cat=r[7], sub=r[8], ext=ext))
+    ext = XR(num(r[10]) * num(r[12]))
+    charge = (r[17] if len(r) > 17 and r[17] else RESTAURANT)
+    lines.append(dict(date=iso(r[1]), week=week_of(r[1]), vendor=r[4], inv=str(r[5]), cat=r[7], sub=r[8], ext=ext, charge=charge))
+# Charge to (rule A10): lines charged to another restaurant stay owed to the vendor but are left out of purchases
+other_inv = {(l['vendor'], l['inv']) for l in lines if l['charge'] != RESTAURANT} - {(l['vendor'], l['inv']) for l in lines if l['charge'] == RESTAURANT}
+lines = [l for l in lines if l['charge'] == RESTAURANT]
 CATS = ['Food', 'Bar', 'Supply', 'Cleaning', 'Family Meal']; SUBS = ['Cocktails & liquor', 'Beer', 'Wine', 'Non-alcoholic']
 nW = len(weeks)
 categories = {c: [0.0] * nW for c in CATS}; barSub = {s: [0.0] * nW for s in SUBS}
@@ -80,7 +86,7 @@ for r in rows(wb['Invoices'], 14):
     note = (r[12] or '') + ((' | ' + ev) if ev else '')
     invoices.append(dict(vendor=r[1], number=str(r[2]), date=iso(r[3]), week=wk, product=round(product_by_key.get(key, 0.0), 2), fees=round(num(r[7]) + num(r[8]), 2), total=printed,
                          status=status, paidOn=paidOn, paidMonth=paidMonth, credit=credit, due=iso(r[13]), note=note, method=ps[0]['method'] if ps else ''))
-    if i is not None: fees[i] += num(r[7]) + num(r[8]); inv_count[i] += 1
+    if i is not None and key not in other_inv: fees[i] += num(r[7]) + num(r[8]); inv_count[i] += 1
 fees = [round(x, 2) for x in fees]
 
 # Sales: Paid by, Week, Venue, Category, Net sales

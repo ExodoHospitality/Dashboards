@@ -51,7 +51,7 @@ ln = wb["Lines"]
 lines = []
 for r in rows(ln, first_col_required=2):
     d = ln.cell(r,2).value
-    lines.append(dict(date=d, week=week_of(d), vendor=ln.cell(r,5).value, inv=str(ln.cell(r,6).value), cat=ln.cell(r,8).value, sub=ln.cell(r,9).value, ext=round(num(ln.cell(r,11).value)*num(ln.cell(r,13).value), 2)))
+    lines.append(dict(date=d, week=week_of(d), vendor=ln.cell(r,5).value, inv=str(ln.cell(r,6).value), cat=ln.cell(r,8).value, sub=ln.cell(r,9).value, ext=round(num(ln.cell(r,11).value)*num(ln.cell(r,13).value), 2), charge=(ln.cell(r,18).value or "Ayayay")))
 
 # ---- Payments
 pm = wb["Payments"]
@@ -68,7 +68,10 @@ for r in rows(pm, first_col_required=3):
 iv = wb["Invoices"]
 invoices = []
 prod_by_key = collections.defaultdict(float)
-for l in lines: prod_by_key[f"{l['vendor']}|{l['inv']}"] += l["ext"]
+charge_by_key = collections.defaultdict(set)
+for l in lines:
+    prod_by_key[f"{l['vendor']}|{l['inv']}"] += l["ext"]
+    charge_by_key[f"{l['vendor']}|{l['inv']}"].add(l["charge"])
 for r in rows(iv, first_col_required=3):
     vendor = iv.cell(r,2).value; number = str(iv.cell(r,3).value); key = f"{vendor}|{number}"
     d = iv.cell(r,4).value; fees = num(iv.cell(r,8).value); tax = num(iv.cell(r,9).value)
@@ -78,8 +81,17 @@ for r in rows(iv, first_col_required=3):
     dated = [p["date"] for p in pays.get(key, []) if isinstance(p["date"], dt.datetime)]
     paid_on = max(dated) if dated else None
     paid_month = pays[key][0]["eff"] if pays.get(key) else None
+    ch = charge_by_key.get(key, {"Ayayay"})
+    charge_to = "Ayayay" if ch == {"Ayayay"} else ("Split" if "Ayayay" in ch else "/".join(sorted(ch)))
+    note = iv.cell(r,13).value or ""
+    if charge_to != "Ayayay":
+        other = round(sum(l["ext"] for l in lines if f"{l['vendor']}|{l['inv']}" == key and l["charge"] != "Ayayay"), 2)
+        owed_back = round(fees + tax + other, 2) if charge_to != "Split" else other
+        note = f"Charged to {charge_to if charge_to != 'Split' else ', '.join(sorted(ch - {'Ayayay'}))} - ${owed_back:,.2f} owed back to Ayayay; left out of Ayayay purchases. " + note
+    else:
+        owed_back = 0.0
     invoices.append(dict(vendor=vendor, number=number, date=iso(d), week=week_of(d), product=product, fees=round(fees+tax, 2), total=total,
-                         status=status, paidOn=iso(paid_on), paidMonth=paid_month, due=iso(iv.cell(r,14).value), note=iv.cell(r,13).value or "",
+                         status=status, paidOn=iso(paid_on), paidMonth=paid_month, due=iso(iv.cell(r,14).value), note=note, chargeTo=charge_to, owedBack=owed_back,
                          openAmount=round(total - paid, 2), card=(pays[key][0]["card"] if pays.get(key) else None)))
 invoices.sort(key=lambda x: (x["date"], x["vendor"], x["number"]))
 
@@ -104,14 +116,16 @@ categories = {c: [0.0]*len(weeks) for c in CATS}
 barSub = {v: [0.0]*len(weeks) for v in SUBMAP.values()}
 vend_weeks = {v: [0.0]*len(weeks) for v in vendors}
 for l in lines:
-    if l["week"] not in WIX: continue
+    if l["week"] not in WIX or l["charge"] != "Ayayay": continue
     i = WIX[l["week"]]
     categories[l["cat"]][i] += l["ext"]
     if l["cat"] == "Bar" and l["sub"] in SUBMAP: barSub[SUBMAP[l["sub"]]][i] += l["ext"]
     if l["vendor"] in vend_weeks: vend_weeks[l["vendor"]][i] += l["ext"]
 fees = [0.0]*len(weeks); counts = [0]*len(weeks)
 for x in invoices:
-    if x["week"] in WIX: fees[WIX[x["week"]]] += x["fees"]; counts[WIX[x["week"]]] += 1
+    if x["week"] in WIX:
+        counts[WIX[x["week"]]] += 1
+        if x["chargeTo"] in ("Ayayay", "Split"): fees[WIX[x["week"]]] += x["fees"]
 rnd = lambda arr: [round(v, 2) for v in arr]
 categories = {k: rnd(v) for k, v in categories.items()}; barSub = {k: rnd(v) for k, v in barSub.items()}
 
