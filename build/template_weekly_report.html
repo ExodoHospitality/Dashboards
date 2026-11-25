@@ -686,9 +686,9 @@ const DEFAULT_KPI_META = [
 
 const MATILDA_KPI_META = [
   {key:'discount_pct', label:'Discount %', dollarKey:'discounts', bench:BENCH.discount_pct},
-  {key:'food_cogs_pct', label:'Food COGS', dollarKey:'food_cost', bench:BENCH.food_cogs_pct},
+  {key:'food_cogs_pct', label:'Food COGS', dollarKey:'food_cost', bench:0.24},   // Matilda-only target (11/25/2026)
   {key:'bar_cogs_pct', label:'Bar COGS', dollarKey:'bar_cost', bench:BENCH.bar_cogs_pct},
-  {key:'mat_boh_pct', label:'Matilda BOH %', dollarKey:'mat_boh_cost', bench:BENCH.boh_pct},
+  {key:'mat_boh_pct', label:'Matilda BOH %', dollarKey:'mat_boh_cost', bench:0.14},   // Matilda-only target (11/25/2026)
   {key:'mat_foh_pct', label:'Matilda FOH %', dollarKey:'mat_foh_cost', bench:BENCH.foh_pct},
   {key:'cld_foh_pct', label:'Clandestino FOH %', dollarKey:'cld_foh_cost', bench:BENCH.foh_pct},
   {key:'mat_salaried_pct', label:'Matilda Salaried %', dollarKey:'mat_salaried_cost', bench:BENCH.salaried_pct},
