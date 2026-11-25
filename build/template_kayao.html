@@ -388,6 +388,7 @@ details.more .table-wrap{margin-bottom:6px}
         <p>Every payment whose account month is the selected month, split by the month the invoice was billed in. Cash with no invoice is shown on its own row.</p>
       </div>
       <div class="filters"><label class="field"><span>Month paid</span><select id="pm-month"></select></label></div>
+      <div class="kpis compact" id="pm-kpis"></div>
       <div class="table-wrap" id="pm-table"></div>
       <details class="more"><summary id="pm-sum">Invoices</summary><div class="table-wrap" id="pm-inv"></div></details>
     </div>
@@ -514,7 +515,7 @@ window.KAYAO_DATA = /*KAYAO_DATA*/;
       x.dueText = d === null ? "no due date" : d < 0 ? `${-d} day${d === -1 ? "" : "s"} past due` : d === 0 ? "due today" : d <= 7 ? `due in ${d} day${d === 1 ? "" : "s"}` : "due " + md(x.due);
     }
   });
-  const OPEN = INV.filter(x => x.status === "open" && (x.paidBy || "Kayao") === "Kayao");
+  const OPEN = INV.filter(x => x.status === "open" && (x.paidBy || "Kayao") === "Kayao").map(x => (x.openAmt != null && Math.abs(x.openAmt - x.total) > 0.004) ? Object.assign({}, x, { total: x.openAmt }) : x);
   const MONTHS = [...new Set(W.map(w => w.month))];
   const CARRY = D.carry || {};
   const CC = D.chaChin || { owed: 0, received: 0, balance: 0 };
@@ -835,6 +836,11 @@ window.KAYAO_DATA = /*KAYAO_DATA*/;
     const pmRows = INV.filter(x => x.status === "paid" && x.paidMonth === pmKey);
     $("#pm-title").textContent = `Paid in ${pmLabel}, by month billed`;
     const PMM = MONTHS.filter(m => pmRows.some(x => x.month === m));
+    const pmNext = (() => { const [y, m] = (pmKey || "2000-01").split("-"); return new Date(+y, +m, 1).toLocaleDateString("en-US", { month: "long" }); })();
+    const pmOpenSame = OPEN.filter(x => x.month === pmLabel), pmOpenOld = OPEN.filter(x => x.month !== pmLabel && MONTHS.indexOf(x.month) < MONTHS.indexOf(pmLabel));
+    $("#pm-kpis").innerHTML = PMM.map(m => [`Paid in ${pmLabel}: ${m} invoices`, pmRows.filter(x => x.month === m)])
+      .concat([[`Paid in ${pmLabel}: no invoice in the file yet / partly paid`, null, (D.extraPaid || {})[pmKey] || 0], [`Total paid in ${pmLabel}`, null, sum(pmRows.map(x => x.total)) + ((D.extraPaid || {})[pmKey] || 0)], [`${pmLabel} invoices still open (to pay in ${pmNext})`, pmOpenSame], [`Older invoices still open`, pmOpenOld]])
+      .map(([l, a, v]) => `<div class="kpi"><div class="l">${l}</div><div class="v num">${money2(a ? sum(a.map(x => x.total)) : v)}</div><div class="n">${a ? a.length + " invoice" + (a.length === 1 ? "" : "s") : "&nbsp;"}</div></div>`).join("");
     const pmVend = [...new Set(pmRows.map(x => x.vendor))].map(v => {
       const a = pmRows.filter(x => x.vendor === v), row = { vendor: v, n: a.length, total: sum(a.map(x => x.total)), cash: 0 };
       PMM.forEach(m => { row[m] = sum(a.filter(x => x.month === m).map(x => x.total)); });

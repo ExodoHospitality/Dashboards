@@ -382,6 +382,16 @@ details.more .table-wrap{margin-bottom:6px}
     </div>
     <div class="table-wrap" id="owed-table"></div>
 
+    <div class="card mt-lg" id="month-card">
+      <div class="card-head"><h2 id="month-title">This month</h2>
+        <p id="month-sub"></p></div>
+      <div class="kpis compact" id="month-kpis"></div>
+      <details class="more"><summary id="month-s1">Earlier invoices paid this month</summary><div class="table-wrap" id="month-t1"></div></details>
+      <details class="more"><summary id="month-s2">This month's invoices paid this month</summary><div class="table-wrap" id="month-t2"></div></details>
+      <details class="more"><summary id="month-s3">This month's invoices still open</summary><div class="table-wrap" id="month-t3"></div></details>
+      <details class="more"><summary id="month-s4">Earlier invoices still open</summary><div class="table-wrap" id="month-t4"></div></details>
+    </div>
+
     <div class="card mt-lg" id="paid-card">
       <div class="card-head"><h2 id="paid-title">Paid in the month, by month billed</h2>
         <p>Every payment whose account month is the selected month, split by the month the invoice was billed in. Cash with no invoice is shown on its own row.</p></div>
@@ -800,6 +810,7 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
     $("#owed-csv").onclick = () => csv("akiro-owed-" + D.asOf + ".csv",
       [["Vendor", x => x.vendor], ["Invoice", x => x.number], ["Dated", x => x.date], ["Week", x => x.week], ["Due", x => x.due || ""], ["Status", x => x.dueText], ["Amount", x => x.total.toFixed(2)]], rows);
 
+    renderThisMonth();
     renderPaidByBilled();
 
     const small = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) }];
@@ -905,6 +916,40 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
   /* =========================================================
      WATCH
      ========================================================= */
+  /* This month: earlier invoices paid this month, this month's paid, this month's still open (to pay next month) */
+  function renderThisMonth() {
+    const card = $("#month-card");
+    const ci = MONTHS.findIndex(m => String(m.key || "").slice(0, 7) === D.asOf.slice(0, 7));
+    if (ci < 0) { card.hidden = true; return; }
+    const cur = MONTHS[ci], k = mKey(cur), nextName = cur.next || "next month";
+    const earlierNames = MONTHS.slice(0, ci).map(m => m.name);
+    const P = (D.payments || []).filter(p => p.key === k && p.invoice);
+    const ePaid = P.filter(p => p.billedMonth !== cur.name), cPaid = P.filter(p => p.billedMonth === cur.name);
+    const cOpen = OPEN.filter(x => x.month === cur.name), eOpen = OPEN.filter(x => earlierNames.includes(x.month));
+    const prev = ci > 0 ? MONTHS[ci - 1].name : "earlier";
+    const eLabel = [...new Set(ePaid.map(p => p.billedMonth).filter(Boolean))];
+    const eName = eLabel.length === 1 ? eLabel[0] : (eLabel.length ? prev + " and earlier" : prev);
+    const tot = a => sum(a.map(x => x.amount !== undefined ? x.amount : x.total));
+    $("#month-title").textContent = `${cur.name} so far – paid and still to pay`;
+    $("#month-sub").textContent = `Payments made in ${cur.name} (by account month), split by the month the invoice was billed, and ${cur.name} invoices not paid yet – those carry into ${nextName}. As of ${md(D.asOf)}.`;
+    const K = [[`${eName} invoices paid in ${cur.name}`, tot(ePaid), ePaid.length, ""], [`${cur.name} invoices paid in ${cur.name}`, tot(cPaid), cPaid.length, ""],
+      [`Total paid in ${cur.name}`, tot(ePaid) + tot(cPaid), ePaid.length + cPaid.length, ""], [`${cur.name} invoices still open – to pay in ${nextName}`, tot(cOpen), cOpen.length, ""],
+      [`${prev} and earlier still open`, tot(eOpen), eOpen.length, eOpen.some(x => x.bucket === "past") ? "alert" : ""]];
+    $("#month-kpis").innerHTML = K.map(([l, v, n, c]) => `<div class="kpi ${c}"><div class="l">${l}</div><div class="v num">${money2(v)}</div><div class="n">${n} invoice${n === 1 ? "" : "s"}</div></div>`).join("");
+    $("#month-s1").textContent = `${eName} invoices paid in ${cur.name} (${ePaid.length})`;
+    $("#month-s2").textContent = `${cur.name} invoices paid in ${cur.name} (${cPaid.length})`;
+    $("#month-s3").textContent = `${cur.name} invoices still open – to pay in ${nextName} (${cOpen.length})`;
+    $("#month-s4").textContent = `${prev} and earlier still open (${eOpen.length})`;
+    const pc = [{ key: "vendor", label: "Vendor" }, { key: "invoice", label: "Invoice" }, { key: "billedMonth", label: "Billed", cls: "hide-sm" }, { key: "date", label: "Paid", html: x => x.date ? md(x.date) : '<span class="muted">no date</span>' }, { key: "amount", label: "Amount", r: 1, html: x => money2(x.amount) }];
+    const pf = d => `<td colspan="2">${d.length} payment${d.length === 1 ? "" : "s"}</td><td class="hide-sm"></td><td></td><td class="r num">${money2(sum(d.map(x => x.amount)))}</td>`;
+    table($("#month-t1"), pc, ePaid, { sortKey: "date", foot: pf, empty: "None.", onRow: x => openVendor(x.vendor) });
+    table($("#month-t2"), pc, cPaid, { sortKey: "date", foot: pf, empty: "None.", onRow: x => openVendor(x.vendor) });
+    const oc = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => `${md(x.date)} <span class="muted">${esc(x.week)}</span>`, cls: "hide-sm" }, { key: "due", label: "Status", sort: x => x.due || "9999", html: statusTag }, { key: "total", label: "Amount", r: 1, html: x => money2(x.total) }];
+    const of = d => `<td colspan="2">${d.length} invoice${d.length === 1 ? "" : "s"}</td><td class="hide-sm"></td><td></td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>`;
+    table($("#month-t3"), oc, cOpen, { sortKey: "due", foot: of, empty: "Nothing open.", onRow: x => openVendor(x.vendor) });
+    table($("#month-t4"), oc, eOpen, { sortKey: "due", foot: of, empty: "Nothing open.", onRow: x => openVendor(x.vendor) });
+  }
+
   /* Paid in a month, by month billed */
   const paidState = { key: null };
   const mKey = m => Number(String(m.key || "").replace("-", "")) || 0;
@@ -913,7 +958,7 @@ window.AKIRO_DATA = /*DATA*/{}/*DATA*/;
     const sel = $("#paid-month");
     const monthsWithPay = MONTHS.filter(m => P.some(p => p.key === mKey(m)));
     if (!monthsWithPay.length) { $("#paid-card").hidden = true; return; }
-    if (paidState.key === null) { const closed = monthsWithPay.filter(m => m.end && m.end < D.asOf); paidState.key = mKey((closed.length ? closed : monthsWithPay)[(closed.length ? closed : monthsWithPay).length - 1]); }
+    if (paidState.key === null) { const cur = monthsWithPay.find(m => String(m.key || "").slice(0, 7) === D.asOf.slice(0, 7)); paidState.key = mKey(cur || monthsWithPay[monthsWithPay.length - 1]); }
     if (!sel.childElementCount) {
       sel.innerHTML = monthsWithPay.map(m => `<option value="${mKey(m)}">${esc(m.name)}</option>`).join("");
       sel.addEventListener("change", () => { paidState.key = Number(sel.value); renderPaidByBilled(); });

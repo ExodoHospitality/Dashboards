@@ -382,6 +382,16 @@ details.more .table-wrap{margin-bottom:6px}
     </div>
     <div class="table-wrap" id="owed-table"></div>
 
+    <div class="card mt-lg" id="month-card">
+      <div class="card-head"><h2 id="month-title">This month</h2>
+        <p id="month-sub"></p></div>
+      <div class="kpis compact" id="month-kpis"></div>
+      <details class="more"><summary id="month-s1">Earlier invoices paid this month</summary><div class="table-wrap" id="month-t1"></div></details>
+      <details class="more"><summary id="month-s2">This month's invoices paid this month</summary><div class="table-wrap" id="month-t2"></div></details>
+      <details class="more"><summary id="month-s3">This month's invoices still open</summary><div class="table-wrap" id="month-t3"></div></details>
+      <details class="more"><summary id="month-s4">Earlier invoices still open</summary><div class="table-wrap" id="month-t4"></div></details>
+    </div>
+
     <div class="card mt-lg" id="paid-card">
       <div class="card-head"><h2 id="paid-title">Paid in the month, by month billed</h2>
         <p>Every payment whose account month is the selected month, split by the month the invoice was billed in. Cash with no invoice is shown on its own row.</p></div>
@@ -443,8 +453,8 @@ details.more .table-wrap{margin-bottom:6px}
 // Generated from Akiro_Purchases_and_Ratios.xlsx - do not edit by hand.
 window.AKIRO_DATA = {
  "location": "Akiro Chicago",
- "asOf": "2026-11-18",
- "updated": "Nov 18, 2026 9:13 AM",
+ "asOf": "2026-11-24",
+ "updated": "Nov 24, 2026 11:12 PM",
  "weeks": [
   {
    "id": "A1",
@@ -543,7 +553,7 @@ window.AKIRO_DATA = {
    "endIso": "2026-10-11",
    "month": "October",
    "entered": true,
-   "invoices": 17
+   "invoices": 18
   },
   {
    "id": "O3",
@@ -579,7 +589,7 @@ window.AKIRO_DATA = {
    "endIso": "2026-11-08",
    "month": "November",
    "entered": true,
-   "invoices": 15
+   "invoices": 17
   },
   {
    "id": "N2",
@@ -596,8 +606,8 @@ window.AKIRO_DATA = {
    "end": "11/22",
    "endIso": "2026-11-22",
    "month": "November",
-   "entered": false,
-   "invoices": 0
+   "entered": true,
+   "invoices": 17
   },
   {
    "id": "N4",
@@ -655,9 +665,9 @@ window.AKIRO_DATA = {
    11254.54,
    11774.67,
    11248.25,
-   10307.39,
+   10356.09,
    12484.26,
-   0.0,
+   9193.24,
    0.0
   ],
   "Bar": [
@@ -671,13 +681,13 @@ window.AKIRO_DATA = {
    1526.71,
    3229.11,
    3167.13,
-   1107.2,
+   1251.2,
    2390.41,
    2921.68,
    2230.77,
-   44.67,
+   188.67,
    3237.83,
-   0.0,
+   2576.44,
    0.0
   ],
   "Supply": [
@@ -697,7 +707,7 @@ window.AKIRO_DATA = {
    106.27,
    310.66,
    361.42,
-   0.0,
+   190.34,
    0.0
   ],
   "Cleaning": [
@@ -717,7 +727,7 @@ window.AKIRO_DATA = {
    154.44,
    22.99,
    126.9,
-   0.0,
+   93.29,
    0.0
   ]
  },
@@ -733,13 +743,13 @@ window.AKIRO_DATA = {
    64.98,
    1212.09,
    955.05,
-   324.0,
+   468.0,
    236.49,
    660.36,
    794.85,
-   0.0,
+   144.0,
    866.78,
-   0.0,
+   1342.11,
    0.0
   ],
   "Beer": [
@@ -779,7 +789,7 @@ window.AKIRO_DATA = {
    564.0,
    0.0,
    878.96,
-   0.0,
+   851.0,
    0.0
   ],
   "Sake": [
@@ -819,7 +829,7 @@ window.AKIRO_DATA = {
    256.05,
    44.67,
    299.23,
-   0.0,
+   383.33,
    0.0
   ]
  },
@@ -834,13 +844,13 @@ window.AKIRO_DATA = {
   323.85,
   355.34,
   236.87,
-  186.95,
+  196.95,
   342.46,
   206.25,
   191.39,
-  104.53,
+  115.26,
   324.82,
-  0.0,
+  325.32,
   0.0
  ],
  "vendors": [
@@ -863,7 +873,7 @@ window.AKIRO_DATA = {
     6476.03,
     5627.14,
     7649.6,
-    0.0,
+    4730.22,
     0.0
    ]
   },
@@ -886,7 +896,7 @@ window.AKIRO_DATA = {
     453.77,
     1557.47,
     864.75,
-    0.0,
+    1268.0,
     0.0
    ]
   },
@@ -909,7 +919,7 @@ window.AKIRO_DATA = {
     1389.51,
     1049.09,
     1277.01,
-    0.0,
+    565.64,
     0.0
    ]
   },
@@ -932,7 +942,7 @@ window.AKIRO_DATA = {
     1258.02,
     0.0,
     1853.02,
-    0.0,
+    851.0,
     0.0
    ]
   },
@@ -955,7 +965,7 @@ window.AKIRO_DATA = {
     1125.0,
     750.0,
     1125.0,
-    0.0,
+    750.0,
     0.0
    ]
   },
@@ -976,9 +986,9 @@ window.AKIRO_DATA = {
     1832.12,
     0.0,
     380.68,
-    0.0,
+    48.7,
     283.31,
-    0.0,
+    1055.79,
     0.0
    ]
   },
@@ -1001,7 +1011,7 @@ window.AKIRO_DATA = {
     489.36,
     0.0,
     661.14,
-    0.0,
+    1211.61,
     0.0
    ]
   },
@@ -1024,7 +1034,7 @@ window.AKIRO_DATA = {
     420.0,
     280.0,
     560.0,
-    0.0,
+    420.0,
     0.0
    ]
   },
@@ -1047,7 +1057,7 @@ window.AKIRO_DATA = {
     949.05,
     942.45,
     864.3,
-    0.0,
+    791.12,
     0.0
    ]
   },
@@ -1070,30 +1080,7 @@ window.AKIRO_DATA = {
     0.0,
     0.0,
     162.0,
-    0.0,
-    0.0
-   ]
-  },
-  {
-   "name": "Lakeshore Beverage",
-   "weeks": [
-    0.0,
-    380.85,
-    0.0,
-    157.45,
-    0.0,
-    484.3,
-    0.0,
-    320.9,
-    0.0,
-    283.35,
-    0.0,
-    283.4,
-    0.0,
-    152.85,
-    0.0,
-    218.8,
-    0.0,
+    162.0,
     0.0
    ]
   },
@@ -1116,6 +1103,29 @@ window.AKIRO_DATA = {
     315.94,
     414.08,
     373.73,
+    247.93,
+    0.0
+   ]
+  },
+  {
+   "name": "Lakeshore Beverage",
+   "weeks": [
+    0.0,
+    380.85,
+    0.0,
+    157.45,
+    0.0,
+    484.3,
+    0.0,
+    320.9,
+    0.0,
+    283.35,
+    0.0,
+    283.4,
+    0.0,
+    152.85,
+    0.0,
+    218.8,
     0.0,
     0.0
    ]
@@ -1230,6 +1240,29 @@ window.AKIRO_DATA = {
     0.0,
     0.0,
     0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "name": "Nice Ice Chicago",
+   "weeks": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    144.0,
+    0.0,
+    0.0,
+    0.0,
+    144.0,
     0.0,
     0.0,
     0.0
@@ -1374,12 +1407,8 @@ window.AKIRO_DATA = {
    ]
   }
  ],
- "partial": [
-  "A1"
- ],
- "partialNote": {
-  "A1": "08/01–08/02 only: July is not tracked"
- },
+ "partial": [],
+ "partialNote": {},
  "sales": {
   "Food": [
    0.0,
@@ -1398,7 +1427,7 @@ window.AKIRO_DATA = {
    40658.75,
    48061.5,
    49438.21,
-   0.0,
+   43344.99,
    0.0
   ],
   "Cocktails & liquor": [
@@ -1418,7 +1447,7 @@ window.AKIRO_DATA = {
    6332.5,
    8436.0,
    8453.0,
-   0.0,
+   6999.0,
    0.0
   ],
   "Beer": [
@@ -1438,7 +1467,7 @@ window.AKIRO_DATA = {
    770.0,
    686.0,
    875.0,
-   0.0,
+   626.5,
    0.0
   ],
   "Wine": [
@@ -1458,7 +1487,7 @@ window.AKIRO_DATA = {
    2353.0,
    1704.0,
    2833.0,
-   0.0,
+   1719.0,
    0.0
   ],
   "Sake": [
@@ -1478,7 +1507,7 @@ window.AKIRO_DATA = {
    1171.0,
    1117.0,
    1714.0,
-   0.0,
+   1600.0,
    0.0
   ],
   "Non-alcoholic": [
@@ -1498,7 +1527,7 @@ window.AKIRO_DATA = {
    579.5,
    809.0,
    682.0,
-   0.0,
+   711.0,
    0.0
   ],
   "Open Drink (not allocated)": [
@@ -1518,7 +1547,7 @@ window.AKIRO_DATA = {
    34.5,
    97.5,
    104.5,
-   0.0,
+   151.0,
    0.0
   ],
   "TOTAL NET SALES": [
@@ -1538,7 +1567,7 @@ window.AKIRO_DATA = {
    51899.25,
    60911.0,
    64099.71,
-   0.0,
+   55151.49,
    0.0
   ]
  },
@@ -4448,10 +4477,25 @@ window.AKIRO_DATA = {
    "total": 637.94,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-05",
    "due": "2026-11-06",
    "note": "Net 30 - due 11/06/2026. Payment method Fintech. SO1713404. Tax = $3.14 Chicago liquor ($1.28 <14%, $1.86 14-20%) + $1.80 Cook County ($0.86, $0.94). 1 CS + 17 BTL"
+  },
+  {
+   "vendor": "Nice Ice Chicago",
+   "number": "054277",
+   "date": "2026-10-07",
+   "week": "O2",
+   "product": 144.0,
+   "fees": 10.0,
+   "total": 154.0,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "paid",
+   "paidOn": "2026-11-04",
+   "due": "2026-10-22",
+   "note": "Wholesail invoice, customer 'Akiro', due 10/22/2026 (15 days). $10.00 delivery in Freight & Fees. No tax. Received 11/18/2026"
   },
   {
    "vendor": "Seafood Merchants",
@@ -4493,7 +4537,7 @@ window.AKIRO_DATA = {
    "total": 517.65,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
+   "status": "paid",
    "paidOn": null,
    "due": "2026-10-15",
    "note": "NET CASH 7 DAYS ACH - due 10/15/2026. Wabash Seafood c/o Allen Brothers. Fees = $7.95 fuel surcharge. Cash-discounted price: $533.18 if paid by anything other than check, ACH or wire ($15.53 at risk) | Wabash portal 11/02/2026: OVERDUE 18 days, outstanding $517.65 - NOT paid. The owner's October paid table ($8,106.19) counts it, so that table is $517.65 too high."
@@ -4553,8 +4597,8 @@ window.AKIRO_DATA = {
    "total": 358.63,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-06",
    "due": "2026-11-08",
    "note": "Net 30 - due 11/08/2026. Fees = $10.00 fuel surcharge. Tax = $24.63 City & County spirits tax on 4.7544 GAL. Same order and total as 2049, 2071, 2083 and 2115. Signed Alberto"
   },
@@ -4763,8 +4807,8 @@ window.AKIRO_DATA = {
    "total": 385.43,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-10",
    "due": "2026-11-12",
    "note": "Net 30 - due 11/12/2026. Payment method Fintech. SO1714906. Tax = $0.86 Chicago liquor (<14%) + $0.57 Cook County (<14%). 1 CS. Zaha Sparkling Rose listed at 0, $0.00"
   },
@@ -4778,8 +4822,8 @@ window.AKIRO_DATA = {
    "total": 821.29,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-10",
    "due": "2026-11-12",
    "note": "Net 30 - due 11/12/2026. Payment method Fintech. SO1714824. Tax = $4.09 Chicago liquor ($0.62 <14%, $3.47 14-20%) + $2.16 Cook County ($0.41, $1.75). 3 CS + 16 BTL. Babich Sauvignon Blanc and Sandhi SRH Chardonnay listed at 0, $0.00"
   },
@@ -4898,8 +4942,8 @@ window.AKIRO_DATA = {
    "total": 184.31,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-13",
    "due": "2026-11-14",
    "note": "Net 30 - due 11/14/2026. Fees = $10.00 fuel surcharge. Tax = $24.63 City & County spirits tax printed on 2.3772 GAL - the same $24.63 billed for 4.7544 GAL (24 bottles) on 2049-2151, so about $12.31 too much for 12 bottles. Signed AS | CORRECTED per Acorvina October log (11/02/2026): 2165 now $184.31 - tax reduced from $24.63 to $12.31, same as 2184. Open balance $184.31, due 11/14/2026."
   },
@@ -4973,8 +5017,8 @@ window.AKIRO_DATA = {
    "total": 280.0,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-02",
    "due": "2026-10-31",
    "note": "15 Days - Net - due 10/31/2026. Regalis vehicle, route Chi Downtown. 2 tins | Open on Regalis statement 10/30/2026 (balance $1,120.00)"
   },
@@ -5123,7 +5167,7 @@ window.AKIRO_DATA = {
    "total": 93.0,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
+   "status": "paid",
    "paidOn": null,
    "due": "2026-10-20",
    "note": "Due on receipt - due 10/20/2026. Fees = $28.00 \"Delivery Nieves\" - 43% on top of a $65.00 order, as on 531290 and 531294. No tax. Billed to Daniel Briceno. Uploaded 10/27/2026 (after the O4 batch). No payment record yet"
@@ -5213,8 +5257,8 @@ window.AKIRO_DATA = {
    "total": 420.0,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-02",
    "due": "2026-11-05",
    "note": "15 Days - Net - due 11/05/2026. Regalis vehicle, route Chi Downtown. 3 tins | Open on Regalis statement 10/30/2026 (balance $1,120.00)"
   },
@@ -5438,8 +5482,8 @@ window.AKIRO_DATA = {
    "total": 420.0,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-05",
    "due": "2026-11-10",
    "note": "15 Days - Net - due 11/10/2026. Regalis vehicle, route Chi Downtown. 3 tins | Open on Regalis statement 10/30/2026 (balance $1,120.00)"
   },
@@ -5483,8 +5527,8 @@ window.AKIRO_DATA = {
    "total": 461.72,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-06",
    "due": "2026-11-03",
    "note": "NET CASH 7 DAYS ACH - due 11/03/2026. Invoice 10/27, shipped 10/28. Fees = $7.95 fuel surcharge. Cash-discounted price: $475.57 if paid by anything other than check, ACH or wire ($13.85 at risk). 2 boxes, 30.84 LB | Allen Brothers portal 11/02/2026: Not Yet Due, outstanding $461.72"
   },
@@ -5498,8 +5542,8 @@ window.AKIRO_DATA = {
    "total": 1127.5,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-06",
    "due": "2026-11-03",
    "note": "Net 7 - due 11/03/2026. Fees = $2.50 freight. Order 9607, ordered 10/26 | On True World statement 95268 (11/03/2026) as the only open item - total due $1,127.50."
   },
@@ -5513,8 +5557,8 @@ window.AKIRO_DATA = {
    "total": 301.56,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-13",
    "due": "2026-11-11",
    "note": "Net 14 - due 11/11/2026. PO SO-04724. No delivery service charge this time (was $30.00 on every earlier El Condor invoice). No tax"
   },
@@ -5663,8 +5707,8 @@ window.AKIRO_DATA = {
    "total": 640.7,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-18",
    "due": "2026-11-13",
    "note": "ACH PULL - STMT - NET 14 - due 11/13/2026. Order 191431, taken 10/29, shipped and invoiced 10/30. Fees = $8.00 fuel surcharge. No tax. Route Stacy"
   },
@@ -5678,8 +5722,8 @@ window.AKIRO_DATA = {
    "total": 409.36,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-10",
    "due": "2026-11-29",
    "note": "NET 30 DAYS - due 11/29/2026. Order 846722, ordered 10/29. Printed invoice number 0462387. Fees = $13.00 fuel surcharge + $1.20 Chicago bottled water tax (1 CS Thirster); no under-minimum fee. Tax printed $14.48 (VAR %). 10 pieces ordered, 10 shipped. Printed total $409.36 is an estimate at time of shipping"
   },
@@ -5693,8 +5737,8 @@ window.AKIRO_DATA = {
    "total": 1565.42,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-14",
    "due": "2026-11-09",
    "note": "NET CASH 7 DAYS ACH - due 11/09/2026. Invoice 11/02, shipped 11/03. Fees = $7.95 fuel surcharge. Cash-discounted price: $1,612.38 if paid by anything other than check, ACH or wire ($46.96 at risk). 2 boxes, 38.60 LB"
   },
@@ -5723,8 +5767,8 @@ window.AKIRO_DATA = {
    "total": 3994.93,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-09",
    "due": "2026-11-02",
    "note": "COD - due 11/02/2026. Order 271271, taken 11/01, shipped and invoiced 11/02. Fees = $6.50 delivery fuel charge. 2 pages, 427.54 LB"
   },
@@ -5738,8 +5782,8 @@ window.AKIRO_DATA = {
    "total": 549.35,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-18",
    "due": "2026-11-16",
    "note": "ACH PULL - STMT - NET 14 - due 11/16/2026. Order 191789, taken, shipped and invoiced 11/02. Fees = $8.00 fuel surcharge. 43 LB"
   },
@@ -5753,8 +5797,8 @@ window.AKIRO_DATA = {
    "total": 426.17,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-09",
    "due": "2026-11-09",
    "note": "NET 7 - payable on or before 11/09/2026. Manifest 1441451. Fees = $10.00 fuel surcharge. No tax"
   },
@@ -5783,8 +5827,8 @@ window.AKIRO_DATA = {
    "total": 316.18,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-09",
    "due": "2026-11-03",
    "note": "COD - due 11/03/2026. Order 271565, taken 11/02, shipped and invoiced 11/03. Fees = $6.50 delivery fuel charge. 47.534 LB"
   },
@@ -5798,10 +5842,25 @@ window.AKIRO_DATA = {
    "total": 377.5,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-13",
    "due": "2026-11-10",
    "note": "Net 7 - due 11/10/2026. Fees = $2.50 freight. Order 9980, ordered 11/02. Ordered 2 CS, shipped and billed 1"
+  },
+  {
+   "vendor": "US Foods",
+   "number": "598835",
+   "date": "2026-11-03",
+   "week": "N1",
+   "product": 48.7,
+   "fees": 0.73,
+   "total": 49.43,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "paid",
+   "paidOn": "2026-11-10",
+   "due": "2026-12-03",
+   "note": "NET 30 DAYS - remit by 12/03/2026. VENDOR SHIP INVOICE (drop-ship, FedEx tracking 879470582018), order 846723, ordered 10/29, shipped 10/30. No fuel surcharge. Tax $0.73 = 1.50%. Received 11/18/2026 after the ACH1110 screenshot showed it paid"
   },
   {
    "vendor": "Regalis",
@@ -5828,8 +5887,8 @@ window.AKIRO_DATA = {
    "total": 677.72,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-09",
    "due": "2026-11-12",
    "note": "NET 7 - payable on or before 11/12/2026. Manifest 1442067. Fees = $10.00 fuel surcharge + $6.00 bag/bottle fee (Chicago bottled water tax on 3 CS Niagara). Tax printed $28.80 ($6.28 + $5.91 + $8.69 gloves + $5.12 liners + $2.36 bleach + $0.44 on the fuel). 2 pages"
   },
@@ -5843,10 +5902,25 @@ window.AKIRO_DATA = {
    "total": 1335.53,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-09",
    "due": "2026-11-06",
    "note": "COD - due 11/06/2026. Order 272347, taken 11/05, shipped and invoiced 11/06. Fees = $6.50 delivery fuel charge. 116.18 LB"
+  },
+  {
+   "vendor": "Nice Ice Chicago",
+   "number": "054676",
+   "date": "2026-11-06",
+   "week": "N1",
+   "product": 144.0,
+   "fees": 10.0,
+   "total": 154.0,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "paid",
+   "paidOn": "2026-11-17",
+   "due": "2026-11-21",
+   "note": "Wholesail invoice, customer 'Akiro', due 11/21/2026 (15 days). $10.00 delivery in Freight & Fees. No tax. Received 11/18/2026"
   },
   {
    "vendor": "Seafood Merchants",
@@ -5873,8 +5947,8 @@ window.AKIRO_DATA = {
    "total": 377.5,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-13",
    "due": "2026-11-13",
    "note": "Net 7 - due 11/13/2026. Fees = $2.50 freight. Order 10258, ordered 11/05"
   },
@@ -5918,8 +5992,8 @@ window.AKIRO_DATA = {
    "total": 808.11,
    "chargedTo": "Fons Empanadas",
    "otherAmount": 808.11,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-10",
    "due": "2026-12-07",
    "note": "CHARGED TO FONS EMPANADAS: $808.11 owed back to Akiro - not in Akiro's purchases. NET 30 DAYS - due 12/07/2026. Order 850333, ordered 11/05. Printed invoice number 0766357. Fees = $12.00 fuel surcharge + $35.00 Pronto under-minimum. Tax printed $7.54 (1.000% of $753.57). Printed total is an estimate at shipping. 2 pages, 9 pieces | CHARGED TO FONS EMPANADAS per owner 11/16/2026 (Akiro does not use empanada dough) - not in Akiro's purchases or ratios; Akiro still owes US Foods; Fons Empanadas owes Akiro the full invoice."
   },
@@ -6008,8 +6082,8 @@ window.AKIRO_DATA = {
    "total": 2483.75,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-16",
    "due": "2026-11-09",
    "note": "COD - due 11/09/2026. Order 272819, taken 11/08, shipped and invoiced 11/09. Fees = $6.50 delivery fuel charge. 2 pages, 353.26 LB. Receiving marks (circles, ticks) on every line"
   },
@@ -6053,8 +6127,8 @@ window.AKIRO_DATA = {
    "total": 267.77,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-09",
    "due": "2026-11-16",
    "note": "Net 7 - payable on or before 11/16/2026. Manifest 1442555, order 6317562. Fees = $10.00 fuel surcharge. Tax printed $5.33 ($5.14 can liners + $0.19 on the fuel). 6 cases"
   },
@@ -6098,8 +6172,8 @@ window.AKIRO_DATA = {
    "total": 357.62,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-16",
    "due": "2026-11-17",
    "note": "Net 7 - payable on or before 11/17/2026. Manifest 1442760, order 6321253. Fees = $10.00 fuel surcharge. No tax. 6 cases, 210 LB"
   },
@@ -6173,8 +6247,8 @@ window.AKIRO_DATA = {
    "total": 26.99,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-16",
    "due": "2026-11-18",
    "note": "Net 7 - payable on or before 11/18/2026 (digital invoice, delivery 11/11; unusual invoice number printed as 124B5639M). No fees or tax"
   },
@@ -6188,8 +6262,8 @@ window.AKIRO_DATA = {
    "total": 713.0,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-16",
    "due": "2026-11-18",
    "note": "Net 7 - payable on or before 11/18/2026. Manifest 1443002, orders 6321254 + 6324228. Fees = $10.00 fuel surcharge + $8.00 bag/bottle fee (Chicago bottled water tax on 4 CS Niagara). Tax printed $45.04 (line taxes $18.61 + $7.03 + $5.70 + $13.02 + $0.69 = $45.05; printed total used). 11 cases"
   },
@@ -6218,8 +6292,8 @@ window.AKIRO_DATA = {
    "total": 310.03,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-17",
    "due": "2026-12-11",
    "note": "NET 30 DAYS - due 12/11/2026. Order 853411, ordered 11/10. Printed invoice number 0901527. Fees = $12.00 fuel surcharge + $2.40 Chicago bottled water tax. Tax printed $12.32 (gen sales tax, var %). Printed total is an estimate at shipping. 2 pages, 14 pieces"
   },
@@ -6248,8 +6322,8 @@ window.AKIRO_DATA = {
    "total": 232.22,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-13",
    "due": "2026-11-12",
    "note": "Due 11/12/2026 (printed). Fees = $10.00 service charge. Tax = $2.61 Chicago ONP + $0.81 Cook County. 6 cases. No payment evidence yet (Lakeshore Fintech payments usually land the next day)"
   },
@@ -6263,8 +6337,8 @@ window.AKIRO_DATA = {
    "total": 4068.02,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-16",
    "due": "2026-11-12",
    "note": "COD - due 11/12/2026. Order 273632, taken 11/11, shipped and invoiced 11/12. Fees = $6.50 delivery fuel charge. 2 pages, 315.54 LB"
   },
@@ -6308,8 +6382,8 @@ window.AKIRO_DATA = {
    "total": 1117.33,
    "chargedTo": null,
    "otherAmount": 0,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-16",
    "due": "2026-11-13",
    "note": "COD - due 11/13/2026. Order 273891, taken 11/12, shipped and invoiced 11/13. Fees = $6.50 delivery fuel charge. 92.63 LB"
   },
@@ -6398,13 +6472,448 @@ window.AKIRO_DATA = {
    "total": 857.67,
    "chargedTo": "Fons Empanadas",
    "otherAmount": 857.67,
-   "status": "open",
-   "paidOn": null,
+   "status": "paid",
+   "paidOn": "2026-11-17",
    "due": "2026-12-14",
    "note": "CHARGED TO FONS EMPANADAS: $857.67 owed back to Akiro - not in Akiro's purchases. NET 30 DAYS - remit by 12/14/2026. Order 854685, ordered 11/12, PO ADOLFO. Fees = $12.00 fuel surcharge. Tax $8.37 (1.00%). Signed 11/14 4:35 PM. 10 pieces, 116 LB. Same item as 766357 (Cha Chin per owner 11/10) | CHARGED TO FONS EMPANADAS per owner 11/16/2026 (Akiro does not use empanada dough) - not in Akiro's purchases or ratios; Akiro still owes US Foods; Fons Empanadas owes Akiro the full invoice."
+  },
+  {
+   "vendor": "Big Apple Finer Foods",
+   "number": "736092",
+   "date": "2026-11-16",
+   "week": "N3",
+   "product": 247.93,
+   "fees": 0.0,
+   "total": 247.93,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-16",
+   "note": "Net 30 - due 12/16/2026. Customer 5476. No fees or tax"
+  },
+  {
+   "vendor": "Martinez",
+   "number": "302285",
+   "date": "2026-11-16",
+   "week": "N3",
+   "product": 2619.36,
+   "fees": 6.5,
+   "total": 2625.86,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-16",
+   "note": "COD - due on delivery. Order taken 11/15. Fees = $6.50 delivery fuel charge. Order 274359, 2 pages, 382.52 LB. Receiving circles on every line. Was on the Martinez portal 11/18 as past due"
+  },
+  {
+   "vendor": "Seafood Merchants",
+   "number": "603741",
+   "date": "2026-11-16",
+   "week": "N3",
+   "product": 791.12,
+   "fees": 8.0,
+   "total": 799.12,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-30",
+   "note": "ACH PULL - STMT - NET 14 - due 11/30/2026. Order 193641. Fees = $8.00 fuel surcharge. 43.9 LB"
+  },
+  {
+   "vendor": "Sysco",
+   "number": "924685404",
+   "date": "2026-11-16",
+   "week": "N3",
+   "product": 565.64,
+   "fees": 15.21,
+   "total": 580.85,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "paid",
+   "paidOn": "2026-11-16",
+   "due": "2026-11-23",
+   "note": "Net 7 - payable on or before 11/23/2026. Customer 958245 AKIRO CHICAGO LLC. Fees = $10.00 fuel surcharge. Tax $5.21 ($5.11 on liners + $0.10 on fuel). Already PAID 11/16 in SyscoPay 261116-ZzNkoScP"
+  },
+  {
+   "vendor": "Allen Brothers",
+   "number": "349532",
+   "date": "2026-11-17",
+   "week": "N3",
+   "product": 1268.0,
+   "fees": 7.95,
+   "total": 1275.95,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-24",
+   "note": "NET CASH 7 DAYS ACH - due 11/24/2026. Invoice 11/17, shipped 11/18. Fees = $7.95 fuel surcharge. Cash-discounted price: $1,314.23 if paid by anything other than check, ACH or wire ($38.28 at risk). 2 boxes, 35.90 LB"
+  },
+  {
+   "vendor": "Martinez",
+   "number": "302654",
+   "date": "2026-11-17",
+   "week": "N3",
+   "product": 83.4,
+   "fees": 6.5,
+   "total": 89.9,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-17",
+   "note": "COD - due on delivery. Order taken 11/16. Fees = $6.50 delivery fuel charge. Order 274511, 15 LB. Was on the Martinez portal 11/18 as past due"
+  },
+  {
+   "vendor": "True World",
+   "number": "8485",
+   "date": "2026-11-17",
+   "week": "N3",
+   "product": 750.0,
+   "fees": 2.5,
+   "total": 752.5,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-24",
+   "note": "Net 7 - payment due by 11/24/2026. Order 10766 of 11/16. Fees = $2.50 freight/misc charge. No tax"
+  },
+  {
+   "vendor": "US Foods",
+   "number": "1115722",
+   "date": "2026-11-17",
+   "week": "N3",
+   "product": 708.91,
+   "fees": 48.57,
+   "total": 757.48,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-17",
+   "note": "NET 30 DAYS - due 12/17/2026. Bill To AKIRO PNTO, account 81753568, order 856833. Fees = $12.00 fuel surcharge + $1.20 Chicago bottled water tax. Tax $35.37. Product $710.91 less $2.00 flyer allowance (taken off the red onions) = $708.91. 3 pages"
+  },
+  {
+   "vendor": "Maverick",
+   "number": "INV1794498",
+   "date": "2026-11-18",
+   "week": "N3",
+   "product": 851.0,
+   "fees": 7.35,
+   "total": 858.35,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-18",
+   "note": "Net 30 (Fintech) - due 12/18/2026. Ship To AKIRO, 546 N Wells St, cust 986955089, SO1727411. Tax $7.35 = Chicago $2.50 + $2.12, Cook $1.66 + $1.07. 2 cases + 23 bottles. Also listed with 0 shipped: Fukucho Moon on the Water sake 720 ML and Kanbara Bride of the Fox sake 300 ML"
+  },
+  {
+   "vendor": "Regalis",
+   "number": "428430",
+   "date": "2026-11-18",
+   "week": "N3",
+   "product": 420.0,
+   "fees": 0.0,
+   "total": 420.0,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-03",
+   "note": "15 Days - Net - due 12/03/2026. Customer #4787, Regalis vehicle, route Chi Downtown. No freight or tax. On the Regalis statement of 11/20"
+  },
+  {
+   "vendor": "US Foods",
+   "number": "1167328",
+   "date": "2026-11-18",
+   "week": "N3",
+   "product": 293.33,
+   "fees": 61.49,
+   "total": 354.82,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-18",
+   "note": "NET 30 DAYS - due 12/18/2026. Bill To AKIRO PNTO, account 81753568, order 857541. Fees = $12.00 fuel surcharge + $35.00 'PRONTO UNDER MIN' small-order charge. Tax $14.49. Product $296.33 less $3.00 flyer allowance (taken off the eggs) = $293.33. 2 pages"
+  },
+  {
+   "vendor": "Martinez",
+   "number": "303210",
+   "date": "2026-11-19",
+   "week": "N3",
+   "product": 776.78,
+   "fees": 6.5,
+   "total": 783.28,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-19",
+   "note": "COD - due on delivery. Order taken 11/18. Fees = $6.50 delivery fuel charge. Order 275216, 131.24 LB"
+  },
+  {
+   "vendor": "Southern Glazer's",
+   "number": "2564043",
+   "date": "2026-11-19",
+   "week": "N3",
+   "product": 1211.61,
+   "fees": 71.9,
+   "total": 1283.51,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-21",
+   "note": "Fintech 30 - due 12/21/2026 (printed). Sold To AKIRO, account 64817. Fees = $13.00 delivery charge. Tax $58.90 = Cook County $27.94 + Chicago $30.96. Gross $1,552.81 less $269.30 discounts. 3 pages (duplicate copy)"
+  },
+  {
+   "vendor": "US Foods",
+   "number": "1219834",
+   "date": "2026-11-19",
+   "week": "N3",
+   "product": 53.55,
+   "fees": 47.54,
+   "total": 101.09,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-19",
+   "note": "NET 30 DAYS - due 12/19/2026. Bill To AKIRO PNTO, account 81753568, order 857542. Fees = $12.00 fuel surcharge + $35.00 'PRONTO UNDER MIN' small-order charge - $47.00 of fees on $53.55 of product. Tax $0.54. 2 pages"
+  },
+  {
+   "vendor": "Acorvina",
+   "number": "2253",
+   "date": "2026-11-20",
+   "week": "N3",
+   "product": 162.0,
+   "fees": 22.31,
+   "total": 184.31,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-12-20",
+   "note": "Net 30 - due 12/20/2026. Bill To AKIRO CHICAGO, LLC. Fees = $10.00 fuel surcharge. Tax $12.31 city & county spirits tax (2.3772 gal)"
+  },
+  {
+   "vendor": "Martinez",
+   "number": "303462",
+   "date": "2026-11-20",
+   "week": "N3",
+   "product": 891.49,
+   "fees": 6.5,
+   "total": 897.99,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-20",
+   "note": "COD - due on delivery. Order taken 11/19. Fees = $6.50 delivery fuel charge. Order 275457, 49.73 LB. Receiving circles on every line"
+  },
+  {
+   "vendor": "Martinez",
+   "number": "303609",
+   "date": "2026-11-21",
+   "week": "N3",
+   "product": 359.19,
+   "fees": 6.5,
+   "total": 365.69,
+   "chargedTo": null,
+   "otherAmount": 0,
+   "status": "open",
+   "paidOn": null,
+   "due": "2026-11-21",
+   "note": "COD - due on delivery. Order taken 11/20. Fees = $6.50 delivery fuel charge. Order 275567, 39.2 LB"
   }
  ],
  "watch": [
+  {
+   "tag": "Resolved",
+   "title": "N3 sales $55,151.49 - food 21.2%, bar 21.8%",
+   "body": "N3 SALES (11/24/2026): Toast ProductMix 11/16-11/22 (-546 North Wells Street-Akiro), Menu groups, Net item amt. Food $43,344.99 (food menu $43,324.98 + Open Food $20.01), Cocktails & liquor $6,999.00 (Akiro Cocktails $6,666.00 + LICOR $333.00), Beer $626.50, Wine $1,719.00, Sake $1,600.00, Non-alcoholic $711.00, Open Drink $151.00 = $55,151.49 = the report's net total to the cent. Gift card $150.00 excluded. Sales down 14.0% on N2 ($64,099.71, which had a $2,875 event). Ratios: food 21.2% ($9,193.24), bar 21.8% ($2,576.44). November to date: food 22.7%, bar 15.3%. Open Food holds a $10.00 Virgin Lychee Martini (a drink) and a $0.01 'Gratuity'.",
+   "date": "2026-11-24"
+  },
+  {
+   "tag": "Resolved",
+   "title": "N3 entered - 17 invoices, $12,378.63 billed",
+   "body": "N3 (11/24/2026): 17 invoices dated 11/16-11/21 entered, all Bill To Akiro, all foot. Sysco 924685404 already paid 11/16. Now on file: Allen Brothers 349532, Regalis 428430, Sysco 924685404, Martinez 302285 + 302654.",
+   "date": "2026-11-24"
+  },
+  {
+   "tag": "Open",
+   "title": "US Foods small-order fee: $70 in N3",
+   "body": "US FOODS (11/24/2026): two N3 deliveries were under the minimum and each carried a $35.00 'PRONTO UNDER MIN' charge on top of $12.00 fuel: 1167328 (11/18, $296.33 product) and 1219834 (11/19, one $53.55 case of furikake with $47.00 of fees). Both orders were placed 11/17, the same day as the big 1115722 delivery - one combined order would have saved $70.00 + $24.00 fuel.",
+   "date": "2026-11-24"
+  },
+  {
+   "tag": "Open",
+   "title": "Martinez credit 302464 still not on file",
+   "body": "MARTINEZ (11/24/2026): 302285 and 302654 are now entered. Credit 302464 (11/13, -$46.59, seen on the portal 11/18) has still not been received - send it. N3 Martinez COD invoices with no payment evidence: 302285, 302654, 303210, 303462, 303609 = $4,762.72.",
+   "date": "2026-11-24"
+  },
+  {
+   "tag": "Price",
+   "title": "Prices N3",
+   "body": "PRICES (11/24/2026): Martinez eggs XL 15 DZ $13.95 vs $11.95 (11/09); salmon $10.00 on 11/16 then $10.95 on 11/19; Big Apple limes $47.50 vs $45.50. Southern Glazer's: Aspen vodka $23.25 vs $25.54, Haiken lychee $21.75 vs $23.25, Roku gin $29.70 vs $27.00. Allen Brothers chuck flap shipped over the order again (20.10 LB for 17 ordered).",
+   "date": "2026-11-24"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Regalis statement 11/20 - no payments; 428430 not on file",
+   "body": "REGALIS (11/20/2026): statement dated 11/20 (Akiro Chicago, customer #4787) lists 425538 $280.00 (due 11/20), 426174 $420.00 (due 11/24), 427436 $140.00 (due 11/28) - all open, matches the workbook - plus 428430 (11/18, $420.00, due 12/03), which is NOT on file. Balance $1,260.00 = workbook $840.00 + 428430. No payment since the 11/13 statement. Send invoice 428430 (N3) to enter it.",
+   "date": "2026-11-20"
+  },
+  {
+   "tag": "Resolved",
+   "title": "El Condor $413.40 explained - 30227 paid 11/13",
+   "body": "EL CONDOR (11/18/2026): statement 10/18-11/18 shows 11/13 payments $301.56 (INV.30227) + $99.80 (INV.30101) = $401.36; with the 3% card surcharge ($12.04) = Daniel's $413.40. 30227 marked PAID 11/13. Balance due $187.14 = INV.30370, matches the workbook. Surcharge not entered (same as October).",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Open",
+   "title": "El Condor INV.30101 not on file",
+   "body": "EL CONDOR (11/18/2026): statement shows an opening balance of $99.80 on 10/18 = INV.30101, paid 11/13 (payment 11273). The invoice is not in the workbook (numbered between 30003 of 10/03 and 30227 of 10/28, so an October invoice). Send it to enter it with its payment; it adds $99.80 to October.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Seafood Merchants 601729 + 601995 paid 11/18",
+   "body": "SEAFOOD MERCHANTS (11/18/2026): CAAP 563931838 (Akiro Chicago, $1,190.05) paid 601729 (O5) and 601995 (N1). CAAP 563931839 (Kayao Chicago LLC, $642.67) and CAAP 563931840 (Matilda Clandestino, $3,315.13) received at the same time - NOT entered (other restaurants).",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "True World 7321 paid 11/06 (bank)",
+   "body": "TRUE WORLD (11/18/2026): bank screenshot shows debit card *0618 charge $1,127.50 posted 11/06 (purchase 11/05) = 7321. Bank also confirms $755.00 posted 11/12 (purchase 11/10) = 7699 + 7948 (receipt says 11/13; kept), and 10/16, 10/23, 10/30 = 6121, 6530, 6927. True World open now: 8101 ($752.50, due 11/17) and 8337 ($377.50, due 11/20).",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "El Condor - Daniel's $413.40 payment does not match",
+   "body": "EL CONDOR (11/18/2026): Daniel says he paid El Condor $413.40 (date not given). It matches no invoice or combination, with or without the 3% card surcharge. Open: INV.30227 ($301.56, due 11/11) and INV.30370 ($187.14, due 11/26) = $488.70. 30227 + 30003 = $416.40 is $3.00 off, and 30003 stays PAID in October (owner 10/21 + October table $237.92 = 29851 + 30003 + card fee). Owner agreed 11/18: keep 30003 paid; ask El Condor for a statement (or Daniel's receipt / card charge) showing which invoices the $413.40 paid. Nothing entered until then.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Open",
+   "title": "Wabash 328841 paid - date unknown",
+   "body": "WABASH (11/18/2026): owner confirms 328841 (10/08, $517.65) is paid; no date or month given, so it counts as paid in no month ('no date'). Akiro no longer buys from Wabash. Give the month if known.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Open",
+   "title": "Regalis - 3 October invoices paid (date unknown)",
+   "body": "REGALIS (11/18/2026): statement 11/13 no longer lists 421338, 422285, 423259 ($1,120.00), which were open on the 10/30 statement - paid between 10/30 and 11/13. Per owner 11/18 the dates are RANDOM placeholders between the statements: 421338 and 422285 on 11/02, 423259 on 11/05 (all November). Replace with real dates if they turn up. Statement 11/13 balance $700.00 = 425538 + 426174 matches the workbook; 427436 (11/13, $140.00) not on it yet. Statements 10/23 and 10/30 were already in the workbook.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Open",
+   "title": "D'Fruta 531305 paid - date unknown",
+   "body": "D'FRUTA (11/18/2026): owner confirms 531305 (10/20, $93.00) is paid; no date given. Entered with no date and Account month 2026-10 (Daniel's October table shows it paid). Give the date or month if different. 531312 (11/09, $93.00) is still NOT PAID - no payment record.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Alcohol portal - 5 more November payments",
+   "body": "ALCOHOL PORTAL (11/18/2026): Payment Date filter (This month / Paid, 6 of 6, $2,619.82) shows Maverick INV1779532 paid 11/05, Acorvina 2151 11/06, Maverick INV1781618 + INV1781622 11/10, Acorvina 2165 11/13 and Lakeshore 556702 11/13. Corrects the earlier note that only Lakeshore was paid (that screen was filtered by Invoice Date). All alcohol invoices due so far are paid; all are October invoices paid in November.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Lakeshore 556702 paid",
+   "body": "LAKESHORE (11/18/2026): alcohol payment portal shows 556702 ($232.22, N2) Paid 11/13/2026. Supersedes 'Lakeshore 556702 unpaid'. The portal's 'This month / Paid' list has only this invoice - so no Maverick, Acorvina or Southern Glazer's invoice was paid through it in November so far.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "True World 7699 + 7948 paid",
+   "body": "TRUE WORLD (11/18/2026): receipt CC# 155913 dated 11/13 paid 7699 and 7948 ($755.00) by credit card. Still open: 7321 (O5, $1,127.50, due 11/03 - past due), 8101 (N2, $752.50, due 11/17 - past due), 8337 (N2, $377.50, due 11/20).",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Allen Brothers 338945 paid",
+   "body": "ALLEN BROTHERS (11/18/2026): corrected portal screenshot shows 338945 (O5, $461.72) Paid 11/06/2026 - counted as paid in November. Supersedes '338945 not on the portal list'. 336078 Paid 10/30 matches the workbook.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Allen Brothers 341695 paid",
+   "body": "ALLEN BROTHERS (11/18/2026): portal shows 341695 (N1, $1,565.42) Paid 11/14/2026. 345180 (N2, $872.70, due 11/16) shown Overdue, still open.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Allen Brothers 349532 not on file",
+   "body": "ALLEN BROTHERS (11/18/2026): portal lists invoice 349532 (11/17, $1,275.95, due 11/24, not yet due) - N3, not received yet. Send it to enter.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Allen Brothers 338945 not on the portal list",
+   "body": "ALLEN BROTHERS (11/18/2026): workbook has 338945 (10/27, O5, $461.72, due 11/03) NOT PAID, but the portal screenshot only showed 11/02 onward. Check whether it was paid (date?) or is still open.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Sysco - 6 invoices paid (SyscoPay 11/09 and 11/16)",
+   "body": "SYSCO (11/18/2026): SyscoPay 261109-V71k5fn8 (11/09, $1,371.66) paid 924650630, 924657928, 924667705; SyscoPay 261116-ZzNkoScP (11/16, $1,678.46) paid 924670084, 124B5639M, 924672595 and 924685404. All Sysco invoices on file now PAID.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Sysco 924685404 not on file",
+   "body": "SYSCO (11/18/2026): invoice 924685404 ($580.85, Bill To 958245 AKIRO CHICAGO LLC) was paid 11/16 in SyscoPay 261116-ZzNkoScP but the invoice is not in the workbook. Send it to enter it (likely N2 or N3) with its payment row.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Nice Ice - 2 invoices entered",
+   "body": "NICE ICE (11/18/2026): new vendor. 054277 (10/07, O2, $154) PAID 11/04 and 054676 (11/06, N1, $154) PAID 11/17, both by Wholesail CC. Portal shows 0 open. Ice entered as Bar / Cocktails & liquor - confirm. 054277 adds $154 to October.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Open",
+   "title": "Nice Ice - Wholesail card fee?",
+   "body": "NICE ICE (11/18/2026): Kayao is charged a 2.75% Wholesail card fee. Akiro's invoices show exactly $154.00 paid, no fee. Check the card statement; add the fee to Freight & Fees if charged.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Martinez - 6 COD invoices paid",
+   "body": "MARTINEZ (11/18/2026): portal shows all six N1/N2 COD invoices paid - 299297, 299530, 300361 on 11/09 ($5,646.64) and 300825, 301621, 301873 on 11/16 ($7,669.10); dates derived from 'Paid Xd late'. Martinez pays weekly (Mondays), 3-7 days after COD.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "Martinez - 2 invoices + 1 credit not on file",
+   "body": "MARTINEZ (11/18/2026): the portal lists invoices 302285 (11/16, $2,625.86, past due) and 302654 (11/17, $89.90, past due) - N3, not received yet - and CREDIT 302464 (11/13, -$46.59, 'Available', not yet applied) - not received. Send the three documents to enter them; the credit belongs in N2.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "US Foods 598835 entered",
+   "body": "US FOODS (11/18/2026): vendor-ship invoice 598835 (11/03, $49.43, 1 CS Real guava puree syrup) received and entered in N1, PAID 11/10 by ACH1110. ACH1110 ($1,266.90) now fully matched. Supersedes the 'invoice missing' item.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "US Foods 598835 - paid, invoice missing",
+   "body": "US FOODS (11/18/2026): ACH 24168874-ACH1110 (11/10) paid $49.43 on \"Vendor Ship #598835\" dated 11/03/2026 - a drop-ship/FedEx invoice that is NOT in the workbook. Send the invoice (US Foods portal > Invoices > 598835) and I will enter it in N1 with its payment. Until then N1 purchases are $49.43 short. | RESOLVED 11/18/2026: invoice received and entered.",
+   "date": "2026-11-18"
+  },
+  {
+   "tag": "Resolved",
+   "title": "US Foods ACH1110 + ACH1117 recorded",
+   "body": "US FOODS (11/18/2026): ACH1110 (11/10, $1,266.90) and ACH1117 (11/17, $1,167.70) recorded - 462387, 766357, 901527, 1036776 now PAID. Every US Foods invoice in the workbook is paid. 766357 and 1036776 are Fons Empanadas' (paid by Akiro): Fons Empanadas still owes Akiro $1,665.78.",
+   "date": "2026-11-18"
+  },
   {
    "tag": "Resolved",
    "title": "Seafood Merchants CAap 563652540 - 3 paid",
@@ -6431,7 +6940,7 @@ window.AKIRO_DATA = {
   },
   {
    "tag": "Open",
-   "title": "D'Fruta 531312 - $186 open",
+   "title": "D'Fruta 531312 - $93 open",
    "body": "D'FRUTA (11/16/2026): 531312 (11/09, $93.00, due on receipt) entered NOT PAID - no payment record. With 531305 (10/20, $93.00, still NOT PAID - Daniel shows it paid, awaiting your OK) D'Fruta is $186.00 open. Delivery is $28.00 on a $65.00 order every time (43%).",
    "date": "2026-11-16"
   },
@@ -6472,7 +6981,7 @@ window.AKIRO_DATA = {
    "date": "2026-11-16"
   },
   {
-   "tag": "Open",
+   "tag": "Resolved",
    "title": "Lakeshore 556702 - no payment yet",
    "body": "LAKESHORE (11/16/2026): 556702 (11/12, $232.22) is due on the invoice date and shows NOT PAID - send the Fintech screenshot when it posts.",
    "date": "2026-11-16"
@@ -6616,7 +7125,7 @@ window.AKIRO_DATA = {
    "date": "2026-10-26"
   },
   {
-   "tag": "Open",
+   "tag": "Resolved",
    "title": "Wabash 328841 overdue 18 days – $517.65",
    "body": "Portal: 331082 and 333063 paid 10/23, 334752 and 336078 paid 10/30; 338945 ($461.72) due 11/03. October Allen Brothers + Wabash paid $7,588.54 vs owner's $8,106.19 – the $517.65 difference is exactly Wabash 328841, which the Wabash portal shows OVERDUE 18 days and unpaid – the owner's table counted it by mistake. Pay it.",
    "date": "2026-10-23"
@@ -9445,6 +9954,24 @@ window.AKIRO_DATA = {
    "billedMonth": "September"
   },
   {
+   "vendor": "Regalis",
+   "invoice": "421338",
+   "amount": 280.0,
+   "date": "2026-11-02",
+   "key": 202611,
+   "method": "Vendor statement",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Regalis",
+   "invoice": "422285",
+   "amount": 420.0,
+   "date": "2026-11-02",
+   "key": 202611,
+   "method": "Vendor statement",
+   "billedMonth": "October"
+  },
+  {
    "vendor": "Joong Boo Market",
    "invoice": "00922100",
    "amount": 31.14,
@@ -9454,12 +9981,165 @@ window.AKIRO_DATA = {
    "billedMonth": "November"
   },
   {
+   "vendor": "Nice Ice Chicago",
+   "invoice": "054277",
+   "amount": 154.0,
+   "date": "2026-11-04",
+   "key": 202611,
+   "method": "Card (Wholesail CC)",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Maverick",
+   "invoice": "INV1779532",
+   "amount": 637.94,
+   "date": "2026-11-05",
+   "key": 202611,
+   "method": "Alcohol payment portal",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Regalis",
+   "invoice": "423259",
+   "amount": 420.0,
+   "date": "2026-11-05",
+   "key": 202611,
+   "method": "Vendor statement",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Acorvina",
+   "invoice": "2151",
+   "amount": 358.63,
+   "date": "2026-11-06",
+   "key": 202611,
+   "method": "Alcohol payment portal",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Allen Brothers",
+   "invoice": "338945",
+   "amount": 461.72,
+   "date": "2026-11-06",
+   "key": 202611,
+   "method": "Allen Brothers portal",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "True World",
+   "invoice": "7321",
+   "amount": 1127.5,
+   "date": "2026-11-06",
+   "key": 202611,
+   "method": "Debit card",
+   "billedMonth": "October"
+  },
+  {
    "vendor": "Whole Foods",
    "invoice": "226-35970",
    "amount": 35.62,
    "date": "2026-11-06",
    "key": 202611,
    "method": "Debit card at register",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Martinez",
+   "invoice": "299297",
+   "amount": 3994.93,
+   "date": "2026-11-09",
+   "key": 202611,
+   "method": "Martinez portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Martinez",
+   "invoice": "299530",
+   "amount": 316.18,
+   "date": "2026-11-09",
+   "key": 202611,
+   "method": "Martinez portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Martinez",
+   "invoice": "300361",
+   "amount": 1335.53,
+   "date": "2026-11-09",
+   "key": 202611,
+   "method": "Martinez portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "924650630",
+   "amount": 426.17,
+   "date": "2026-11-09",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "924657928",
+   "amount": 677.72,
+   "date": "2026-11-09",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "924667705",
+   "amount": 267.77,
+   "date": "2026-11-09",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Maverick",
+   "invoice": "INV1781618",
+   "amount": 385.43,
+   "date": "2026-11-10",
+   "key": 202611,
+   "method": "Alcohol payment portal",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Maverick",
+   "invoice": "INV1781622",
+   "amount": 821.29,
+   "date": "2026-11-10",
+   "key": 202611,
+   "method": "Alcohol payment portal",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "US Foods",
+   "invoice": "462387",
+   "amount": 409.36,
+   "date": "2026-11-10",
+   "key": 202611,
+   "method": "ACH",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "US Foods",
+   "invoice": "598835",
+   "amount": 49.43,
+   "date": "2026-11-10",
+   "key": 202611,
+   "method": "ACH",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "US Foods",
+   "invoice": "766357",
+   "amount": 808.11,
+   "date": "2026-11-10",
+   "key": 202611,
+   "method": "ACH",
    "billedMonth": "November"
   },
   {
@@ -9490,12 +10170,138 @@ window.AKIRO_DATA = {
    "billedMonth": "November"
   },
   {
+   "vendor": "Acorvina",
+   "invoice": "2165",
+   "amount": 184.31,
+   "date": "2026-11-13",
+   "key": 202611,
+   "method": "Alcohol payment portal",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "El Condor",
+   "invoice": "INV.30227",
+   "amount": 301.56,
+   "date": "2026-11-13",
+   "key": 202611,
+   "method": "Card",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Lakeshore Beverage",
+   "invoice": "556702",
+   "amount": 232.22,
+   "date": "2026-11-13",
+   "key": 202611,
+   "method": "Alcohol payment portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "True World",
+   "invoice": "7699",
+   "amount": 377.5,
+   "date": "2026-11-13",
+   "key": 202611,
+   "method": "Credit card",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "True World",
+   "invoice": "7948",
+   "amount": 377.5,
+   "date": "2026-11-13",
+   "key": 202611,
+   "method": "Credit card",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Allen Brothers",
+   "invoice": "341695",
+   "amount": 1565.42,
+   "date": "2026-11-14",
+   "key": 202611,
+   "method": "Allen Brothers portal",
+   "billedMonth": "November"
+  },
+  {
    "vendor": "H Mart",
    "invoice": "REG 1 / Seq 2070",
    "amount": 30.54,
    "date": "2026-11-14",
    "key": 202611,
    "method": "Debit card at register",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Martinez",
+   "invoice": "300825",
+   "amount": 2483.75,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "Martinez portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Martinez",
+   "invoice": "301621",
+   "amount": 4068.02,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "Martinez portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Martinez",
+   "invoice": "301873",
+   "amount": 1117.33,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "Martinez portal",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "124B5639M",
+   "amount": 26.99,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "924670084",
+   "amount": 357.62,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "924672595",
+   "amount": 713.0,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Sysco",
+   "invoice": "924685404",
+   "amount": 580.85,
+   "date": "2026-11-16",
+   "key": 202611,
+   "method": "ACH (SyscoPay)",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Nice Ice Chicago",
+   "invoice": "054676",
+   "amount": 154.0,
+   "date": "2026-11-17",
+   "key": 202611,
+   "method": "Card (Wholesail CC)",
    "billedMonth": "November"
   },
   {
@@ -9523,6 +10329,60 @@ window.AKIRO_DATA = {
    "date": "2026-11-17",
    "key": 202611,
    "method": "ACH pull (cash application)",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "US Foods",
+   "invoice": "1036776",
+   "amount": 857.67,
+   "date": "2026-11-17",
+   "key": 202611,
+   "method": "ACH",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "US Foods",
+   "invoice": "901527",
+   "amount": 310.03,
+   "date": "2026-11-17",
+   "key": 202611,
+   "method": "ACH",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Seafood Merchants",
+   "invoice": "601729",
+   "amount": 640.7,
+   "date": "2026-11-18",
+   "key": 202611,
+   "method": "Cash application",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "Seafood Merchants",
+   "invoice": "601995",
+   "amount": 549.35,
+   "date": "2026-11-18",
+   "key": 202611,
+   "method": "Cash application",
+   "billedMonth": "November"
+  },
+  {
+   "vendor": "Allen Brothers",
+   "invoice": "328841 (Wabash)",
+   "amount": 517.65,
+   "date": null,
+   "key": 0,
+   "method": "Owner instruction",
+   "billedMonth": "October"
+  },
+  {
+   "vendor": "D'Fruta La Vida",
+   "invoice": "531305",
+   "amount": 93.0,
+   "date": null,
+   "key": 202610,
+   "method": "Owner instruction",
    "billedMonth": "October"
   },
   {
@@ -9903,6 +10763,7 @@ window.AKIRO_DATA = {
     $("#owed-csv").onclick = () => csv("akiro-owed-" + D.asOf + ".csv",
       [["Vendor", x => x.vendor], ["Invoice", x => x.number], ["Dated", x => x.date], ["Week", x => x.week], ["Due", x => x.due || ""], ["Status", x => x.dueText], ["Amount", x => x.total.toFixed(2)]], rows);
 
+    renderThisMonth();
     renderPaidByBilled();
 
     const small = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => md(x.date) }];
@@ -10008,6 +10869,40 @@ window.AKIRO_DATA = {
   /* =========================================================
      WATCH
      ========================================================= */
+  /* This month: earlier invoices paid this month, this month's paid, this month's still open (to pay next month) */
+  function renderThisMonth() {
+    const card = $("#month-card");
+    const ci = MONTHS.findIndex(m => String(m.key || "").slice(0, 7) === D.asOf.slice(0, 7));
+    if (ci < 0) { card.hidden = true; return; }
+    const cur = MONTHS[ci], k = mKey(cur), nextName = cur.next || "next month";
+    const earlierNames = MONTHS.slice(0, ci).map(m => m.name);
+    const P = (D.payments || []).filter(p => p.key === k && p.invoice);
+    const ePaid = P.filter(p => p.billedMonth !== cur.name), cPaid = P.filter(p => p.billedMonth === cur.name);
+    const cOpen = OPEN.filter(x => x.month === cur.name), eOpen = OPEN.filter(x => earlierNames.includes(x.month));
+    const prev = ci > 0 ? MONTHS[ci - 1].name : "earlier";
+    const eLabel = [...new Set(ePaid.map(p => p.billedMonth).filter(Boolean))];
+    const eName = eLabel.length === 1 ? eLabel[0] : (eLabel.length ? prev + " and earlier" : prev);
+    const tot = a => sum(a.map(x => x.amount !== undefined ? x.amount : x.total));
+    $("#month-title").textContent = `${cur.name} so far – paid and still to pay`;
+    $("#month-sub").textContent = `Payments made in ${cur.name} (by account month), split by the month the invoice was billed, and ${cur.name} invoices not paid yet – those carry into ${nextName}. As of ${md(D.asOf)}.`;
+    const K = [[`${eName} invoices paid in ${cur.name}`, tot(ePaid), ePaid.length, ""], [`${cur.name} invoices paid in ${cur.name}`, tot(cPaid), cPaid.length, ""],
+      [`Total paid in ${cur.name}`, tot(ePaid) + tot(cPaid), ePaid.length + cPaid.length, ""], [`${cur.name} invoices still open – to pay in ${nextName}`, tot(cOpen), cOpen.length, ""],
+      [`${prev} and earlier still open`, tot(eOpen), eOpen.length, eOpen.some(x => x.bucket === "past") ? "alert" : ""]];
+    $("#month-kpis").innerHTML = K.map(([l, v, n, c]) => `<div class="kpi ${c}"><div class="l">${l}</div><div class="v num">${money2(v)}</div><div class="n">${n} invoice${n === 1 ? "" : "s"}</div></div>`).join("");
+    $("#month-s1").textContent = `${eName} invoices paid in ${cur.name} (${ePaid.length})`;
+    $("#month-s2").textContent = `${cur.name} invoices paid in ${cur.name} (${cPaid.length})`;
+    $("#month-s3").textContent = `${cur.name} invoices still open – to pay in ${nextName} (${cOpen.length})`;
+    $("#month-s4").textContent = `${prev} and earlier still open (${eOpen.length})`;
+    const pc = [{ key: "vendor", label: "Vendor" }, { key: "invoice", label: "Invoice" }, { key: "billedMonth", label: "Billed", cls: "hide-sm" }, { key: "date", label: "Paid", html: x => x.date ? md(x.date) : '<span class="muted">no date</span>' }, { key: "amount", label: "Amount", r: 1, html: x => money2(x.amount) }];
+    const pf = d => `<td colspan="2">${d.length} payment${d.length === 1 ? "" : "s"}</td><td class="hide-sm"></td><td></td><td class="r num">${money2(sum(d.map(x => x.amount)))}</td>`;
+    table($("#month-t1"), pc, ePaid, { sortKey: "date", foot: pf, empty: "None.", onRow: x => openVendor(x.vendor) });
+    table($("#month-t2"), pc, cPaid, { sortKey: "date", foot: pf, empty: "None.", onRow: x => openVendor(x.vendor) });
+    const oc = [{ key: "vendor", label: "Vendor" }, { key: "number", label: "Invoice" }, { key: "date", label: "Dated", html: x => `${md(x.date)} <span class="muted">${esc(x.week)}</span>`, cls: "hide-sm" }, { key: "due", label: "Status", sort: x => x.due || "9999", html: statusTag }, { key: "total", label: "Amount", r: 1, html: x => money2(x.total) }];
+    const of = d => `<td colspan="2">${d.length} invoice${d.length === 1 ? "" : "s"}</td><td class="hide-sm"></td><td></td><td class="r num">${money2(sum(d.map(x => x.total)))}</td>`;
+    table($("#month-t3"), oc, cOpen, { sortKey: "due", foot: of, empty: "Nothing open.", onRow: x => openVendor(x.vendor) });
+    table($("#month-t4"), oc, eOpen, { sortKey: "due", foot: of, empty: "Nothing open.", onRow: x => openVendor(x.vendor) });
+  }
+
   /* Paid in a month, by month billed */
   const paidState = { key: null };
   const mKey = m => Number(String(m.key || "").replace("-", "")) || 0;
@@ -10016,7 +10911,7 @@ window.AKIRO_DATA = {
     const sel = $("#paid-month");
     const monthsWithPay = MONTHS.filter(m => P.some(p => p.key === mKey(m)));
     if (!monthsWithPay.length) { $("#paid-card").hidden = true; return; }
-    if (paidState.key === null) { const closed = monthsWithPay.filter(m => m.end && m.end < D.asOf); paidState.key = mKey((closed.length ? closed : monthsWithPay)[(closed.length ? closed : monthsWithPay).length - 1]); }
+    if (paidState.key === null) { const cur = monthsWithPay.find(m => String(m.key || "").slice(0, 7) === D.asOf.slice(0, 7)); paidState.key = mKey(cur || monthsWithPay[monthsWithPay.length - 1]); }
     if (!sel.childElementCount) {
       sel.innerHTML = monthsWithPay.map(m => `<option value="${mKey(m)}">${esc(m.name)}</option>`).join("");
       sel.addEventListener("change", () => { paidState.key = Number(sel.value); renderPaidByBilled(); });
